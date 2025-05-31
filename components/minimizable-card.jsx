@@ -7,7 +7,7 @@ import { useState } from 'react';
  * It functions as a habit tracker, displaying detailed information and
  * progress tracking when maximized.
  */
-export default function MinimizableCard() {
+function MinimizableCard() {
 	// State to manage whether the card is expanded or minimized
 	const [isExpanded, setIsExpanded] = useState(false);
 	// State to track the number of filled segments for daily completion

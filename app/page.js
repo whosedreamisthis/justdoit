@@ -9,13 +9,10 @@ export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
 	const onExploreHabitSelected = (habitId) => {
-		console.log('habit selected', habitId);
-		console.log('habit habis', habits);
 		let selectedHabit = null;
 		for (const habit of habits) {
 			if (habit.id === habitId) {
 				selectedHabit = habit;
-				console.log(habit.title);
 				break;
 			}
 		}

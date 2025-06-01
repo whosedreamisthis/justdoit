@@ -75,7 +75,18 @@ body {
 .bg-muted-blue {
 	background-color: #507b8b;
 } /* ✅ Softened Blue */
-
+.bg-charcoal {
+	background-color: #3b3b3b;
+}
+.bg-olive-earth {
+	background-color: #b5a675;
+} /* Olive muted */
+.bg-deep-olive {
+	background-color: #4f4a41;
+}
+.bg-sandstone {
+	background-color: #d4b89d;
+} /* Light earthy beige */
 .text-dark-earth {
 	color: #5c4033;
 } /* ✅ Rich Umber */
@@ -85,7 +96,9 @@ body {
 .text-deep-olive {
 	color: #4f4a41;
 } /* ✅ Deep Olive */
-
+.text-subtle {
+	color: #f5e8d4;
+}
 .progress-button {
 	width: '20px';
 	height: '20px';

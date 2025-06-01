@@ -41,8 +41,6 @@ export default function GoalsTab({ goals, onEdit }) {
 		}, 50);
 	};
 	const moveIncompleteGoal = (goalId) => {
-		console.log('move incomplete goal', goalId);
-
 		setSortedGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
@@ -71,6 +69,11 @@ export default function GoalsTab({ goals, onEdit }) {
 			onIncomplete(goal.id); // ✅ Trigger movement upwards
 		}
 	};
+	const deleteGoal = (goalId) => {
+		setSortedGoals((prevGoals) =>
+			prevGoals.filter((goal) => goal.id !== goalId)
+		); // ✅ Removes goal
+	};
 
 	return (
 		<div className="p-6 bg-subtle-background">
@@ -93,6 +96,7 @@ export default function GoalsTab({ goals, onEdit }) {
 							onExpand={() => handleExpand(goal.id)}
 							onComplete={() => moveCompletedGoal(goal.id)}
 							onProgressChange={() => moveIncompleteGoal(goal.id)} // ✅ Ensure it's correctly passed
+							onDelete={deleteGoal}
 						/>
 					</div>
 				))}

@@ -7,9 +7,13 @@ export default function MinimizableGoalCard({
 	onExpand,
 	onComplete,
 	onProgressChange,
+	onDelete,
 }) {
 	const [progress, setProgress] = useState(0); // Track goal progress
-	console.log('Goal object:', goal);
+	const handleDelete = (e) => {
+		e.stopPropagation(); // Prevent card collapse when clicking X
+		onDelete(goal.id); // ✅ Trigger delete function
+	};
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
@@ -50,7 +54,15 @@ export default function MinimizableGoalCard({
 				isExpanded ? 'h-auto' : 'h-20'
 			}`}
 			onClick={onExpand}
+			style={{ overflow: 'visible' }}
 		>
+			<button
+				className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/3 bg-deep-olive text-subtle rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700 shadow-md z-20"
+				onClick={handleDelete}
+			>
+				✖
+			</button>
+
 			{/* Progress Bar - Background fills as progress increases */}
 			<div
 				className="absolute inset-0 bg-blue-earth transition-all h-full  w-full"

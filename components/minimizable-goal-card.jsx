@@ -82,9 +82,9 @@ export default function MinimizableGoalCard({
 			{isExpanded && (
 				<div className="mt-4 flex flex-col items-start z-10">
 					<button
-						className="mt-3 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 flex mx-auto"
+						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex mx-auto"
 						onClick={(e) => {
-							e.stopPropagation();
+							e.stopPropagation(); // Prevent card collapse
 							onEdit(goal.id);
 						}}
 					>

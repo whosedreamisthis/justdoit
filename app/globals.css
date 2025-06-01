@@ -63,3 +63,25 @@ body {
 .bg-card-4 {
 	background-color: #c8a98e;
 } /* ✅ Pale Umber */
+.bg-green-earth {
+	background-color: #6b8e23;
+} /* ✅ Forest Green */
+.bg-olive-earth {
+	background-color: #a5a58d;
+} /* ✅ Olive Green */
+.bg-blue-earth {
+	background-color: #6a9fb5;
+} /* ✅ Muted Sky Blue */
+.bg-muted-blue {
+	background-color: #507b8b;
+} /* ✅ Softened Blue */
+
+.text-dark-earth {
+	color: #5c4033;
+} /* ✅ Rich Umber */
+.text-charcoal {
+	color: #3b3b3b;
+} /* ✅ Charcoal Grey */
+.text-deep-olive {
+	color: #4f4a41;
+} /* ✅ Deep Olive */

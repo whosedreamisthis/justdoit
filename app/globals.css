@@ -26,4 +26,40 @@ body {
 }
 .goal-container {
 	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+	background-color: #e07a5f; /* Terracotta */
 }
+.bg-primary {
+	background-color: #9caf88; /* Sage Green */
+}
+
+.progress-bar {
+	background-color: #d9b44a; /* Ochre Yellow */
+}
+
+.text-primary {
+	color: #725c3e; /* Deep Umber */
+}
+
+.text-accent {
+	color: #c49c92; /* Dusty Rose */
+}
+
+.bg-subtle-background {
+	background-color: #f5e8d4; /* ✅ Warm Beige */
+}
+
+.bg-card-0 {
+	background-color: #e6a57d;
+} /* ✅ Terracotta */
+.bg-card-1 {
+	background-color: #a7c7a5;
+} /* ✅ Moss Green */
+.bg-card-2 {
+	background-color: #eec170;
+} /* ✅ Muted Ochre */
+.bg-card-3 {
+	background-color: #d4a5a5;
+} /* ✅ Dusty Rose */
+.bg-card-4 {
+	background-color: #c8a98e;
+} /* ✅ Pale Umber */

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
-
+import '@/app/globals.css';
 export default function GoalsTab({ onEdit }) {
 	const { goals, setGoals } = useGoals();
 
@@ -67,49 +67,29 @@ export default function GoalsTab({ onEdit }) {
 	};
 
 	return (
-		<div className="p-6">
-			<h2 className="text-3xl font-bold mb-4">Track Your Goals</h2>
+		<div className="p-6 bg-subtle-background">
+			{' '}
+			{/* ✅ Background stays soft */}
+			<h2 className="text-3xl font-bold text-primary mb-4">
+				Track Your Goals
+			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal) => (
+				{sortedGoals.map((goal, index) => (
 					<div
-						id={`goal-${goal.id}`}
 						key={goal.id}
-						className="goal-container"
+						className={`rounded-lg shadow-lg p-4 transition-all bg-card-${
+							index % 5
+						}`}
 					>
-						{' '}
-						{/* ✅ Adds animation */}
 						<MinimizableGoalCard
 							goal={goal}
 							onEdit={onEdit}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							onComplete={() => moveCompletedGoal(goal.id)}
-							onProgressChange={(newProgress) =>
-								moveIncompleteGoal(goal.id, newProgress)
-							} // ✅ Ensures sorting when progress is undone
 						/>
 					</div>
 				))}
-
-				{/* {sortedGoals.map((goal) => {
-					const updatedGoal = {
-						title: goal.title,
-						shortDescription: goal.shortDescription,
-						totalSegments:
-							goal.title === 'Drink 8 Glasses of Water' ? 8 : 1, // Water has 8 segments, others have 1
-					};
-
-					return (
-						<MinimizableGoalCard
-							key={goal.id}
-							goal={updatedGoal}
-							onEdit={onEdit}
-							isExpanded={expandedGoal === goal.id}
-							onExpand={() => handleExpand(goal.id)}
-							onComplete={() => moveCompletedGoal(goal.id)}
-						/>
-					);
-				})} */}
 			</div>
 		</div>
 	);

@@ -1,4 +1,5 @@
 export default function MinimizableCard({
+	index,
 	habit,
 	onSelect,
 	isExpanded,
@@ -6,7 +7,9 @@ export default function MinimizableCard({
 }) {
 	return (
 		<div
-			className={`bg-white rounded-lg shadow-lg p-4 cursor-pointer transition-all ${
+			className={`bg-card-${
+				index % 5
+			} rounded-lg shadow-lg p-4 cursor-pointer transition-all ${
 				isExpanded ? 'max-h-[500px] overflow-auto' : 'max-h-32'
 			}`}
 			onClick={onExpand}

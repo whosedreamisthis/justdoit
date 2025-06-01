@@ -41,7 +41,7 @@ export default function MinimizableGoalCard({
 
 	return (
 		<div
-			className="relative bg-white rounded-lg shadow-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden"
+			className="relative  rounded-lg shadow-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden"
 			onClick={onExpand}
 		>
 			{/* Progress Bar - Background fills as progress increases */}

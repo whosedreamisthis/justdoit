@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
-import '@/app/globals.css';
+
 export default function GoalsTab({ onEdit }) {
 	const { goals, setGoals } = useGoals();
 
@@ -43,52 +43,80 @@ export default function GoalsTab({ onEdit }) {
 			);
 		}, 600); // ✅ Delay sorting after scrolling
 	};
-	const moveIncompleteGoal = (goalId, newProgress) => {
+	const moveIncompleteGoal = (goalId) => {
+		console.log('move incomplete goal', goalId);
+
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId ? { ...goal, progress: newProgress } : goal
+				goal.id === goalId
+					? { ...goal, progress: Math.max(goal.progress - 10, 0) }
+					: goal
 			);
 
-			return updatedGoals.sort((a, b) => {
-				if (a.progress === 100 && b.progress !== 100) return 1; // ✅ Keeps completed goals down
-				if (b.progress === 100 && a.progress !== 100) return -1; // ✅ Moves incomplete goals back up
-				return a.progress - b.progress; // ✅ Sorts based on actual progress
-			});
+			return updatedGoals.sort((a, b) => (a.progress === 100 ? 1 : -1)); // ✅ Ensures sorting
 		});
+
+		// **Trigger full state update**
 		setTimeout(() => {
-			const goalElement = document.getElementById(`goal-${goalId}`);
-			if (goalElement) {
-				goalElement.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				}); // ✅ Moves viewport with the goal
-			}
+			setGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
 		}, 100);
 	};
 
+	const decreaseProgress = (e) => {
+		e.stopPropagation();
+		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+		const newProgress = Math.max(progress - 100 / totalSegments, 0);
+
+		setProgress(newProgress);
+
+		// **Ensure sorting happens when progress drops below 100**
+		if (progress === 100 && newProgress < 100) {
+			onIncomplete(goal.id); // ✅ Trigger movement upwards
+		}
+	};
+
 	return (
-		<div className="p-6 bg-subtle-background">
-			{' '}
-			{/* ✅ Background stays soft */}
-			<h2 className="text-3xl font-bold text-primary mb-4">
-				Track Your Goals
-			</h2>
+		<div className="p-6">
+			<h2 className="text-3xl font-bold mb-4">Track Your Goals</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal, index) => (
+				{sortedGoals.map((goal) => (
 					<div
+						id={`goal-${goal.id}`}
 						key={goal.id}
-						className={`rounded-xl shadow-md bg-card-${index % 5}`}
+						className="goal-container"
 					>
-						{/* ✅ Background color applies directly to the card */}
+						{' '}
+						{/* ✅ Adds animation */}
 						<MinimizableGoalCard
 							goal={goal}
 							onEdit={onEdit}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							onComplete={() => moveCompletedGoal(goal.id)}
+							onProgressChange={() => moveIncompleteGoal(goal.id)} // ✅ Ensure it's correctly passed
 						/>
 					</div>
 				))}
+
+				{/* {sortedGoals.map((goal) => {
+					const updatedGoal = {
+						title: goal.title,
+						shortDescription: goal.shortDescription,
+						totalSegments:
+							goal.title === 'Drink 8 Glasses of Water' ? 8 : 1, // Water has 8 segments, others have 1
+					};
+
+					return (
+						<MinimizableGoalCard
+							key={goal.id}
+							goal={updatedGoal}
+							onEdit={onEdit}
+							isExpanded={expandedGoal === goal.id}
+							onExpand={() => handleExpand(goal.id)}
+							onComplete={() => moveCompletedGoal(goal.id)}
+						/>
+					);
+				})} */}
 			</div>
 		</div>
 	);

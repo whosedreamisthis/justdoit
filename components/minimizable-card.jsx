@@ -9,8 +9,10 @@ export default function MinimizableCard({
 		<div
 			className={`${
 				habit.color
-			} rounded-lg shadow-lg p-4 cursor-pointer transition-all ${
-				isExpanded ? 'max-h-[500px] overflow-auto' : 'max-h-32'
+			} rounded-lg p-4 cursor-pointer transition-all ${
+				isExpanded
+					? 'max-h-[500px] overflow-auto z-10 shadow-xl' // ✅ Expanded cards retain shadow
+					: 'max-h-32 overflow-hidden z-0 shadow-none' // ✅ Minimized cards lose shadow
 			}`}
 			onClick={onExpand}
 		>

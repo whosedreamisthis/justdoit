@@ -55,20 +55,19 @@ export default function MinimizableGoalCard({
 				goal.color
 			} ${isExpanded ? 'h-auto' : 'h-20'}`}
 			onClick={onExpand}
-			style={{ overflow: 'visible' }}
+			style={{ overflow: 'visible', borderRadius: '8px' }}
 		>
+			{/* Progress Bar - Background fills as progress increases */}
+			<div
+				className="absolute inset-0 bg-blue-earth transition-all h-full  w-full"
+				style={{ width: `${progress}%` }}
+			></div>
 			<button
 				className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/3 bg-deep-olive text-subtle rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700 shadow-md z-20"
 				onClick={handleDelete}
 			>
 				✖
 			</button>
-
-			{/* Progress Bar - Background fills as progress increases */}
-			<div
-				className="absolute inset-0 bg-blue-earth transition-all h-full  w-full"
-				style={{ width: `${progress}%` }}
-			></div>
 
 			{/* Card Content - Placed above progress bar */}
 			<div className="relative flex justify-between items-center z-10">

@@ -18,9 +18,10 @@ export default function MinimizableGoalCard({
 
 		setProgress(newProgress);
 
-		if (progress === 100 && newProgress < 100) {
-			onProgressChange(goal.id, newProgress); // ✅ Ensures sorting happens when progress drops
-		}
+		// if (progress === 100 && newProgress < 100) {
+		// 	onProgressChange(goal.id, newProgress); // ✅ Ensures sorting happens when progress drops
+		// }
+		onProgressChange(goal.id, newProgress);
 	};
 
 	const increaseProgress = (e) => {

@@ -55,6 +55,15 @@ export default function GoalsTab({ onEdit }) {
 				return a.progress - b.progress; // ✅ Sorts based on actual progress
 			});
 		});
+		setTimeout(() => {
+			const goalElement = document.getElementById(`goal-${goalId}`);
+			if (goalElement) {
+				goalElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center',
+				}); // ✅ Moves viewport with the goal
+			}
+		}, 100);
 	};
 
 	return (

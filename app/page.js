@@ -4,7 +4,7 @@ import BottomTabs from '@/components/bottom-nav';
 import habits from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
 import GoalsTab from '@/components/goals-tab';
-
+import '@/app/globals.css';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);

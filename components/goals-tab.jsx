@@ -59,7 +59,9 @@ export default function GoalsTab({ goals, onEdit }) {
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
-		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+		const totalSegments = goal.id === 'hydrate' ? 8 : 1;
+		console.log('in decreaseProgress ', totalSegments);
+		// const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
 		const newProgress = Math.max(progress - 100 / totalSegments, 0);
 
 		setProgress(newProgress);

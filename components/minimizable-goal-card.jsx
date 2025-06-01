@@ -18,7 +18,8 @@ export default function MinimizableGoalCard({
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
 
-		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+		// const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+		const totalSegments = goal.id === 'hydrate' ? 8 : 1;
 		const newProgress = Math.max(progress - 100 / totalSegments, 0); // ✅ Ensures segmented decrease
 
 		setProgress(newProgress);

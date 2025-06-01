@@ -1,3 +1,5 @@
+import '@/app/globals.css';
+
 export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
 		{ id: 'goals', label: 'Goals' },
@@ -12,8 +14,8 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					key={tab.id}
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
-							? 'active-tab text-white rounded-lg'
-							: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+							? 'active-tab bg-deep-clay'
+							: 'bg-charcoal text-subtle hover:bg-gray-200'
 					}`}
 					onClick={() => setActiveTab(tab.id)}
 				>

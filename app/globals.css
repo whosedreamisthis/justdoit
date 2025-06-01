@@ -105,5 +105,5 @@ body {
 }
 .active-tab {
 	background-color: #d4b89d; /* Sandstone */
-	color: white; /* Text stays readable */
+	color: black; /* Text stays readable */
 }

@@ -49,7 +49,7 @@ export default function MinimizableGoalCard({
 		>
 			{/* Progress Bar - Background fills as progress increases */}
 			<div
-				className="absolute inset-0 bg-blue-300 transition-all h-full"
+				className="absolute inset-0 bg-blue-earth transition-all h-full"
 				style={{ width: `${progress}%` }}
 			></div>
 

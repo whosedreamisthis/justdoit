@@ -7,9 +7,26 @@ import GoalsTab from '@/components/goals-tab';
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
-
+	const [goals, setGoals] = useState([]);
 	const onExploreHabitSelected = (habitId) => {
 		console.log('habit selected', habitId);
+		console.log('habit habis', habits);
+		let selectedHabit = null;
+		for (const habit of habits) {
+			if (habit.id === habitId) {
+				selectedHabit = habit;
+				console.log(habit.title);
+				break;
+			}
+		}
+
+		const newGoal = {
+			id: selectedHabit.id,
+			title: selectedHabit.title,
+			progress: 0,
+			totalSegments: 8,
+		};
+		setGoals([...goals, newGoal]);
 	};
 
 	const onGoalEdited = (goalId) => {
@@ -21,7 +38,7 @@ export default function App() {
 			{/* Tab Content */}
 			<div className="flex-grow p-4 pb-20">
 				{activeTab === 'goals' && (
-					<GoalsTab goals={habits} onEdit={onGoalEdited} />
+					<GoalsTab goals={goals} onEdit={onGoalEdited} />
 				)}
 				{activeTab === 'explore' && (
 					<ExploreTab

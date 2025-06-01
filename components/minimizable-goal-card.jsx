@@ -8,9 +8,16 @@ export default function MinimizableGoalCard({
 }) {
 	const [progress, setProgress] = useState(0); // Track goal progress
 
+	const decreaseProgress = (e) => {
+		e.stopPropagation();
+		// Use multiple segments **only if totalSegments is set and greater than 1**
+		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+
+		setProgress((prev) => Math.max(prev - 100 / totalSegments, 0));
+	};
+
 	const increaseProgress = (e) => {
 		e.stopPropagation();
-		console.log(goal);
 		// Use multiple segments **only if totalSegments is set and greater than 1**
 		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
 
@@ -41,12 +48,20 @@ export default function MinimizableGoalCard({
 				</div>
 
 				{/* + Button to Increase Progress */}
-				<button
-					className="bg-green-500 text-white py-2 px-3 rounded-lg hover:bg-green-600"
-					onClick={increaseProgress}
-				>
-					+
-				</button>
+				<div className="flex flex-col justify-between">
+					<button
+						className="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
+						onClick={increaseProgress}
+					>
+						+
+					</button>
+					<button
+						className="bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600 width=20 height=20"
+						onClick={decreaseProgress}
+					>
+						-
+					</button>
+				</div>
 			</div>
 
 			{isExpanded && (

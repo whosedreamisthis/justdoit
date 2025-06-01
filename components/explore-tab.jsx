@@ -16,7 +16,6 @@ export default function ExploreTab({ habits, onSelect }) {
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
 				{habits.map((habit, index) => {
-					console.log('object');
 					return (
 						<div
 							key={habit.id}

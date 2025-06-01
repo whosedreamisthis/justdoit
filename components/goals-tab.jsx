@@ -60,7 +60,6 @@ export default function GoalsTab({ goals, onEdit }) {
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
 		const totalSegments = goal.id === 'hydrate' ? 8 : 1;
-		console.log('in decreaseProgress ', totalSegments);
 		// const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
 		const newProgress = Math.max(progress - 100 / totalSegments, 0);
 
@@ -84,7 +83,6 @@ export default function GoalsTab({ goals, onEdit }) {
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 				{sortedGoals.map((goal, index) => {
-					console.log('goal', goal);
 					return (
 						<div
 							id={`goal-${goal.id}`}

@@ -1,45 +1,135 @@
 [
 	{
-		"id": "read",
-		"title": "Read 30 mins Daily",
-		"shortDescription": "Expand your knowledge and vocabulary.",
-		"detailedDescription": "Immerse yourself in books, articles, or news for at least 30 minutes every day.",
-		"color": "#c8a98e"
+		"id": "morning_sun_greeting",
+		"title": "Morning Sun Greeting",
+		"color": "#e3b55d",
+		"shortDescription": "Start your day with sunlight exposure.",
+		"detailedDescription": "Step outside or sit by a window to soak in the morning sun."
 	},
 	{
-		"id": "exercise",
-		"title": "Exercise 3 Times a Week",
-		"shortDescription": "Boost your energy and physical health.",
-		"detailedDescription": "Engage in at least 30 minutes of moderate to intense physical activity three times a week.",
-		"color": "#e07a5f"
+		"id": "forest_walk",
+		"title": "Forest Walk",
+		"color": "#738f4d",
+		"shortDescription": "Take a quiet walk through nature.",
+		"detailedDescription": "Immerse yourself in the woods, listen to leaves rustling, and breathe deeply."
 	},
 	{
-		"id": "meditate",
-		"title": "Meditate 10 mins Daily",
-		"shortDescription": "Cultivate mindfulness and reduce stress.",
-		"detailedDescription": "Practice mindfulness meditation for 10 minutes each day.",
-		"color": "#a7c7a5"
+		"id": "evening_grounding",
+		"title": "Evening Grounding",
+		"color": "#d57f51",
+		"shortDescription": "Unwind by connecting with the earth.",
+		"detailedDescription": "Walk barefoot or sit outdoors, grounding yourself after the day."
 	},
 	{
-		"id": "hydrate",
-		"title": "Drink 8 Glasses of Water",
-		"shortDescription": "Stay hydrated for optimal health.",
-		"detailedDescription": "Ensure you drink at least 8 glasses of water throughout the day.",
-		"color": "#c8a98e"
+		"id": "herbal_tea_break",
+		"title": "Herbal Tea Break",
+		"color": "#b6aa75",
+		"shortDescription": "Enjoy a warm herbal tea.",
+		"detailedDescription": "Pause and sip a calming tea like chamomile or ginger."
 	},
 	{
-		"id": "journal",
-		"title": "Journal Daily",
-		"shortDescription": "Reflect and organize your thoughts.",
-		"detailedDescription": "Dedicate 15 minutes each day to journaling. Helps in self-reflection and goal setting.",
-		"color": "#d4a5a5"
+		"id": "sunset_reflection",
+		"title": "Sunset Reflection",
+		"color": "#db764f",
+		"shortDescription": "Watch the sunset and reflect on your day.",
+		"detailedDescription": "Take a few moments to observe the sunset and appreciate what went well today."
 	},
-
 	{
-		"id": "learn_new_skill",
-		"title": "Learn a New Skill Weekly",
-		"shortDescription": "Continuously grow and challenge yourself.",
-		"detailedDescription": "Spend a few hours each week learning something new.",
-		"color": "#9caf88"
+		"id": "garden_tending",
+		"title": "Garden Tending",
+		"color": "#879c58",
+		"shortDescription": "Spend time nurturing plants.",
+		"detailedDescription": "Water your garden, repot a plant, or simply observe the growth around you."
+	},
+	{
+		"id": "deep_breathing",
+		"title": "Deep Breathing",
+		"color": "#d6b485",
+		"shortDescription": "Practice mindful breathing.",
+		"detailedDescription": "Inhale slowly, hold, and exhale fully to bring calmness to your body."
+	},
+	{
+		"id": "stretching_routine",
+		"title": "Stretching Routine",
+		"color": "#d08846",
+		"shortDescription": "Ease tension with gentle stretches.",
+		"detailedDescription": "Move through slow stretches to relax muscles and improve flexibility."
+	},
+	{
+		"id": "journaling",
+		"title": "Journaling",
+		"color": "#af8f67",
+		"shortDescription": "Write down your thoughts and reflections.",
+		"detailedDescription": "Capture your feelings, gratitude, and daily events in a journal."
+	},
+	{
+		"id": "wood_whittling",
+		"title": "Wood Whittling",
+		"color": "#c57341",
+		"shortDescription": "Carve or shape a small piece of wood.",
+		"detailedDescription": "Engage in a mindful craft that connects you to natural materials."
+	},
+	{
+		"id": "mindful_eating",
+		"title": "Mindful Eating",
+		"color": "#cfa162",
+		"shortDescription": "Slow down and appreciate your meals.",
+		"detailedDescription": "Savor each bite, chew fully, and notice the flavors in your food."
+	},
+	{
+		"id": "handmade_crafts",
+		"title": "Handmade Crafts",
+		"color": "#a69764",
+		"shortDescription": "Create something with your hands.",
+		"detailedDescription": "Knit, sculpt, or sew—engage in tactile creativity."
+	},
+	{
+		"id": "clay_sculpting",
+		"title": "Clay Sculpting",
+		"color": "#d07249",
+		"shortDescription": "Shape clay into a design.",
+		"detailedDescription": "Mold, knead, and carve clay into expressive creations."
+	},
+	{
+		"id": "candle_gazing",
+		"title": "Candle Gazing",
+		"color": "#e6c180",
+		"shortDescription": "Meditate while watching a candle flame.",
+		"detailedDescription": "Sit in stillness, observe the flickering light, and breathe deeply."
+	},
+	{
+		"id": "reading_philosophy",
+		"title": "Reading Philosophy",
+		"color": "#806d50",
+		"shortDescription": "Expand your mind with deep thinking.",
+		"detailedDescription": "Read an insightful philosophical book or passage."
+	},
+	{
+		"id": "sunlit_journaling",
+		"title": "Sunlit Journaling",
+		"color": "#cfa679",
+		"shortDescription": "Write while basking in sunlight.",
+		"detailedDescription": "Find a sunny spot, reflect, and jot down your thoughts."
+	},
+	{
+		"id": "stone_arranging",
+		"title": "Stone Arranging",
+		"color": "#91804e",
+		"shortDescription": "Create patterns with stones.",
+		"detailedDescription": "Stack, organize, or place stones mindfully for relaxation."
+	},
+	{
+		"id": "soil_touching",
+		"title": "Soil Touching",
+		"color": "#a6734d",
+		"shortDescription": "Feel the earth in your hands.",
+		"detailedDescription": "Dig, hold, or move soil to reconnect with nature."
+	},
+	{
+		"id": "sun-warmed_meditation",
+		"title": "Sun-Warmed Meditation",
+		"color": "#e3af76",
+		"shortDescription": "Meditate with warmth on your skin.",
+		"detailedDescription": "Find a sunlit space, close your eyes, and absorb the gentle warmth."
 	}
 ]

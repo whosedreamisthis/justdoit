@@ -24,7 +24,6 @@ export default function App() {
 
 		const uniqueKey = `${habitId}-${Date.now()}`;
 
-		console.log('SELECTED HABIT COLOR', selectedHabit.color);
 		const newGoal = {
 			id: uniqueKey,
 			title: selectedHabit.title,

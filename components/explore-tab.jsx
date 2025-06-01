@@ -3,6 +3,9 @@ import MinimizableCard from '././minimizable-card';
 
 export default function ExploreTab({ habits, onSelect }) {
 	const [expandedCard, setExpandedCard] = useState(null);
+	const handleExpand = (id) => {
+		setExpandedCard(expandedCard === id ? null : id); // Toggle expansion
+	};
 
 	return (
 		<div className="p-6">
@@ -14,7 +17,7 @@ export default function ExploreTab({ habits, onSelect }) {
 						habit={habit}
 						onSelect={onSelect}
 						isExpanded={expandedCard === habit.id}
-						onExpand={() => setExpandedCard(habit.id)}
+						onExpand={() => handleExpand(habit.id)}
 					/>
 				))}
 			</div>

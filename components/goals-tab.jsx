@@ -80,11 +80,11 @@ export default function GoalsTab({ onEdit }) {
 		<div className="p-6">
 			<h2 className="text-3xl font-bold mb-4">Track Your Goals</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal) => (
+				{sortedGoals.map((goal, index) => (
 					<div
 						id={`goal-${goal.id}`}
 						key={goal.id}
-						className="goal-container"
+						className={`rounded-xl shadow-md bg-card-${index % 5}`}
 					>
 						{' '}
 						{/* ✅ Adds animation */}

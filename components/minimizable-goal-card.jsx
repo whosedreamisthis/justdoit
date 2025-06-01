@@ -5,6 +5,7 @@ export default function MinimizableGoalCard({
 	onEdit,
 	isExpanded,
 	onExpand,
+	onComplete,
 }) {
 	const [progress, setProgress] = useState(0); // Track goal progress
 
@@ -18,10 +19,17 @@ export default function MinimizableGoalCard({
 
 	const increaseProgress = (e) => {
 		e.stopPropagation();
-		// Use multiple segments **only if totalSegments is set and greater than 1**
-		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
 
-		setProgress((prev) => Math.min(prev + 100 / totalSegments, 100));
+		const totalSegments = goal.totalSegments || 1;
+		const segmentIncrement = 100 / totalSegments; // ✅ Calculates step size
+
+		const newProgress = Math.min(progress + segmentIncrement, 100); // ✅ Progresses in correct steps
+
+		setProgress(newProgress);
+
+		if (newProgress === 100) {
+			onComplete(goal.id); // ✅ Moves completed goal down
+		}
 	};
 
 	return (

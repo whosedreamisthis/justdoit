@@ -15,25 +15,20 @@ export default function ExploreTab({ habits, onSelect }) {
 				Explore New Habits
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{habits.map((habit, index) => {
-					console.log(`goal-container bg-card-${index % 5}`);
-					return (
-						<div
-							key={habit.id}
-							className={`goal-container bg-card-${index % 5}`}
-						>
-							{' '}
-							{/* ✅ Now each card gets a unique color */}
-							<MinimizableCard
-								index={index}
-								habit={habit}
-								onSelect={onSelect}
-								isExpanded={expandedCard === habit.id}
-								onExpand={() => handleExpand(habit.id)}
-							/>
-						</div>
-					);
-				})}
+				{habits.map((habit, index) => (
+					<div
+						key={habit.id}
+						className={`rounded-xl shadow-md bg-card-${index % 5}`}
+					>
+						{/* ✅ Background color applies directly to the card */}
+						<MinimizableCard
+							habit={habit}
+							onSelect={onSelect}
+							isExpanded={expandedCard === habit.id}
+							onExpand={() => handleExpand(habit.id)}
+						/>
+					</div>
+				))}
 			</div>
 		</div>
 	);

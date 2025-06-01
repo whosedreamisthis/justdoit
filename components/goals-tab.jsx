@@ -77,10 +77,9 @@ export default function GoalsTab({ onEdit }) {
 				{sortedGoals.map((goal, index) => (
 					<div
 						key={goal.id}
-						className={`rounded-lg shadow-lg p-4 transition-all bg-card-${
-							index % 5
-						}`}
+						className={`rounded-xl shadow-md bg-card-${index % 5}`}
 					>
+						{/* ✅ Background color applies directly to the card */}
 						<MinimizableGoalCard
 							goal={goal}
 							onEdit={onEdit}

@@ -18,18 +18,54 @@ export default function GoalsTab({ onEdit }) {
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId ? { ...goal, progress: 100 } : goal
+				goal.id === goalId
+					? { ...goal, progress: 100, moving: true }
+					: goal
 			);
 
-			return updatedGoals.sort((a, b) => (a.progress === 100 ? 1 : -1)); // Sort completed goals to the bottom
+			return updatedGoals;
 		});
+
+		setTimeout(() => {
+			const goalElement = document.getElementById(`goal-${goalId}`);
+			if (goalElement) {
+				goalElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center',
+				}); // ✅ Scroll first
+			}
+		}, 300); // ✅ Delay to let movement happen first
+
+		setTimeout(() => {
+			setGoals((prevGoals) =>
+				prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
+			);
+		}, 600); // ✅ Delay sorting after scrolling
 	};
 
 	return (
 		<div className="p-6">
 			<h2 className="text-3xl font-bold mb-4">Track Your Goals</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal) => {
+				{sortedGoals.map((goal) => (
+					<div
+						id={`goal-${goal.id}`}
+						key={goal.id}
+						className="goal-container"
+					>
+						{' '}
+						{/* ✅ Adds animation */}
+						<MinimizableGoalCard
+							goal={goal}
+							onEdit={onEdit}
+							isExpanded={expandedGoal === goal.id}
+							onExpand={() => handleExpand(goal.id)}
+							onComplete={() => moveCompletedGoal(goal.id)}
+						/>
+					</div>
+				))}
+
+				{/* {sortedGoals.map((goal) => {
 					const updatedGoal = {
 						title: goal.title,
 						shortDescription: goal.shortDescription,
@@ -47,7 +83,7 @@ export default function GoalsTab({ onEdit }) {
 							onComplete={() => moveCompletedGoal(goal.id)}
 						/>
 					);
-				})}
+				})} */}
 			</div>
 		</div>
 	);

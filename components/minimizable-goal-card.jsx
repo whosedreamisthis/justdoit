@@ -6,20 +6,20 @@ export default function MinimizableGoalCard({
 	isExpanded,
 	onExpand,
 	onComplete,
+	onProgressChange,
 }) {
 	const [progress, setProgress] = useState(0); // Track goal progress
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
-		// Use multiple segments **only if totalSegments is set and greater than 1**
+
 		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
-		const oldProgress = progress;
-		const newProgress = (prev) => Math.max(prev - 100 / totalSegments, 0);
+		const newProgress = Math.max(progress - 100 / totalSegments, 0); // ✅ Ensures segmented decrease
 
 		setProgress(newProgress);
 
 		if (progress === 100 && newProgress < 100) {
-			onComplete(goal.id); // ✅ Moves completed goal down
+			onProgressChange(goal.id, newProgress); // ✅ Ensures sorting happens when progress drops
 		}
 	};
 

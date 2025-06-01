@@ -43,6 +43,19 @@ export default function GoalsTab({ onEdit }) {
 			);
 		}, 600); // ✅ Delay sorting after scrolling
 	};
+	const moveIncompleteGoal = (goalId, newProgress) => {
+		setGoals((prevGoals) => {
+			const updatedGoals = prevGoals.map((goal) =>
+				goal.id === goalId ? { ...goal, progress: newProgress } : goal
+			);
+
+			return updatedGoals.sort((a, b) => {
+				if (a.progress === 100 && b.progress !== 100) return 1; // ✅ Keeps completed goals down
+				if (b.progress === 100 && a.progress !== 100) return -1; // ✅ Moves incomplete goals back up
+				return a.progress - b.progress; // ✅ Sorts based on actual progress
+			});
+		});
+	};
 
 	return (
 		<div className="p-6">
@@ -62,6 +75,9 @@ export default function GoalsTab({ onEdit }) {
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							onComplete={() => moveCompletedGoal(goal.id)}
+							onProgressChange={(newProgress) =>
+								moveIncompleteGoal(goal.id, newProgress)
+							} // ✅ Ensures sorting when progress is undone
 						/>
 					</div>
 				))}

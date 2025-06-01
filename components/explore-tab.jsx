@@ -1,6 +1,9 @@
-import MinimizableCard from '@/components/minimizable-card';
+import { useState } from 'react';
+import MinimizableCard from '././minimizable-card';
 
 export default function ExploreTab({ habits, onSelect }) {
+	const [expandedCard, setExpandedCard] = useState(null);
+
 	return (
 		<div className="p-6">
 			<h2 className="text-3xl font-bold mb-4">Explore New Habits</h2>
@@ -10,6 +13,8 @@ export default function ExploreTab({ habits, onSelect }) {
 						key={habit.id}
 						habit={habit}
 						onSelect={onSelect}
+						isExpanded={expandedCard === habit.id}
+						onExpand={() => setExpandedCard(habit.id)}
 					/>
 				))}
 			</div>

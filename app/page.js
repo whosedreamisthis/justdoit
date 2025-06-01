@@ -16,14 +16,16 @@ export default function App() {
 				break;
 			}
 		}
-
+		console.log('SELECTED HABIT COLOR', selectedHabit.color);
 		const newGoal = {
 			id: selectedHabit.id,
 			title: selectedHabit.title,
 			progress: 0,
 			totalSegments: 8,
+			color: selectedHabit.color,
 		};
 		setGoals([...goals, newGoal]);
+		// toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
 	const onGoalEdited = (goalId) => {

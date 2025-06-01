@@ -7,8 +7,8 @@ export default function MinimizableCard({
 }) {
 	return (
 		<div
-			className={`bg-card-${
-				index % 5
+			className={`${
+				habit.color
 			} rounded-lg shadow-lg p-4 cursor-pointer transition-all ${
 				isExpanded ? 'max-h-[500px] overflow-auto' : 'max-h-32'
 			}`}

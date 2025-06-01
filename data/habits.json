@@ -3,36 +3,43 @@
 		"id": "read",
 		"title": "Read 30 mins Daily",
 		"shortDescription": "Expand your knowledge and vocabulary.",
-		"detailedDescription": "Immerse yourself in books, articles, or news for at least 30 minutes every day. This habit fosters continuous learning, reduces stress, and enhances critical thinking. Choose a topic you love or explore new genres to keep it engaging."
+		"detailedDescription": "Immerse yourself in books, articles, or news for at least 30 minutes every day.",
+		"color": "#c8a98e"
 	},
 	{
 		"id": "exercise",
 		"title": "Exercise 3 Times a Week",
 		"shortDescription": "Boost your energy and physical health.",
-		"detailedDescription": "Engage in at least 30 minutes of moderate to intense physical activity three times a week. This could be anything from jogging, cycling, strength training, or a brisk walk. Regular exercise improves mood, sleep, and overall well-being."
+		"detailedDescription": "Engage in at least 30 minutes of moderate to intense physical activity three times a week.",
+		"color": "#e07a5f"
 	},
 	{
 		"id": "meditate",
 		"title": "Meditate 10 mins Daily",
 		"shortDescription": "Cultivate mindfulness and reduce stress.",
-		"detailedDescription": "Practice mindfulness meditation for 10 minutes each day. Find a quiet space, focus on your breath, and observe your thoughts without judgment. This habit can significantly reduce anxiety, improve focus, and promote emotional balance."
+		"detailedDescription": "Practice mindfulness meditation for 10 minutes each day.",
+		"color": "#a7c7a5"
 	},
 	{
 		"id": "hydrate",
 		"title": "Drink 8 Glasses of Water",
 		"shortDescription": "Stay hydrated for optimal health.",
-		"detailedDescription": "Ensure you drink at least 8 glasses (approx. 2 liters) of water throughout the day. Proper hydration is crucial for energy levels, skin health, digestion, and overall bodily functions. Keep a water bottle handy as a reminder."
+		"detailedDescription": "Ensure you drink at least 8 glasses of water throughout the day.",
+		"color": "#6a9fb5"
 	},
 	{
 		"id": "journal",
 		"title": "Journal Daily",
 		"shortDescription": "Reflect and organize your thoughts.",
-		"detailedDescription": "Dedicate 15 minutes each day to journaling. This practice helps in self-reflection, stress reduction, and goal setting. You can write about your day, your feelings, or ideas you have."
+		"detailedDescription": "Dedicate 15 minutes each day to journaling. Helps in self-reflection and goal setting.",
+		"color": "#d4a5a5"
 	},
+
 	{
 		"id": "learn_new_skill",
 		"title": "Learn a New Skill Weekly",
 		"shortDescription": "Continuously grow and challenge yourself.",
-		"detailedDescription": "Spend a few hours each week learning something new, whether it's a language, a coding skill, or a musical instrument. This habit keeps your mind sharp and opens up new opportunities."
+		"detailedDescription": "Spend a few hours each week learning something new.",
+		"color": "#9caf88"
 	}
 ]

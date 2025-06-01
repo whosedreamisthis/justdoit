@@ -83,25 +83,31 @@ export default function GoalsTab({ goals, onEdit }) {
 				Track Your Goals
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal, index) => (
-					<div
-						id={`goal-${goal.id}`}
-						key={goal.id}
-						className={`rounded-xl shadow-md bg-card-${index % 5}`}
-					>
-						{' '}
-						{/* ✅ Adds animation */}
-						<MinimizableGoalCard
-							goal={goal}
-							onEdit={onEdit}
-							isExpanded={expandedGoal === goal.id}
-							onExpand={() => handleExpand(goal.id)}
-							onComplete={() => moveCompletedGoal(goal.id)}
-							onProgressChange={() => moveIncompleteGoal(goal.id)} // ✅ Ensure it's correctly passed
-							onDelete={deleteGoal}
-						/>
-					</div>
-				))}
+				{sortedGoals.map((goal, index) => {
+					console.log('goal', goal);
+					return (
+						<div
+							id={`goal-${goal.id}`}
+							key={goal.id}
+							className={`rounded-xl shadow-md`}
+							style={{ backgroundColor: `${goal.color}` }}
+						>
+							{' '}
+							{/* ✅ Adds animation */}
+							<MinimizableGoalCard
+								goal={goal}
+								onEdit={onEdit}
+								isExpanded={expandedGoal === goal.id}
+								onExpand={() => handleExpand(goal.id)}
+								onComplete={() => moveCompletedGoal(goal.id)}
+								onProgressChange={() =>
+									moveIncompleteGoal(goal.id)
+								} // ✅ Ensure it's correctly passed
+								onDelete={deleteGoal}
+							/>
+						</div>
+					);
+				})}
 			</div>
 		</div>
 	);

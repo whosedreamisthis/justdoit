@@ -52,8 +52,8 @@ export default function MinimizableGoalCard({
 	return (
 		<div
 			className={`relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
-				isExpanded ? 'h-auto' : 'h-20'
-			}`}
+				goal.color
+			} ${isExpanded ? 'h-auto' : 'h-20'}`}
 			onClick={onExpand}
 			style={{ overflow: 'visible' }}
 		>

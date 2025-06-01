@@ -4,6 +4,9 @@ import BottomTabs from '@/components/bottom-nav';
 import habits from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
 import GoalsTab from '@/components/goals-tab';
+import { toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
+
 import '@/app/globals.css';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
@@ -25,7 +28,7 @@ export default function App() {
 			color: selectedHabit.color,
 		};
 		setGoals([...goals, newGoal]);
-		// toast.success(`"${selectedHabit.title}" added successfully!`);
+		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
 	const onGoalEdited = (goalId) => {
@@ -33,23 +36,29 @@ export default function App() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
-			{/* Tab Content */}
-			<div className="flex-grow p-4 pb-20">
-				{activeTab === 'goals' && (
-					<GoalsTab goals={goals} onEdit={onGoalEdited} />
-				)}
-				{activeTab === 'explore' && (
-					<ExploreTab
-						habits={habits}
-						onSelect={onExploreHabitSelected}
-					/>
-				)}
-				{activeTab === 'settings' && <p>Manage your settings here!</p>}
-			</div>
+		<>
+			<Toaster position="top-right" reverseOrder={false} />
 
-			{/* Bottom Navigation */}
-			<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-		</div>
+			<div className="min-h-screen flex flex-col">
+				{/* Tab Content */}
+				<div className="flex-grow p-4 pb-20">
+					{activeTab === 'goals' && (
+						<GoalsTab goals={goals} onEdit={onGoalEdited} />
+					)}
+					{activeTab === 'explore' && (
+						<ExploreTab
+							habits={habits}
+							onSelect={onExploreHabitSelected}
+						/>
+					)}
+					{activeTab === 'settings' && (
+						<p>Manage your settings here!</p>
+					)}
+				</div>
+
+				{/* Bottom Navigation */}
+				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+			</div>
+		</>
 	);
 }

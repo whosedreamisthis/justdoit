@@ -13,8 +13,14 @@ export default function MinimizableGoalCard({
 		e.stopPropagation();
 		// Use multiple segments **only if totalSegments is set and greater than 1**
 		const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
+		const oldProgress = progress;
+		const newProgress = (prev) => Math.max(prev - 100 / totalSegments, 0);
 
-		setProgress((prev) => Math.max(prev - 100 / totalSegments, 0));
+		setProgress(newProgress);
+
+		if (progress === 100 && newProgress < 100) {
+			onComplete(goal.id); // ✅ Moves completed goal down
+		}
 	};
 
 	const increaseProgress = (e) => {

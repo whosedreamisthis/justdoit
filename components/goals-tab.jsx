@@ -16,6 +16,7 @@ export default function GoalsTab({ onEdit }) {
 	});
 
 	const moveCompletedGoal = (goalId) => {
+		console.log('move completed goal', goalId);
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
@@ -34,7 +35,7 @@ export default function GoalsTab({ onEdit }) {
 					block: 'center',
 				}); // ✅ Scroll first
 			}
-		}, 300); // ✅ Delay to let movement happen first
+		}, 50); // ✅ Delay to let movement happen first
 
 		setTimeout(() => {
 			setGoals((prevGoals) =>

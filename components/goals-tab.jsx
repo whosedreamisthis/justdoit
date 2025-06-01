@@ -3,51 +3,47 @@ import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
 import '@/app/globals.css';
 
-export default function GoalsTab({ onEdit }) {
-	const { goals, setGoals } = useGoals();
-
+export default function GoalsTab({ goals, onEdit }) {
+	const [sortedGoals, setSortedGoals] = useState(goals);
 	const [expandedGoal, setExpandedGoal] = useState(null);
 	const handleExpand = (id) => {
 		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
 	};
-	const sortedGoals = [...goals].sort((a, b) => {
+	const sortedGoals2 = [...goals].sort((a, b) => {
 		if (a.progress === 100 && b.progress !== 100) return 1; // Completed moves down
 		if (b.progress === 100 && a.progress !== 100) return -1;
 		return 0;
 	});
 
 	const moveCompletedGoal = (goalId) => {
-		console.log('move completed goal', goalId);
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId
-					? { ...goal, progress: 100, moving: true }
-					: goal
-			);
+		setSortedGoals((prevGoals) => {
+			// ✅ Update progress and sort immediately
+			const updatedGoals = prevGoals
+				.map((goal) =>
+					goal.id === goalId
+						? { ...goal, progress: 100, moving: true }
+						: goal
+				)
+				.sort((a, b) => (a.progress === 100 ? 1 : -1));
 
 			return updatedGoals;
 		});
 
+		// ✅ Keep scroll delay for better UX
 		setTimeout(() => {
 			const goalElement = document.getElementById(`goal-${goalId}`);
 			if (goalElement) {
 				goalElement.scrollIntoView({
 					behavior: 'smooth',
 					block: 'center',
-				}); // ✅ Scroll first
+				});
 			}
-		}, 50); // ✅ Delay to let movement happen first
-
-		setTimeout(() => {
-			setGoals((prevGoals) =>
-				prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
-			);
-		}, 600); // ✅ Delay sorting after scrolling
+		}, 50);
 	};
 	const moveIncompleteGoal = (goalId) => {
 		console.log('move incomplete goal', goalId);
 
-		setGoals((prevGoals) => {
+		setSortedGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
 					? { ...goal, progress: Math.max(goal.progress - 10, 0) }
@@ -59,7 +55,7 @@ export default function GoalsTab({ onEdit }) {
 
 		// **Trigger full state update**
 		setTimeout(() => {
-			setGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
+			setSortedGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
 		}, 100);
 	};
 

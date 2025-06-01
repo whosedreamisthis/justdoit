@@ -31,15 +31,16 @@ export default function MinimizableGoalCard({
 	const increaseProgress = (e) => {
 		e.stopPropagation();
 
-		const totalSegments = goal.totalSegments || 1;
-		const segmentIncrement = 100 / totalSegments; // ✅ Calculates step size
+		// ✅ Adjust segmentation only for water
+		const totalSegments = goal.id === 'hydrate' ? 8 : 1; // Water → 8 segments, others → 1
+		const segmentIncrement = 100 / totalSegments;
 
-		const newProgress = Math.min(progress + segmentIncrement, 100); // ✅ Progresses in correct steps
+		const newProgress = Math.min(progress + segmentIncrement, 100);
 
 		setProgress(newProgress);
 
 		if (newProgress === 100) {
-			onComplete(goal.id); // ✅ Moves completed goal down
+			onComplete(goal.id);
 		}
 	};
 

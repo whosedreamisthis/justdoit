@@ -100,26 +100,6 @@ export default function GoalsTab({ onEdit }) {
 						/>
 					</div>
 				))}
-
-				{/* {sortedGoals.map((goal) => {
-					const updatedGoal = {
-						title: goal.title,
-						shortDescription: goal.shortDescription,
-						totalSegments:
-							goal.title === 'Drink 8 Glasses of Water' ? 8 : 1, // Water has 8 segments, others have 1
-					};
-
-					return (
-						<MinimizableGoalCard
-							key={goal.id}
-							goal={updatedGoal}
-							onEdit={onEdit}
-							isExpanded={expandedGoal === goal.id}
-							onExpand={() => handleExpand(goal.id)}
-							onComplete={() => moveCompletedGoal(goal.id)}
-						/>
-					);
-				})} */}
 			</div>
 		</div>
 	);

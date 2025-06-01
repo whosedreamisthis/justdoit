@@ -9,6 +9,7 @@ export default function MinimizableGoalCard({
 	onProgressChange,
 }) {
 	const [progress, setProgress] = useState(0); // Track goal progress
+	console.log('Goal object:', goal);
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
@@ -44,12 +45,14 @@ export default function MinimizableGoalCard({
 
 	return (
 		<div
-			className="relative  rounded-lg shadow-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden"
+			className={`relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
+				isExpanded ? 'h-auto' : 'h-20'
+			}`}
 			onClick={onExpand}
 		>
 			{/* Progress Bar - Background fills as progress increases */}
 			<div
-				className="absolute inset-0 bg-blue-earth transition-all h-full"
+				className="absolute inset-0 bg-blue-earth transition-all h-full  w-full"
 				style={{ width: `${progress}%` }}
 			></div>
 
@@ -66,18 +69,18 @@ export default function MinimizableGoalCard({
 				</div>
 
 				{/* + Button to Increase Progress */}
-				<div className="flex flex-col justify-between">
+				<div className="flex flex-row justify-between gap-2 mt-[10px]">
 					<button
-						className="bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
-						onClick={increaseProgress}
-					>
-						+
-					</button>
-					<button
-						className="bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 width=20 height=20"
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
 						onClick={decreaseProgress}
 					>
 						-
+					</button>
+					<button
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
+						onClick={increaseProgress}
+					>
+						+
 					</button>
 				</div>
 			</div>

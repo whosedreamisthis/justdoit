@@ -85,3 +85,8 @@ body {
 .text-deep-olive {
 	color: #4f4a41;
 } /* ✅ Deep Olive */
+
+.progress-button {
+	width: '20px';
+	height: '20px';
+}

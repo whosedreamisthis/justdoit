@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
+import '@/app/globals.css';
 
 export default function GoalsTab({ onEdit }) {
 	const { goals, setGoals } = useGoals();

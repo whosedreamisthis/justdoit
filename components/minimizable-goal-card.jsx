@@ -19,7 +19,10 @@ export default function MinimizableGoalCard({
 		e.stopPropagation();
 
 		// const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
-		const totalSegments = goal.id === 'hydrate' ? 8 : 1;
+		// const totalSegments = goal.id === 'hydrate' ? 8 : 1;
+		const totalSegments =
+			goal.totalSegments || (goal.id === 'hydrate' ? 8 : 1);
+
 		const newProgress = Math.max(progress - 100 / totalSegments, 0); // ✅ Ensures segmented decrease
 
 		setProgress(newProgress);
@@ -37,7 +40,8 @@ export default function MinimizableGoalCard({
 		e.stopPropagation();
 
 		// ✅ Adjust segmentation only for water
-		const totalSegments = goal.id === 'hydrate' ? 8 : 1; // Water → 8 segments, others → 1
+		const totalSegments =
+			goal.totalSegments || (goal.id === 'hydrate' ? 8 : 1);
 		const segmentIncrement = 100 / totalSegments;
 
 		const newProgress = Math.min(progress + segmentIncrement, 100);

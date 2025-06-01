@@ -12,19 +12,24 @@ export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
 	const onExploreHabitSelected = (habitId) => {
-		let selectedHabit = null;
-		for (const habit of habits) {
-			if (habit.id === habitId) {
-				selectedHabit = habit;
-				break;
-			}
-		}
+		// let selectedHabit = null;
+		// for (const habit of habits) {
+		// 	if (habit.id === habitId) {
+		// 		selectedHabit = habit;
+		// 		break;
+		// 	}
+		// }
+		const selectedHabit = habits.find((habit) => habit.id === habitId);
+		if (!selectedHabit) return;
+
+		const uniqueKey = `${habitId}-${Date.now()}`;
+
 		console.log('SELECTED HABIT COLOR', selectedHabit.color);
 		const newGoal = {
-			id: selectedHabit.id,
+			id: uniqueKey,
 			title: selectedHabit.title,
 			progress: 0,
-			totalSegments: 8,
+			totalSegments: habitId === 'hydrate' ? 8 : 1,
 			color: selectedHabit.color,
 		};
 		setGoals([...goals, newGoal]);

@@ -1,53 +1,21 @@
 'use client';
 import { useState } from 'react';
-import { Tabs, Tab, Card, CardBody } from '@heroui/react';
-function BottomTabs({ tabs, activeTab, setActiveTab }) {
-	return (
-		<div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t flex justify-around py-2">
-			{tabs.map((tab) => (
-				<button
-					key={tab.id}
-					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
-						activeTab === tab.id
-							? 'bg-sky-500 text-white rounded-lg'
-							: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-					}`}
-					onClick={() => setActiveTab(tab.id)}
-				>
-					{tab.label}
-				</button>
-			))}
-		</div>
-	);
-}
-
+import BottomTabs from '@/components/bottom-nav';
+import habits from '@/data/habits.json';
 export default function App() {
-	const [activeTab, setActiveTab] = useState('home');
-
-	const tabs = [
-		{ id: 'explore', label: 'Explore', content: <p>Explore new habits</p> },
-		{
-			id: 'goals',
-			label: 'Goals',
-			content: <p>Goals here</p>,
-		},
-		{ id: 'about', label: 'About', content: <p>About Us Section</p> },
-	];
-	console.log(tabs);
-
+	const [activeTab, setActiveTab] = useState('explore');
+	console.log(habits);
 	return (
 		<div className="min-h-screen flex flex-col">
-			{/* Main content area */}
+			{/* Tab Content */}
 			<div className="flex-grow p-4 pb-20">
-				{tabs.find((tab) => tab.id === activeTab)?.content}
+				{activeTab === 'goals' && <p>Track current habits</p>}
+				{activeTab === 'explore' && <p>Explore new habits.</p>}
+				{activeTab === 'settings' && <p>Manage your settings here!</p>}
 			</div>
 
 			{/* Bottom Navigation */}
-			<BottomTabs
-				tabs={tabs}
-				activeTab={activeTab}
-				setActiveTab={setActiveTab}
-			/>
+			<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 		</div>
 	);
 }

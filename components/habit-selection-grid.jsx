@@ -1,21 +1,13 @@
-'use client';
-import React from 'react';
-import habitsData from '../data/habits.json'; // Directly importing the JSON file
-
-const HabitSelectionGrid = () => {
+function HabitSelectionGrid({ habits, onSelect }) {
 	return (
-		<div
-			style={{
-				display: 'grid',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				gap: '10px',
-			}}
-		>
-			{habitsData.habits.map((habit) => (
-				<button key={habit}>{habit}</button>
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			{habits.map((habit) => (
+				<HabitSelectionCard
+					key={habit.id}
+					habit={habit}
+					onSelect={onSelect}
+				/>
 			))}
 		</div>
 	);
-};
-
-export default HabitSelectionGrid;
+}

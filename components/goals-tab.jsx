@@ -9,6 +9,25 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	const handleExpand = (id) => {
 		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
 	};
+	const updateProgress = (goalId, newProgress) => {
+		console.log(
+			'updateProgress goalId',
+			goalId,
+			'newProgress',
+			newProgress
+		);
+
+		setGoals((prevGoals) => {
+			const updatedGoals = prevGoals.map((goal) => {
+				return goal.id === goalId
+					? { ...goal, progress: newProgress }
+					: goal;
+			});
+
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
+			return updatedGoals;
+		});
+	};
 
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) => {
@@ -40,7 +59,11 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
-					? { ...goal, progress: 0 } // ✅ Directly set progress to zero instead of decreasing
+					? {
+							...goal,
+
+							progress: goal.progress - 100 / goal.totalSegments,
+					  } // ✅ Adjust progress by segment size
 					: goal
 			);
 
@@ -55,14 +78,15 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
-		const totalSegments = goal.id === 'hydrate' ? 8 : 1;
-		// const totalSegments = goal.totalSegments > 1 ? goal.totalSegments : 1;
-		const newProgress = Math.max(progress - 100 / totalSegments, 0);
+		const newProgress = Math.max(
+			goal.progress - 100 / goal.totalSegments,
+			0
+		);
 
 		setProgress(newProgress);
 
 		// **Ensure sorting happens when progress drops below 100**
-		if (progress === 100 && newProgress < 100) {
+		if (goal.progress === 100 && newProgress < 100) {
 			onIncomplete(goal.id); // ✅ Trigger movement upwards
 		}
 	};
@@ -99,6 +123,9 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 								onProgressChange={() =>
 									moveIncompleteGoal(goal.id)
 								} // ✅ Ensure it's correctly passed
+								updateProgress={(id, newProgress) =>
+									updateProgress(goal.id, newProgress)
+								}
 								onDelete={deleteGoal}
 							/>
 						</div>

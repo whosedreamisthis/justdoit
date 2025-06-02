@@ -131,5 +131,12 @@
 		"color": "#e3af76",
 		"shortDescription": "Meditate with warmth on your skin.",
 		"detailedDescription": "Find a sunlit space, close your eyes, and absorb the gentle warmth."
+	},
+	{
+		"id": "hydrate",
+		"title": "Daily Hydration",
+		"color": "#D07C6D",
+		"shortDescription": "Drink 8 glasses of water throughout the day.",
+		"detailedDescription": "Stay hydrated by pacing your water intake—aim for a glass every 2 hours."
 	}
 ]

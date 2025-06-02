@@ -40,7 +40,7 @@ export default function App() {
 			id: uniqueKey,
 			title: selectedHabit.title,
 			progress: 0,
-			totalSegments: habitId === 'hydrate' ? 8 : 1,
+			totalSegments: selectedHabit.title === 'Daily Hydration' ? 8 : 1,
 			color: selectedHabit.color,
 			shortDescription: selectedHabit.shortDescription,
 		};

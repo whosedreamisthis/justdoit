@@ -20,7 +20,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) => {
 				return goal.id === goalId
-					? { ...goal, progress: newProgress }
+					? { ...goal, progress: newProgress ?? 0 }
 					: goal;
 			});
 
@@ -28,53 +28,63 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 			return updatedGoals;
 		});
 	};
-
 	const moveCompletedGoal = (goalId) => {
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals
-				.map((goal) =>
-					goal.id === goalId
-						? { ...goal, progress: 100, moving: true }
-						: goal
-				)
-				.sort((a, b) => (a.progress === 100 ? 1 : -1));
-
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Store changes
-
-			onReSort(updatedGoals);
-			return updatedGoals;
-		});
-
-		setTimeout(() => {
-			const goalElement = document.getElementById(`goal-${goalId}`);
-			if (goalElement) {
-				goalElement.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				});
-			}
-		}, 50);
+		setGoals((prevGoals) =>
+			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
+		);
 	};
 	const moveIncompleteGoal = (goalId) => {
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId
-					? {
-							...goal,
-
-							progress: goal.progress - 100 / goal.totalSegments,
-					  } // ✅ Adjust progress by segment size
-					: goal
-			);
-
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
-			return updatedGoals;
-		});
-
-		setTimeout(() => {
-			setGoals((prevGoals) => [...prevGoals]); // ✅ Retain sorting logic without modifying progress
-		}, 100);
+		setGoals((prevGoals) =>
+			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
+		);
 	};
+
+	// const moveCompletedGoal = (goalId) => {
+	// 	setGoals((prevGoals) => {
+	// 		const updatedGoals = prevGoals
+	// 			.map((goal) =>
+	// 				goal.id === goalId
+	// 					? { ...goal, progress: 100, moving: true }
+	// 					: goal
+	// 			)
+	// 			.sort((a, b) => (a.progress === 100 ? 1 : -1));
+
+	// 		localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Store changes
+
+	// 		onReSort(updatedGoals);
+	// 		return updatedGoals;
+	// 	});
+
+	// 	setTimeout(() => {
+	// 		const goalElement = document.getElementById(`goal-${goalId}`);
+	// 		if (goalElement) {
+	// 			goalElement.scrollIntoView({
+	// 				behavior: 'smooth',
+	// 				block: 'center',
+	// 			});
+	// 		}
+	// 	}, 50);
+	// };
+	// const moveIncompleteGoal = (goalId) => {
+	// 	setGoals((prevGoals) => {
+	// 		const updatedGoals = prevGoals.map((goal) =>
+	// 			goal.id === goalId
+	// 				? {
+	// 						...goal,
+
+	// 						progress: goal.progress - 100 / goal.totalSegments,
+	// 				  } // ✅ Adjust progress by segment size
+	// 				: goal
+	// 		);
+
+	// 		localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
+	// 		return updatedGoals;
+	// 	});
+
+	// 	setTimeout(() => {
+	// 		setGoals((prevGoals) => [...prevGoals]); // ✅ Retain sorting logic without modifying progress
+	// 	}, 100);
+	// };
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();

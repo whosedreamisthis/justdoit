@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import BottomTabs from '@/components/bottom-nav';
-import habits from '@/data/habits.json';
+import habitsByCategory from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
 import GoalsTab from '@/components/goals-tab';
 import { toast } from 'react-hot-toast';
@@ -32,7 +32,9 @@ export default function App() {
 	}, [activeTab]);
 
 	const onExploreHabitSelected = (habitId) => {
-		const selectedHabit = habits.find((habit) => habit.id === habitId);
+		const selectedHabit = habitsByCategory['garden_tending'].find(
+			(habit) => habit.id === habitId
+		);
 		if (!selectedHabit) return;
 
 		const uniqueKey = `${habitId}-${Date.now()}`;
@@ -55,7 +57,7 @@ export default function App() {
 	const onReSort = (goals) => {
 		setGoals(goals);
 	};
-
+	// console.log(habitsByCategory['Creativity & Nature Connection']);
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
@@ -73,7 +75,7 @@ export default function App() {
 					)}
 					{activeTab === 'explore' && (
 						<ExploreTab
-							habits={habits}
+							habitsByCategory={habitsByCategory}
 							onSelect={onExploreHabitSelected}
 						/>
 					)}

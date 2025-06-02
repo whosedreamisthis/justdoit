@@ -1,28 +1,49 @@
 import { useState } from 'react';
-import MinimizableCard from '././minimizable-card';
+import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
-export default function ExploreTab({ habits, onSelect }) {
+
+export default function ExploreTab({ habitsByCategory, onSelect }) {
+	console.log('EXPLORE TAB', habitsByCategory);
+
+	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [expandedCard, setExpandedCard] = useState(null);
+
 	const handleExpand = (id) => {
-		setExpandedCard(expandedCard === id ? null : id); // Toggle expansion
+		setExpandedCard(expandedCard === id ? null : id); // ✅ Toggle expansion
 	};
 
 	return (
 		<div className="p-6 bg-subtle-background">
-			{' '}
-			{/* ✅ Background stays warm beige */}
 			<h2 className="text-3xl font-bold text-primary mb-4">
 				Explore New Habits
 			</h2>
-			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
-				{habits.map((habit, index) => {
-					return (
+
+			{/* ✅ Show categories first */}
+			<div className="category-buttons flex gap-4 mb-4">
+				{Object.keys(habitsByCategory).map((category) => (
+					<button
+						key={category}
+						onClick={() => setSelectedCategory(category)}
+						className={`py-2 px-4 rounded-lg transition-all duration-200 ${
+							selectedCategory === category
+								? 'bg-charcoal text-white font-bold border-2 border-white' // ✅ Highlight selected
+								: 'bg-primary text-charcoal hover:bg-blue-500' // ✅ Normal styling
+						}`}
+					>
+						{category}
+					</button>
+				))}
+			</div>
+
+			{/* ✅ Show habits only when a category is selected */}
+			{selectedCategory && (
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					{habitsByCategory[selectedCategory].map((habit) => (
 						<div
 							key={habit.id}
-							className={`rounded-xl shadow-md`}
-							style={{ backgroundColor: `${habit.color}` }}
+							className="rounded-xl shadow-md"
+							style={{ backgroundColor: habit.color }}
 						>
-							{/* ✅ Background color applies directly to the card */}
 							<MinimizableCard
 								habit={habit}
 								onSelect={onSelect}
@@ -30,9 +51,9 @@ export default function ExploreTab({ habits, onSelect }) {
 								onExpand={() => handleExpand(habit.id)}
 							/>
 						</div>
-					);
-				})}
-			</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 }

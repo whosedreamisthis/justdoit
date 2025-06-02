@@ -22,13 +22,20 @@ export default function App() {
 			localStorage.setItem('userGoals', JSON.stringify(goals));
 		}
 	}, [goals]);
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
+			if (storedGoals) {
+				setGoals(storedGoals); // ✅ Reloads exact progress value when switching tabs
+			}
+		}
+	}, [activeTab]);
 
 	const onExploreHabitSelected = (habitId) => {
 		const selectedHabit = habits.find((habit) => habit.id === habitId);
 		if (!selectedHabit) return;
 
 		const uniqueKey = `${habitId}-${Date.now()}`;
-		console.log('shortdescription', selectedHabit.shortDescription);
 		const newGoal = {
 			id: uniqueKey,
 			title: selectedHabit.title,

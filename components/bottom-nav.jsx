@@ -17,7 +17,9 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 							? 'active-tab bg-deep-clay'
 							: 'bg-charcoal text-subtle hover:bg-gray-200'
 					}`}
-					onClick={() => setActiveTab(tab.id)}
+					onClick={() => {
+						setActiveTab(tab.id);
+					}}
 				>
 					{tab.label}
 				</button>

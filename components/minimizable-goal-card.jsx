@@ -9,7 +9,7 @@ export default function MinimizableGoalCard({
 	onProgressChange,
 	onDelete,
 }) {
-	const [progress, setProgress] = useState(0); // Track goal progress
+	const [progress, setProgress] = useState(goal.progress); // Track goal progress
 	const handleDelete = (e) => {
 		e.stopPropagation(); // Prevent card collapse when clicking X
 		onDelete(goal.id); // ✅ Trigger delete function

@@ -12,7 +12,6 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) => {
-			// ✅ Update progress and sort immediately
 			const updatedGoals = prevGoals
 				.map((goal) =>
 					goal.id === goalId
@@ -20,11 +19,13 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 						: goal
 				)
 				.sort((a, b) => (a.progress === 100 ? 1 : -1));
+
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Store changes
+
 			onReSort(updatedGoals);
 			return updatedGoals;
 		});
 
-		// ✅ Keep scroll delay for better UX
 		setTimeout(() => {
 			const goalElement = document.getElementById(`goal-${goalId}`);
 			if (goalElement) {
@@ -39,16 +40,16 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
-					? { ...goal, progress: Math.max(goal.progress - 10, 0) }
+					? { ...goal, progress: 0 } // ✅ Directly set progress to zero instead of decreasing
 					: goal
 			);
 
-			return updatedGoals.sort((a, b) => (a.progress === 100 ? 1 : -1)); // ✅ Ensures sorting
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
+			return updatedGoals;
 		});
 
-		// **Trigger full state update**
 		setTimeout(() => {
-			setGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
+			setGoals((prevGoals) => [...prevGoals]); // ✅ Retain sorting logic without modifying progress
 		}, 100);
 	};
 

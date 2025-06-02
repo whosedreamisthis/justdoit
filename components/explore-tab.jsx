@@ -3,8 +3,6 @@ import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
-	console.log('EXPLORE TAB', habitsByCategory);
-
 	const [selectedCategory, setSelectedCategory] = useState(null);
 	const [expandedCard, setExpandedCard] = useState(null);
 

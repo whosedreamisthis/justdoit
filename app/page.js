@@ -31,10 +31,22 @@ export default function App() {
 		}
 	}, [activeTab]);
 
+	const findHabit = (habitId) => {
+		let selectedHabit = null;
+		Object.keys(habitsByCategory).forEach((category) => {
+			habitsByCategory[category].forEach((habit) => {
+				if (habit.id === habitId) {
+					selectedHabit = habit;
+				}
+			});
+		});
+		return selectedHabit;
+	};
 	const onExploreHabitSelected = (habitId) => {
-		const selectedHabit = habitsByCategory['garden_tending'].find(
-			(habit) => habit.id === habitId
-		);
+		console.log('onExploreHabitSelected');
+
+		const selectedHabit = findHabit(habitId);
+		console.log('2 selectedHabit', selectedHabit);
 		if (!selectedHabit) return;
 
 		const uniqueKey = `${habitId}-${Date.now()}`;

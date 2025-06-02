@@ -1,19 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
 import '@/app/globals.css';
 
-export default function GoalsTab({ goals, onEdit }) {
+export default function GoalsTab({ goals, onEdit, onReSort }) {
 	const [sortedGoals, setSortedGoals] = useState(goals);
 	const [expandedGoal, setExpandedGoal] = useState(null);
+
 	const handleExpand = (id) => {
 		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
 	};
-	const sortedGoals2 = [...goals].sort((a, b) => {
-		if (a.progress === 100 && b.progress !== 100) return 1; // Completed moves down
-		if (b.progress === 100 && a.progress !== 100) return -1;
-		return 0;
-	});
 
 	const moveCompletedGoal = (goalId) => {
 		setSortedGoals((prevGoals) => {
@@ -25,7 +21,7 @@ export default function GoalsTab({ goals, onEdit }) {
 						: goal
 				)
 				.sort((a, b) => (a.progress === 100 ? 1 : -1));
-
+			onReSort(updatedGoals);
 			return updatedGoals;
 		});
 

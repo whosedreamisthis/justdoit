@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BottomTabs from '@/components/bottom-nav';
 import habits from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
@@ -10,7 +10,19 @@ import { Toaster } from 'react-hot-toast';
 import '@/app/globals.css';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
-	const [goals, setGoals] = useState([]);
+	const [goals, setGoals] = useState(() => {
+		if (typeof window !== 'undefined') {
+			const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
+			return storedGoals && storedGoals.length > 0 ? storedGoals : [];
+		}
+		return [];
+	});
+	useEffect(() => {
+		if (goals.length > 0) {
+			localStorage.setItem('userGoals', JSON.stringify(goals));
+		}
+	}, [goals]);
+
 	const onExploreHabitSelected = (habitId) => {
 		// let selectedHabit = null;
 		// for (const habit of habits) {
@@ -39,6 +51,10 @@ export default function App() {
 		console.log('onGoalEdited', goalId);
 	};
 
+	const onReSort = (goals) => {
+		setGoals(goals);
+	};
+
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
@@ -47,7 +63,11 @@ export default function App() {
 				{/* Tab Content */}
 				<div className="flex-grow p-4 pb-20">
 					{activeTab === 'goals' && (
-						<GoalsTab goals={goals} onEdit={onGoalEdited} />
+						<GoalsTab
+							goals={goals}
+							onReSort={onReSort}
+							onEdit={onGoalEdited}
+						/>
 					)}
 					{activeTab === 'explore' && (
 						<ExploreTab

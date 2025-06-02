@@ -72,7 +72,7 @@ export default function MinimizableGoalCard({
 				className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/3 bg-deep-olive text-subtle rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700 shadow-md z-20"
 				onClick={handleDelete}
 			>
-				✖
+				x
 			</button>
 
 			{/* Card Content - Placed above progress bar */}

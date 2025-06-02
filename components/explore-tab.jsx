@@ -4,9 +4,15 @@ import '@/app/globals.css';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const [expandedCategory, setExpandedCategory] = useState(null);
+	const [expandedCard, setExpandedCard] = useState(null);
 
 	const toggleCategory = (category) => {
+		console.log(`Toggling: ${category}`); // ✅ Debugging log
 		setExpandedCategory(expandedCategory === category ? null : category);
+	};
+	const handleExpand = (id) => {
+		console.log(`Expanding Habit ID: ${id}`); // ✅ Debug log
+		setExpandedCard((prev) => (prev === id ? null : id)); // ✅ Toggle expansion correctly
 	};
 
 	return (
@@ -47,6 +53,12 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 										<MinimizableCard
 											habit={habit}
 											onSelect={onSelect}
+											isExpanded={
+												expandedCard === habit.id
+											} // ✅ Expands when habit matches state
+											onExpand={() =>
+												handleExpand(habit.id)
+											} // ✅ Handles expansion toggle
 										/>
 									</div>
 								))}

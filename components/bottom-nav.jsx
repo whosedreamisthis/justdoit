@@ -4,7 +4,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
 		{ id: 'goals', label: 'Goals' },
 		{ id: 'explore', label: 'Explore' },
-		{ id: 'settings', label: 'Settings' },
+		// { id: 'settings', label: 'Settings' },
 	];
 
 	return (

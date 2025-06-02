@@ -66,7 +66,11 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		}
 	};
 	const deleteGoal = (goalId) => {
-		setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== goalId)); // ✅ Removes goal
+		setGoals((prevGoals) => {
+			const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
+			return updatedGoals;
+		});
 	};
 
 	return (
@@ -74,7 +78,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 			<h2 className="text-3xl font-bold mb-4 text-primary">
 				Track Your Goals
 			</h2>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
 				{goals.map((goal, index) => {
 					return (
 						<div

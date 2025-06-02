@@ -24,24 +24,18 @@ export default function App() {
 	}, [goals]);
 
 	const onExploreHabitSelected = (habitId) => {
-		// let selectedHabit = null;
-		// for (const habit of habits) {
-		// 	if (habit.id === habitId) {
-		// 		selectedHabit = habit;
-		// 		break;
-		// 	}
-		// }
 		const selectedHabit = habits.find((habit) => habit.id === habitId);
 		if (!selectedHabit) return;
 
 		const uniqueKey = `${habitId}-${Date.now()}`;
-
+		console.log('shortdescription', selectedHabit.shortDescription);
 		const newGoal = {
 			id: uniqueKey,
 			title: selectedHabit.title,
 			progress: 0,
 			totalSegments: habitId === 'hydrate' ? 8 : 1,
 			color: selectedHabit.color,
+			shortDescription: selectedHabit.shortDescription,
 		};
 		setGoals([...goals, newGoal]);
 		toast.success(`"${selectedHabit.title}" added successfully!`);

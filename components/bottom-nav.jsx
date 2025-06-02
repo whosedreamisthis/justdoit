@@ -11,11 +11,12 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 		<div className="fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around py-2">
 			{tabs.map((tab) => (
 				<button
+					className="bg-black"
 					key={tab.id}
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
-							? 'active-tab bg-deep-clay'
-							: 'bg-charcoal text-subtle hover:bg-gray-200'
+							? 'active-tab'
+							: 'text-charcoal bg-subtle hover:bg-gray-200 border-2'
 					}`}
 					onClick={() => {
 						setActiveTab(tab.id);

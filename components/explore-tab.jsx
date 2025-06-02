@@ -3,11 +3,10 @@ import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
-	const [selectedCategory, setSelectedCategory] = useState(null);
-	const [expandedCard, setExpandedCard] = useState(null);
+	const [expandedCategory, setExpandedCategory] = useState(null);
 
-	const handleExpand = (id) => {
-		setExpandedCard(expandedCard === id ? null : id); // ✅ Toggle expansion
+	const toggleCategory = (category) => {
+		setExpandedCategory(expandedCategory === category ? null : category);
 	};
 
 	return (
@@ -16,42 +15,46 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				Explore New Habits
 			</h2>
 
-			{/* ✅ Show categories first */}
-			<div className="category-buttons flex gap-4 mb-4">
+			{/* ✅ Category Headers with Toggle Arrow */}
+			<div className="flex flex-col gap-3">
 				{Object.keys(habitsByCategory).map((category) => (
-					<button
+					<div
 						key={category}
-						onClick={() => setSelectedCategory(category)}
-						className={`py-2 px-4 rounded-lg transition-all duration-200 ${
-							selectedCategory === category
-								? 'bg-charcoal text-white font-bold border-2 border-white' // ✅ Highlight selected
-								: 'bg-primary text-charcoal hover:bg-blue-500' // ✅ Normal styling
-						}`}
+						className="p-3 rounded-lg bg-warm-sand cursor-pointer"
 					>
-						{category}
-					</button>
+						{/* ✅ Clickable category header */}
+						<div
+							className="flex justify-between items-center"
+							onClick={() => toggleCategory(category)}
+						>
+							<h3 className="text-lg font-semibold text-charcoal">
+								{category}
+							</h3>
+							<span className="text-xl text-charcoal">
+								{expandedCategory === category ? '▼' : '▶'}
+							</span>
+						</div>
+
+						{/* ✅ Show habits only when category is expanded */}
+						{expandedCategory === category && (
+							<div className="mt-2 space-y-2 habits-container">
+								{habitsByCategory[category].map((habit) => (
+									<div
+										key={habit.id}
+										className="rounded-xl shadow-md p-4 bg-subtle-background"
+										style={{ backgroundColor: habit.color }}
+									>
+										<MinimizableCard
+											habit={habit}
+											onSelect={onSelect}
+										/>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 				))}
 			</div>
-
-			{/* ✅ Show habits only when a category is selected */}
-			{selectedCategory && (
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{habitsByCategory[selectedCategory].map((habit) => (
-						<div
-							key={habit.id}
-							className="rounded-xl shadow-md"
-							style={{ backgroundColor: habit.color }}
-						>
-							<MinimizableCard
-								habit={habit}
-								onSelect={onSelect}
-								isExpanded={expandedCard === habit.id}
-								onExpand={() => handleExpand(habit.id)}
-							/>
-						</div>
-					))}
-				</div>
-			)}
 		</div>
 	);
 }

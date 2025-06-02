@@ -23,7 +23,13 @@ body {
 	background: #f5e8d4;
 	color: var(--foreground);
 	font-family: Arial, Helvetica, sans-serif;
+	overflow-y: auto; /* Allows scrolling */
+	scrollbar-width: none;
 }
+body::-webkit-scrollbar {
+	display: none; /* Chrome, Safari */
+}
+
 .goal-container {
 	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 	background-color: #e07a5f; /* Terracotta */
@@ -104,6 +110,18 @@ body {
 	height: '20px';
 }
 .active-tab {
-	background-color: #d4b89d; /* Sandstone */
-	color: black; /* Text stays readable */
+	background-color: #3b3b3b; /* Sandstone */
+	color: #f5e8d4; /* Text stays readable */
+}
+.scroll-container {
+	overflow-y: auto;
+	scrollbar-width: none; /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+	display: none; /* Chrome, Safari */
+}
+.habits-container {
+	max-height: none;
+	overflow: clip; /* ✅ Stronger than hidden, fully removes scroll functionality */
 }

@@ -3,8 +3,7 @@ import MinimizableGoalCard from '././minimizable-goal-card';
 import { useGoals } from './goals-context'; // ✅ Import the context
 import '@/app/globals.css';
 
-export default function GoalsTab({ goals, onEdit, onReSort }) {
-	const [sortedGoals, setSortedGoals] = useState(goals);
+export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
 
 	const handleExpand = (id) => {
@@ -12,7 +11,7 @@ export default function GoalsTab({ goals, onEdit, onReSort }) {
 	};
 
 	const moveCompletedGoal = (goalId) => {
-		setSortedGoals((prevGoals) => {
+		setGoals((prevGoals) => {
 			// ✅ Update progress and sort immediately
 			const updatedGoals = prevGoals
 				.map((goal) =>
@@ -37,7 +36,7 @@ export default function GoalsTab({ goals, onEdit, onReSort }) {
 		}, 50);
 	};
 	const moveIncompleteGoal = (goalId) => {
-		setSortedGoals((prevGoals) => {
+		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
 					? { ...goal, progress: Math.max(goal.progress - 10, 0) }
@@ -49,7 +48,7 @@ export default function GoalsTab({ goals, onEdit, onReSort }) {
 
 		// **Trigger full state update**
 		setTimeout(() => {
-			setSortedGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
+			setGoals((prevGoals) => [...prevGoals]); // ✅ Forces React to re-render with new order
 		}, 100);
 	};
 
@@ -67,9 +66,7 @@ export default function GoalsTab({ goals, onEdit, onReSort }) {
 		}
 	};
 	const deleteGoal = (goalId) => {
-		setSortedGoals((prevGoals) =>
-			prevGoals.filter((goal) => goal.id !== goalId)
-		); // ✅ Removes goal
+		setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== goalId)); // ✅ Removes goal
 	};
 
 	return (
@@ -78,7 +75,7 @@ export default function GoalsTab({ goals, onEdit, onReSort }) {
 				Track Your Goals
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{sortedGoals.map((goal, index) => {
+				{goals.map((goal, index) => {
 					return (
 						<div
 							id={`goal-${goal.id}`}

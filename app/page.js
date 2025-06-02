@@ -67,6 +67,7 @@ export default function App() {
 							goals={goals}
 							onReSort={onReSort}
 							onEdit={onGoalEdited}
+							setGoals={setGoals}
 						/>
 					)}
 					{activeTab === 'explore' && (

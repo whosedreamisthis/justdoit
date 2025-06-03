@@ -11,22 +11,56 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	};
 	const updateProgress = (goalId, newProgress) => {
 		console.log(
-			'updateProgress goalId',
+			'Goal updated:',
 			goalId,
-			'newProgress',
-			newProgress
+			'New progress:',
+			newProgress,
+			'Completed:',
+			newProgress >= 100
 		);
 
 		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) => {
-				return goal.id === goalId
-					? { ...goal, progress: newProgress ?? 0 }
-					: goal;
-			});
+			const updatedGoals = prevGoals.map((goal) =>
+				goal.id === goalId
+					? {
+							...goal,
+							progress: newProgress ?? 0,
+							completed: newProgress >= 100,
+					  }
+					: goal
+			);
 
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // ✅ Ensure persistence
-			return updatedGoals;
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+			return sortGoals(updatedGoals); // ✅ Apply sorting before updating state
 		});
+
+		// ✅ Ensure the completed goal scrolls into view
+		setTimeout(() => {
+			const completedGoalElement = document.querySelector(
+				`[data-goal-id="${goalId}"]`
+			);
+			if (completedGoalElement) {
+				completedGoalElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'end',
+				});
+				console.log('Scrolled to completed goal:', goalId); // ✅ Debug log
+			} else {
+				console.log('Completed goal not found in DOM yet. Retrying...');
+				setTimeout(() => {
+					const retryCompletedGoalElement = document.querySelector(
+						`[data-goal-id="${goalId}"]`
+					);
+					if (retryCompletedGoalElement) {
+						retryCompletedGoalElement.scrollIntoView({
+							behavior: 'smooth',
+							block: 'end',
+						});
+						console.log('Scrolled after retry:', goalId);
+					}
+				}, 100); // ✅ Retry after 500ms if needed
+			}
+		}, 100);
 	};
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) =>
@@ -37,6 +71,13 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		setGoals((prevGoals) =>
 			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
 		);
+	};
+
+	const sortGoals = (goals) => {
+		return [
+			...goals.filter((goal) => !goal.completed), // ✅ Ongoing goals stay in order
+			...goals.filter((goal) => goal.completed), // ✅ Completed goals move to the bottom
+		];
 	};
 
 	// const moveCompletedGoal = (goalId) => {
@@ -119,6 +160,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 						<div
 							id={`goal-${goal.id}`}
 							key={goal.id}
+							data-goal-id={goal.id}
 							className={`rounded-xl shadow-md`}
 							style={{ backgroundColor: `${goal.color}` }}
 						>

@@ -19,19 +19,25 @@ export default function App() {
 	});
 	useEffect(() => {
 		const now = new Date();
-		const tomorrowMidnight = new Date(
+		const midnightToday = new Date(
 			now.getFullYear(),
 			now.getMonth(),
-			now.getDate() + 1,
+			now.getDate(),
 			0,
 			0,
 			0
 		);
 
-		const timeUntilReset = tomorrowMidnight.getTime() - now.getTime();
+		let timeUntilReset = midnightToday.getTime() - now.getTime();
+
+		// ✅ If midnight has already passed, schedule for the next midnight
+		if (timeUntilReset < 0) {
+			midnightToday.setDate(midnightToday.getDate() + 1);
+			timeUntilReset = midnightToday.getTime() - now.getTime();
+		}
 
 		console.log('Now:', now.toISOString());
-		console.log('Tomorrow Midnight:', tomorrowMidnight.toISOString());
+		console.log('Next Midnight Reset:', midnightToday.toISOString());
 		console.log('Time Until Reset:', timeUntilReset);
 
 		const timer = setTimeout(() => {
@@ -40,7 +46,7 @@ export default function App() {
 			);
 		}, timeUntilReset);
 
-		return () => clearTimeout(timer);
+		return () => clearTimeout(timer); // ✅ Cleanup on unmount
 	}, []);
 
 	useEffect(() => {

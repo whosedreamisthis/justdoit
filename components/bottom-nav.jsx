@@ -8,10 +8,9 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 	];
 
 	return (
-		<div className="fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around py-2">
+		<div className="tab-buttons botton-nav fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around py-2">
 			{tabs.map((tab) => (
 				<button
-					className="bg-black"
 					key={tab.id}
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
@@ -20,6 +19,11 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					}`}
 					onClick={() => {
 						setActiveTab(tab.id);
+						document
+							.querySelector('.tab-buttons')
+							.addEventListener('click', () => {
+								console.log('Tab button clicked!');
+							});
 					}}
 				>
 					{tab.label}

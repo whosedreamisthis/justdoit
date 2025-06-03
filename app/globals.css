@@ -34,6 +34,10 @@ body::-webkit-scrollbar {
 	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 	background-color: #e07a5f; /* Terracotta */
 }
+.goals-container {
+	height: 100px; /* ✅ Creates space so goals don’t block the tab buttons */
+}
+
 .bg-primary {
 	background-color: #9caf88; /* Sage Green */
 }
@@ -124,4 +128,22 @@ body::-webkit-scrollbar {
 .habits-container {
 	max-height: none;
 	overflow: clip; /* ✅ Stronger than hidden, fully removes scroll functionality */
+}
+.bottom-nav {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	z-index: 1000; /* ✅ Ensures it's above overlapping content */
+}
+
+.tab-buttons {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background: white;
+	display: flex;
+	justify-content: space-around; /* ✅ Even spacing for buttons */
+	padding: 10px 0;
+	z-index: 1000; /* ✅ Ensures tab buttons stay on top */
+	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
 }

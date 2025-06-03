@@ -84,13 +84,17 @@ export default function App() {
 		const uniqueKey = `${habitId}-${Date.now()}`;
 		const newGoal = {
 			id: uniqueKey,
+			title2: selectedHabit.title,
 			title: selectedHabit.title,
 			progress: 0,
 			totalSegments: selectedHabit.title === 'Daily Hydration' ? 8 : 1,
 			color: selectedHabit.color,
 			shortDescription: selectedHabit.shortDescription,
+			daySquares: [false, false, false, false, false, false, false],
 		};
+		console.log('new goal', newGoal);
 		const newGoals = [...goals, newGoal];
+		console.log('newGoals', newGoals);
 		setGoals(newGoals.sort((a, b) => (a.progress === 100 ? 1 : -1)));
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};

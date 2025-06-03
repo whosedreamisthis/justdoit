@@ -15,16 +15,15 @@ export default function MinimizableGoalCard({
 	onComplete,
 	onProgressChange,
 	updateProgress,
+	updateDaysProgress,
 	onDelete,
 	currentDayIndex,
 }) {
 	const completedSquareColorClass = 'bg-deep-olive'; // This corresponds to your CSS .bg-deep-olive
-
+	console.log('goal', goal);
 	// Array of day square elements
-	const daySquares = Array.from({ length: 7 }).map((_, index) => {
-		// Determine if this square should be filled
-		console.log(goal);
-		const shouldFill = goal.progress >= 100 && index === currentDayIndex;
+	const daySquares = goal.daySquares.map((day, index) => {
+		const shouldFill = day; //goal.progress >= 100 && index === currentDayIndex;
 		// Apply the conditional class
 		const squareClass = `day-square ${
 			shouldFill ? completedSquareColorClass : ''
@@ -48,11 +47,7 @@ export default function MinimizableGoalCard({
 		);
 
 		updateProgress(goal.id, newProgress);
-		if (
-			goal.progress === 100 &&
-			newProgress < 100 &&
-			typeof onProgressChange === 'function'
-		) {
+		if (goal.progress === 100 && newProgress < 100) {
 			onProgressChange(goal.id); // ✅ Trigger movement upwards
 		}
 	};
@@ -70,12 +65,19 @@ export default function MinimizableGoalCard({
 		);
 		if (goal.progress === 100) {
 			newProgress = 0;
+			const newDays = goal.daySquares;
+			newDays[currentDayIndex] = false;
+			updateDaysProgress(goal.id, newDays);
+			console.log('NEW DAYS ', newDays);
 		}
 
 		updateProgress(goal.id, newProgress); // ✅ Save progress correctly
 
 		if (newProgress === 100) {
 			onComplete(goal.id);
+			const newDays = goal.daySquares;
+			newDays[currentDayIndex] = true;
+			updateDaysProgress(goal.id, newDays);
 		}
 	};
 

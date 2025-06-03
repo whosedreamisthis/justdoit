@@ -17,6 +17,37 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	const handleExpand = (id) => {
 		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
 	};
+	const updateDaysProgress = (goalId, newDaysProgress) => {
+		console.log(
+			'Goal updated:',
+			goalId,
+			'New newDaysProgress:',
+			newDaysProgress
+		);
+
+		setGoals((prevGoals) => {
+			const updatedGoals = prevGoals.map((goal) =>
+				goal.id === goalId
+					? {
+							...goal,
+							daySquares: newDaysProgress ?? [
+								false,
+								false,
+								false,
+								false,
+								false,
+								false,
+								false,
+							],
+					  }
+					: goal
+			);
+
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+			return sortGoals(updatedGoals); // ✅ Apply sorting before updating state
+		});
+	};
+
 	const updateProgress = (goalId, newProgress) => {
 		console.log(
 			'Goal updated:',
@@ -69,6 +100,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 				}, 100); // ✅ Retry after 500ms if needed
 			}
 		}, 100);
+		moveIncompleteGoal(goalId);
 	};
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) =>
@@ -186,6 +218,9 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 								} // ✅ Ensure it's correctly passed
 								updateProgress={(id, newProgress) =>
 									updateProgress(goal.id, newProgress)
+								}
+								updateDaysProgress={(id, newDaysProgress) =>
+									updateDaysProgress(goal.id, newDaysProgress)
 								}
 								onDelete={deleteGoal}
 							/>

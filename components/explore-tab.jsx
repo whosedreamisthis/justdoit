@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
 
@@ -6,9 +6,17 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const [expandedCategory, setExpandedCategory] = useState(null);
 	const [expandedCard, setExpandedCard] = useState(null);
 
+	useEffect(() => {
+		const savedCategory = localStorage.getItem('expandedCategory');
+		if (savedCategory) {
+			setExpandedCategory(savedCategory);
+		}
+	}, []); // ✅ Runs once on component mount
+
 	const toggleCategory = (category) => {
-		console.log(`Toggling: ${category}`); // ✅ Debugging log
-		setExpandedCategory(expandedCategory === category ? null : category);
+		const newCategory = expandedCategory === category ? null : category;
+		setExpandedCategory(newCategory);
+		localStorage.setItem('expandedCategory', newCategory); // ✅ Saves state persistently
 	};
 	const handleExpand = (id) => {
 		console.log(`Expanding Habit ID: ${id}`); // ✅ Debug log

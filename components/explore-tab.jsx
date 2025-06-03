@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
 
@@ -6,20 +6,39 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const [expandedCategory, setExpandedCategory] = useState(null);
 	const [expandedCard, setExpandedCard] = useState(null);
 
+	const cardRefs = useRef({});
+
 	useEffect(() => {
 		const savedCategory = localStorage.getItem('expandedCategory');
 		if (savedCategory) {
 			setExpandedCategory(savedCategory);
 		}
-	}, []); // ✅ Runs once on component mount
+	}, []);
 
 	const toggleCategory = (category) => {
 		const newCategory = expandedCategory === category ? null : category;
 		setExpandedCategory(newCategory);
-		localStorage.setItem('expandedCategory', newCategory); // ✅ Saves state persistently
+		localStorage.setItem('expandedCategory', newCategory);
+		setExpandedCard(null);
 	};
+
 	const handleExpand = (id) => {
-		setExpandedCard((prev) => (prev === id ? null : id)); // ✅ Toggle expansion correctly
+		setExpandedCard((prevExpandedCard) => {
+			const newExpandedCard = prevExpandedCard === id ? null : id;
+
+			if (newExpandedCard !== null) {
+				setTimeout(() => {
+					const element = cardRefs.current[newExpandedCard];
+					if (element) {
+						element.scrollIntoView({
+							behavior: 'smooth',
+							block: 'center', // Changed from 'nearest' to 'start'
+						});
+					}
+				}, 50);
+			}
+			return newExpandedCard;
+		});
 	};
 
 	return (
@@ -28,14 +47,12 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				Explore New Habits
 			</h2>
 
-			{/* ✅ Category Headers with Toggle Arrow */}
 			<div className="flex flex-col gap-3">
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}
 						className="p-3 rounded-lg bg-warm-sand cursor-pointer category-container"
 					>
-						{/* ✅ Clickable category header */}
 						<div
 							className="flex justify-between items-center"
 							onClick={() => toggleCategory(category)}
@@ -49,12 +66,14 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 							</span>
 						</div>
 
-						{/* ✅ Show habits only when category is expanded */}
 						{expandedCategory === category && (
 							<div className="mt-2 space-y-2 habits-container">
 								{habitsByCategory[category].map((habit) => (
 									<div
 										key={habit.id}
+										ref={(el) =>
+											(cardRefs.current[habit.id] = el)
+										}
 										className="rounded-xl shadow-md bg-subtle-background"
 										style={{ backgroundColor: habit.color }}
 									>
@@ -63,10 +82,10 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 											onSelect={onSelect}
 											isExpanded={
 												expandedCard === habit.id
-											} // ✅ Expands when habit matches state
+											}
 											onExpand={() =>
 												handleExpand(habit.id)
-											} // ✅ Handles expansion toggle
+											}
 										/>
 									</div>
 								))}

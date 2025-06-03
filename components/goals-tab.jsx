@@ -1,7 +1,6 @@
 // goals-tab.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
-// import { useGoals } from './goals-context'; // Removed: this context is not used in the provided code
 import '@/app/globals.css';
 
 export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
@@ -10,12 +9,13 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		getDayOfWeekIndex(new Date())
 	);
 
+	const goalRefs = useRef({});
+
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
-		return day === 0 ? 6 : day - 1; // Convert Sunday (0) to 6, Monday (1) to 0, etc.
+		return day === 0 ? 6 : day - 1;
 	}
 
-	// --- MINIMAL CHANGE 1: Update currentDayIndex at midnight ---
 	useEffect(() => {
 		const now = new Date();
 		const midnightToday = new Date(
@@ -27,20 +27,32 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 			0
 		);
 		const timeUntilMidnight =
-			midnightToday.getTime() + 24 * 60 * 60 * 1000 - now.getTime(); // Time until next midnight
+			midnightToday.getTime() + 24 * 60 * 60 * 1000 - now.getTime();
 
 		const dayUpdaterTimer = setTimeout(() => {
 			setCurrentDayIndex(getDayOfWeekIndex(new Date()));
-			// To ensure it runs every day, set a new timer for the next midnight
-			// This re-runs the useEffect, calculating the new midnight
-			// No need to explicitly call updateDaysProgress here as it's done via app.js reset
 		}, timeUntilMidnight);
 
 		return () => clearTimeout(dayUpdaterTimer);
-	}, []); // Empty dependency array means this runs once on mount, then reschedules itself
+	}, []);
 
 	const handleExpand = (id) => {
-		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
+		setExpandedGoal((prevExpandedGoal) => {
+			const newExpandedGoal = prevExpandedGoal === id ? null : id;
+
+			if (newExpandedGoal !== null) {
+				setTimeout(() => {
+					const element = goalRefs.current[newExpandedGoal];
+					if (element) {
+						element.scrollIntoView({
+							behavior: 'smooth',
+							block: 'start', // Changed from 'nearest' to 'start'
+						});
+					}
+				}, 50);
+			}
+			return newExpandedGoal;
+		});
 	};
 
 	const updateDaysProgress = (goalId, newDaysProgress) => {
@@ -49,7 +61,6 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 				goal.id === goalId
 					? {
 							...goal,
-							// --- MINIMAL CHANGE 2: Use completedDays instead of daySquares ---
 							completedDays: newDaysProgress ?? [
 								false,
 								false,
@@ -62,7 +73,6 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 					  }
 					: goal
 			);
-
 			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
 			return sortGoals(updatedGoals);
 		});
@@ -79,40 +89,11 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 					  }
 					: goal
 			);
-
 			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
 			return sortGoals(updatedGoals);
 		});
-
-		setTimeout(() => {
-			const completedGoalElement = document.querySelector(
-				`[data-goal-id="${goalId}"]`
-			);
-			if (completedGoalElement) {
-				completedGoalElement.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				});
-			} else {
-				setTimeout(() => {
-					const retryCompletedGoalElement = document.querySelector(
-						`[data-goal-id="${goalId}"]`
-					);
-					if (retryCompletedGoalElement) {
-						retryCompletedGoalElement.scrollIntoView({
-							behavior: 'smooth',
-							block: 'end',
-						});
-					}
-				}, 100);
-			}
-		}, 100);
-		moveIncompleteGoal(goalId);
 	};
 
-	// Note: The below moveCompletedGoal and moveIncompleteGoal functions are not used based on current code structure.
-	// They appear to be remnants from a different approach. You can remove them if they are truly unused.
-	// The sorting is now handled within updateProgress and updateDaysProgress via sortGoals.
 	const moveCompletedGoal = (goalId) => {
 		setGoals((prevGoals) =>
 			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
@@ -131,20 +112,12 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 		];
 	};
 
-	// Note: This decreaseProgress function seems to be a duplicate or old logic.
-	// The one in MinimizableGoalCard is the one actually being called.
-	// You can remove this function if it's unused.
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
 		const newProgress = Math.max(
 			goal.progress - 100 / goal.totalSegments,
 			0
 		);
-		// setProgress(newProgress); // setProgress is not defined here
-
-		if (goal.progress === 100 && newProgress < 100) {
-			// onIncomplete(goal.id); // onIncomplete is not defined here
-		}
 	};
 	const deleteGoal = (goalId) => {
 		setGoals((prevGoals) => {
@@ -168,6 +141,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 							data-goal-id={goal.id}
 							className={`rounded-xl shadow-md goal-item`}
 							style={{ backgroundColor: `${goal.color}` }}
+							ref={(el) => (goalRefs.current[goal.id] = el)}
 						>
 							<MinimizableGoalCard
 								goal={goal}

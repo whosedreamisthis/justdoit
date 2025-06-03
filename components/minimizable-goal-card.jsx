@@ -90,13 +90,13 @@ export default function MinimizableGoalCard({
 				{/* + Button to Increase Progress */}
 				<div className="card-buttons goal-buttons flex flex-row justify-end gap-1">
 					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-2"
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-1"
 						onClick={decreaseProgress}
 					>
 						-
 					</button>
 					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-2"
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-1"
 						onClick={increaseProgress}
 					>
 						+

@@ -78,7 +78,7 @@ export default function MinimizableGoalCard({
 			{/* Card Content - Placed above progress bar */}
 			<div className="relative flex justify-between items-center z-10">
 				{/* Title & Short Description */}
-				<div className="flex flex-col space-y-2">
+				<div className="flex flex-col">
 					<h2 className="text-lg font-bold text-gray-800">
 						{goal.title}
 					</h2>

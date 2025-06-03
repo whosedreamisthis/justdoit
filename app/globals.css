@@ -263,3 +263,16 @@ body,
 	border-color: #3b3b3b;
 	border-width: 1px;
 }
+
+.add-button-container {
+	color: #3b3b3b;
+}
+
+.add-button {
+	color: #3b3b3b;
+	border-width: 1px;
+	padding: 2px 6px;
+	border-radius: 5px;
+	background-color: #f3dac4;
+	margin-top: 10px;
+}

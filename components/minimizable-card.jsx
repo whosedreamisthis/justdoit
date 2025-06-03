@@ -33,15 +33,10 @@ export default function MinimizableCard({
 			)}
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
-					<div className="flex flex-row justify-end items-end gap-2">
-						<FontAwesomeIcon
-							icon={faSquareCheck}
-							className="far goal-card-icon z-20"
-							onClick={(e) => {
-								e.stopPropagation(); // Prevent card collapse
-								onSelect(habit.id);
-							}}
-						></FontAwesomeIcon>
+					<div className="add-button-container flex flex-row justify-end items-end gap-2">
+						<button className="add-button" onClick={() => {}}>
+							Add
+						</button>
 					</div>
 				</div>
 			)}

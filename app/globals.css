@@ -253,3 +253,13 @@ body,
 	/* Or */
 	/* background-color: #b0a8a0; */ /* A medium-light stone gray */
 }
+
+.card {
+	border-color: #3b3b3b;
+	border-width: 1px;
+}
+
+.completed-card {
+	border-color: #3b3b3b;
+	border-width: 4px;
+}

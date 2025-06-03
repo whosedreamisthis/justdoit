@@ -15,11 +15,11 @@ export default function MinimizableCard({
 		<div
 			className={`${
 				habit.color
-			} rounded-lg p-4 cursor-pointer transition-all ${
+			} card rounded-lg p-4 cursor-pointer transition-all ${
 				isExpanded
 					? 'max-h-[500px] overflow-auto z-10'
 					: 'max-h-32 overflow-hidden z-0 shadow-none'
-			}`}
+			} border border-black`}
 			onClick={() => {
 				console.log(`Expanding habit: ${habit.title}`); // ✅ Debug log
 				onExpand();

@@ -81,9 +81,11 @@ export default function MinimizableGoalCard({
 
 	return (
 		<div
-			className={`relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
+			className={`${
+				goal.progress >= 100 ? 'completed-card' : 'card'
+			}  relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
 				goal.color
-			} ${isExpanded ? 'h-auto' : 'h-25'}`}
+			} ${isExpanded ? 'h-auto' : 'h-25'} border border-black`}
 			onClick={onExpand}
 			style={{ overflow: 'visible', borderRadius: '8px' }}
 		>

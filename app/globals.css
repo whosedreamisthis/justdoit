@@ -110,8 +110,12 @@ body::-webkit-scrollbar {
 	color: #f5e8d4;
 }
 .progress-button {
-	width: '20px';
-	height: '20px';
+	display: flex; /* ✅ Enables flexbox for perfect centering */
+	align-items: center; /* ✅ Centers vertically */
+	justify-content: center; /* ✅ Centers horizontally */
+	width: 30px;
+	height: 30px;
+	text-align: center;
 }
 .active-tab {
 	background-color: #3b3b3b; /* Sandstone */

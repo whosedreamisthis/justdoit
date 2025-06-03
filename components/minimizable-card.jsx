@@ -32,7 +32,7 @@ export default function MinimizableCard({
 				<div className="mt-4">
 					<p className="text-gray-700">{habit.detailedDescription}</p>
 					<button
-						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex justify-center mx-auto  transition-transform active:scale-95"
+						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex justify-center mx-auto  transition-transform active:scale-95 border-2"
 						onClick={(e) => {
 							e.stopPropagation(); // Prevent card from collapsing
 							onSelect(habit.id);

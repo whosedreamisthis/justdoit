@@ -90,13 +90,13 @@ export default function MinimizableGoalCard({
 				{/* + Button to Increase Progress */}
 				<div className="flex flex-row justify-between gap-2 mt-[10px]">
 					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-2"
 						onClick={decreaseProgress}
 					>
 						-
 					</button>
 					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2"
+						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-2"
 						onClick={increaseProgress}
 					>
 						+
@@ -107,7 +107,7 @@ export default function MinimizableGoalCard({
 			{isExpanded && (
 				<div className="mt-4 flex flex-col items-start z-10">
 					<button
-						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex mx-auto"
+						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex mx-auto border-2"
 						onClick={(e) => {
 							e.stopPropagation(); // Prevent card collapse
 							onEdit(goal.id);

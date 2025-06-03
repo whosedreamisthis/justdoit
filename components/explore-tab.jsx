@@ -44,8 +44,9 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 							<h3 className="text-lg font-semibold text-charcoal">
 								{category}
 							</h3>
+
 							<span className="text-xl expand-arrow">
-								{expandedCategory === category ? '▼' : '▶'}
+								{expandedCategory === category ? '▼' : '►'}
 							</span>
 						</div>
 

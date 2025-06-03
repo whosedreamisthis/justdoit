@@ -42,7 +42,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 			if (completedGoalElement) {
 				completedGoalElement.scrollIntoView({
 					behavior: 'smooth',
-					block: 'end',
+					block: 'center',
 				});
 				console.log('Scrolled to completed goal:', goalId); // ✅ Debug log
 			} else {

@@ -55,7 +55,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 								{habitsByCategory[category].map((habit) => (
 									<div
 										key={habit.id}
-										className="rounded-xl shadow-md p-4 bg-subtle-background"
+										className="rounded-xl shadow-md bg-subtle-background"
 										style={{ backgroundColor: habit.color }}
 									>
 										<MinimizableCard

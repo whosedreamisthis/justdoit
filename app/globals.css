@@ -165,3 +165,10 @@ body::-webkit-scrollbar {
 	padding: 12px; /* ✅ Adds breathing room inside the category */
 	margin-bottom: 10px; /* ✅ Creates separation between categories */
 }
+.card-container {
+	border-radius: 0px; /* ✅ Removes all rounded corners */
+}
+.minimized-card,
+.minimized-goal-card {
+	height: 80px; /* ✅ Match both components */
+}

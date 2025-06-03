@@ -34,11 +34,46 @@
 			"color": "#9B8468",
 			"shortDescription": "Expand your mind with deep thinking.",
 			"detailedDescription": "Read an insightful philosophical book or passage."
+		},
+		{
+			"id": "gratitude_list",
+			"title": "Gratitude List",
+			"color": "#c7a67f",
+			"shortDescription": "List things you're grateful for.",
+			"detailedDescription": "Spend a few minutes each day noting things that bring you joy or for which you are thankful."
+		},
+		{
+			"id": "silent_meditation",
+			"title": "Silent Meditation",
+			"color": "#b89569",
+			"shortDescription": "Practice stillness and observe your breath.",
+			"detailedDescription": "Find a quiet space, close your eyes, and focus on your breath without judgment."
+		},
+		{
+			"id": "mindful_eating",
+			"title": "Mindful Eating",
+			"color": "#a8855e",
+			"shortDescription": "Savor your meals with full attention.",
+			"detailedDescription": "Eat slowly, notice the flavors, textures, and smells of your food, and appreciate each bite."
+		},
+		{
+			"id": "digital_detox_hour",
+			"title": "Digital Detox Hour",
+			"color": "#e0a36e",
+			"shortDescription": "Unplug from screens for an hour.",
+			"detailedDescription": "Dedicate one hour to activities without digital devices to reduce screen time and recharge."
+		},
+		{
+			"id": "deep_listening",
+			"title": "Deep Listening",
+			"color": "#a76c5b",
+			"shortDescription": "Practice truly listening to others or nature.",
+			"detailedDescription": "Engage fully in a conversation without interrupting, or sit quietly and listen to sounds around you."
 		}
 	],
 	"Physical Health & Wellness": [
 		{
-			"id": "hydrate",
+			"id": "daily_hydration",
 			"title": "Daily Hydration",
 			"color": "#D07C6D",
 			"shortDescription": "Drink 8 glasses of water throughout the day.",
@@ -64,6 +99,48 @@
 			"color": "#b6aa75",
 			"shortDescription": "Enjoy a warm herbal tea.",
 			"detailedDescription": "Pause and sip a calming tea like chamomile or ginger."
+		},
+		{
+			"id": "morning_walk",
+			"title": "Morning Walk",
+			"color": "#8c7b5a",
+			"shortDescription": "Start your day with a brisk walk.",
+			"detailedDescription": "Take a 20-30 minute walk in the morning to boost energy and clear your mind."
+		},
+		{
+			"id": "posture_check",
+			"title": "Posture Check",
+			"color": "#9f8e70",
+			"shortDescription": "Correct your posture throughout the day.",
+			"detailedDescription": "Periodically check your alignment: shoulders back, chin parallel to the floor, stomach pulled in."
+		},
+		{
+			"id": "sleep_hygiene",
+			"title": "Sleep Hygiene",
+			"color": "#6e5d47",
+			"shortDescription": "Prepare for restful sleep.",
+			"detailedDescription": "Establish a consistent bedtime routine, avoid screens before bed, and ensure a dark, cool room."
+		},
+		{
+			"id": "light_exercise",
+			"title": "Light Exercise",
+			"color": "#a16b50",
+			"shortDescription": "Engage in gentle physical activity.",
+			"detailedDescription": "Perform 15-20 minutes of light exercise like yoga, tai chi, or bodyweight movements."
+		},
+		{
+			"id": "healthy_snack",
+			"title": "Healthy Snack",
+			"color": "#c49266",
+			"shortDescription": "Choose a nutritious snack.",
+			"detailedDescription": "Opt for whole foods like fruits, nuts, or vegetables when you need a light bite."
+		},
+		{
+			"id": "vitamin_intake",
+			"title": "Daily Vitamins",
+			"color": "#e0bf8c",
+			"shortDescription": "Take your essential vitamins.",
+			"detailedDescription": "Ensure you're taking any prescribed or recommended daily supplements to support overall health."
 		}
 	],
 	"Creativity & Nature Connection": [
@@ -101,6 +178,185 @@
 			"color": "#a6734d",
 			"shortDescription": "Feel the earth in your hands.",
 			"detailedDescription": "Dig, hold, or move soil to reconnect with nature."
+		},
+		{
+			"id": "sketching_nature",
+			"title": "Sketching Nature",
+			"color": "#7e6d4a",
+			"shortDescription": "Draw observations from nature.",
+			"detailedDescription": "Take a sketchbook outside and draw natural elements like leaves, trees, or landscapes."
+		},
+		{
+			"id": "nature_photography",
+			"title": "Nature Photography",
+			"color": "#9e7f5e",
+			"shortDescription": "Capture moments in the natural world.",
+			"detailedDescription": "Use your camera or phone to photograph landscapes, plants, or animals."
+		},
+		{
+			"id": "identify_plants",
+			"title": "Identify Plants",
+			"color": "#5b7740",
+			"shortDescription": "Learn about local flora.",
+			"detailedDescription": "Use a field guide or app to identify new plants during a walk."
+		},
+		{
+			"id": "soundscape_listening",
+			"title": "Soundscape Listening",
+			"color": "#b8a97c",
+			"shortDescription": "Mindfully listen to natural sounds.",
+			"detailedDescription": "Sit quietly outdoors and focus on the sounds of birds, wind, or water."
+		},
+		{
+			"id": "cloud_gazing",
+			"title": "Cloud Gazing",
+			"color": "#c09b69",
+			"shortDescription": "Observe cloud formations.",
+			"detailedDescription": "Lie down and watch the clouds, noticing their shapes and movements."
+		}
+	],
+	"Personal Growth & Learning": [
+		{
+			"id": "learn_new_word",
+			"title": "Learn New Word",
+			"color": "#8d7657",
+			"shortDescription": "Expand your vocabulary daily.",
+			"detailedDescription": "Look up a new word, understand its meaning, and try to use it in a sentence."
+		},
+		{
+			"id": "read_non_fiction",
+			"title": "Read Non-Fiction",
+			"color": "#9e7d5c",
+			"shortDescription": "Engage with informative books.",
+			"detailedDescription": "Dedicate time to reading non-fiction books on topics that interest you."
+		},
+		{
+			"id": "online_course",
+			"title": "Online Course",
+			"color": "#a86d4e",
+			"shortDescription": "Spend time on an online learning platform.",
+			"detailedDescription": "Work on a module or lesson from an online course in a new skill or subject."
+		},
+		{
+			"id": "documentary_watch",
+			"title": "Watch Documentary",
+			"color": "#6f5b45",
+			"shortDescription": "Learn something new through a documentary.",
+			"detailedDescription": "Choose a documentary on a topic you're curious about and watch it mindfully."
+		},
+		{
+			"id": "skill_practice",
+			"title": "Skill Practice",
+			"color": "#b3946d",
+			"shortDescription": "Practice a new skill for 15 minutes.",
+			"detailedDescription": "Dedicate time to actively practice a skill you're trying to develop, like an instrument or coding."
+		},
+		{
+			"id": "listen_podcast",
+			"title": "Listen to Podcast",
+			"color": "#c6a782",
+			"shortDescription": "Engage with educational audio content.",
+			"detailedDescription": "Listen to an informative podcast episode on a topic of interest."
+		},
+		{
+			"id": "problem_solving_puzzle",
+			"title": "Problem Solving Puzzle",
+			"color": "#7c5c44",
+			"shortDescription": "Challenge your mind with a puzzle.",
+			"detailedDescription": "Work on a sudoku, crossword, or logic puzzle to keep your mind sharp."
+		},
+		{
+			"id": "review_goals",
+			"title": "Review Goals",
+			"color": "#916f56",
+			"shortDescription": "Check in on your long-term objectives.",
+			"detailedDescription": "Spend time reviewing your personal goals and planning next steps."
+		},
+		{
+			"id": "try_new_recipe",
+			"title": "Try New Recipe",
+			"color": "#d49e6f",
+			"shortDescription": "Experiment with a new dish.",
+			"detailedDescription": "Cook or bake something you've never made before to expand your culinary skills."
+		},
+		{
+			"id": "cultural_exploration",
+			"title": "Cultural Exploration",
+			"color": "#e2bf92",
+			"shortDescription": "Learn about a new culture.",
+			"detailedDescription": "Explore a new culture through music, art, history, or cuisine."
+		}
+	],
+	"Home & Organization": [
+		{
+			"id": "declutter_10_min",
+			"title": "Declutter 10 Mins",
+			"color": "#a78a6c",
+			"shortDescription": "Spend 10 minutes tidying a space.",
+			"detailedDescription": "Choose a small area and quickly declutter it to maintain order."
+		},
+		{
+			"id": "organize_drawer",
+			"title": "Organize a Drawer",
+			"color": "#b89e7c",
+			"shortDescription": "Tidy one drawer or shelf.",
+			"detailedDescription": "Empty, clean, and neatly arrange the contents of a single drawer or shelf."
+		},
+		{
+			"id": "laundry_one_load",
+			"title": "Laundry - One Load",
+			"color": "#9e7f5e",
+			"shortDescription": "Do one load of laundry.",
+			"detailedDescription": "Start, dry, and put away a single load of laundry to stay on top of chores."
+		},
+		{
+			"id": "meal_prep_mini",
+			"title": "Meal Prep Mini",
+			"color": "#d0956f",
+			"shortDescription": "Prepare a component of a meal.",
+			"detailedDescription": "Chop vegetables, cook a grain, or portion out ingredients for future meals."
+		},
+		{
+			"id": "clean_kitchen_sink",
+			"title": "Clean Kitchen Sink",
+			"color": "#8c705a",
+			"shortDescription": "Wipe down and shine your kitchen sink.",
+			"detailedDescription": "Quickly clean and disinfect the kitchen sink after use."
+		},
+		{
+			"id": "make_bed",
+			"title": "Make Bed",
+			"color": "#a16b50",
+			"shortDescription": "Start your day by making your bed.",
+			"detailedDescription": "A simple act of tidiness that can positively impact your morning routine."
+		},
+		{
+			"id": "empty_trash",
+			"title": "Empty Trash",
+			"color": "#b8a97c",
+			"shortDescription": "Empty all small trash cans.",
+			"detailedDescription": "Collect and dispose of trash from all bins around the house."
+		},
+		{
+			"id": "plan_next_day",
+			"title": "Plan Next Day",
+			"color": "#c49266",
+			"shortDescription": "Outline your tasks for tomorrow.",
+			"detailedDescription": "Spend 10-15 minutes at the end of the day planning your schedule and top priorities for the next day."
+		},
+		{
+			"id": "water_houseplants",
+			"title": "Water Houseplants",
+			"color": "#6e5d47",
+			"shortDescription": "Hydrate your indoor plants.",
+			"detailedDescription": "Check the soil moisture of your houseplants and water those that need it."
+		},
+		{
+			"id": "quick_sweep",
+			"title": "Quick Sweep/Vacuum",
+			"color": "#8f6f57",
+			"shortDescription": "Quickly sweep or vacuum a main living area.",
+			"detailedDescription": "Maintain cleanliness by quickly tidying the floor in a high-traffic area."
 		}
 	]
 }

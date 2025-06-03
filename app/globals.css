@@ -110,7 +110,7 @@ body::-webkit-scrollbar {
 	color: #f5e8d4;
 }
 .progress-button {
-	display: flex; /* ✅ Enables flexbox for perfect centering */
+	display: flex;
 	align-items: center; /* ✅ Centers vertically */
 	justify-content: center; /* ✅ Centers horizontally */
 	width: 30px;
@@ -182,15 +182,30 @@ body::-webkit-scrollbar {
 
 .card-buttons {
 	display: flex;
-	justify-content: flex-end; /* ✅ Align buttons to the right */
-	gap: 8px; /* ✅ Space between + and - buttons */
+	justify-content: flex-start; /* ✅ Align buttons to the right */
+	/* gap: 2px; /* ✅ Space between + and - buttons  */
 }
-.goal-buttons {
-	position: absolute;
-	bottom: 25px;
-	right: -10px; /* ✅ Forces buttons to the bottom-right */
-	display: flex;
-	gap: 8px; /* ✅ Spaces out + and - */
 
-	font-size: xx-large;
+.goal-card-icon {
+	font-size: 25px; /* ✅ Adjust to your preferred size */
+	bottom: 5px;
+	right: 5px;
+	color: black;
+	width: '50px';
+}
+
+.progress-icon {
+	font-size: 25px; /* ✅ Adjust to your preferred size */
+	color: black;
+	color: red;
+
+	width: '50px';
+}
+html,
+body,
+#root {
+	/* #root is common in React apps */
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }

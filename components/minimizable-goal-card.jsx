@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faTrashCan,
+	faPencil,
+	faSquarePlus,
+	faSquareCheck,
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function MinimizableGoalCard({
 	goal,
@@ -11,6 +18,7 @@ export default function MinimizableGoalCard({
 	onDelete,
 }) {
 	const handleDelete = (e) => {
+		console.log('handledelete');
 		e.stopPropagation(); // Prevent card collapse when clicking X
 		onDelete(goal.id); // ✅ Trigger delete function
 	};
@@ -42,10 +50,13 @@ export default function MinimizableGoalCard({
 		// const newProgress = Math.min(goal.progress + segmentIncrement, 100);
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
-		const newProgress = Math.min(
+		let newProgress = Math.min(
 			validProgress + 100 / goal.totalSegments,
 			100
 		);
+		if (goal.progress === 100) {
+			newProgress = 0;
+		}
 
 		updateProgress(goal.id, newProgress); // ✅ Save progress correctly
 
@@ -68,53 +79,53 @@ export default function MinimizableGoalCard({
 				}`}
 				style={{ width: `${goal.progress}%` }}
 			></div>
-			<button
-				className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/3 bg-deep-olive text-subtle rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-700 shadow-md z-20"
-				onClick={handleDelete}
-			>
-				x
-			</button>
 
 			{/* Card Content - Placed above progress bar */}
 			<div className="card-container relative flex justify-between items-center z-10">
 				{/* Title & Short Description */}
-				<div className="flex flex-col">
-					<h2 className="text-lg font-bold text-gray-800">
-						{goal.title}
-					</h2>
-					<p className="text-gray-600 text-sm">
-						{goal.shortDescription}
-					</p>
+				<div className="flex flex-row justify-around gap-20">
+					<div>
+						<h2 className="text-lg font-bold text-gray-800">
+							{goal.title}
+						</h2>
+						<p className="text-gray-600 text-sm">
+							{goal.shortDescription}
+						</p>
+					</div>
+					<div className="absolute top-1 right-1">
+						<FontAwesomeIcon
+							icon={
+								goal.progress === 100
+									? faSquareCheck
+									: faSquarePlus
+							}
+							className="far goal-card-icon z-20"
+							onClick={increaseProgress}
+						></FontAwesomeIcon>
+					</div>
 				</div>
 
 				{/* + Button to Increase Progress */}
-				<div className="card-buttons goal-buttons flex flex-row justify-end gap-1">
-					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-1"
-						onClick={decreaseProgress}
-					>
-						-
-					</button>
-					<button
-						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-1"
-						onClick={increaseProgress}
-					>
-						+
-					</button>
-				</div>
+				<div className="card-buttons goal-buttons flex flex-col justify-center gap-1"></div>
 			</div>
 
 			{isExpanded && (
-				<div className="mt-4 flex flex-col items-start z-10">
-					<button
-						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex mx-auto border-2"
-						onClick={(e) => {
-							e.stopPropagation(); // Prevent card collapse
-							onEdit(goal.id);
-						}}
-					>
-						Edit Habit
-					</button>
+				<div className="flex flex-col h-full rounded-lg">
+					<div className="flex flex-row justify-end items-end gap-2">
+						<FontAwesomeIcon
+							icon={faPencil}
+							className="far goal-card-icon z-20"
+							onClick={(e) => {
+								e.stopPropagation(); // Prevent card collapse
+								onEdit(goal.id);
+							}}
+						></FontAwesomeIcon>
+						<FontAwesomeIcon
+							icon={faTrashCan}
+							className="far goal-card-icon z-20"
+							onClick={handleDelete}
+						></FontAwesomeIcon>
+					</div>
 				</div>
 			)}
 		</div>

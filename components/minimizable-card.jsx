@@ -5,6 +5,9 @@ export default function MinimizableCard({
 	isExpanded,
 	onExpand,
 }) {
+	console.log('short', habit.shortDescription);
+
+	console.log('long', habit.detailedDescription);
 	return (
 		<div
 			className={`${
@@ -21,16 +24,18 @@ export default function MinimizableCard({
 		>
 			{/* Title & Short Description */}
 			<h2 className="text-lg font-bold text-gray-800">{habit.title}</h2>
-			{!isExpanded && (
-				<p className="text-gray-600 text-sm">
-					{habit.shortDescription}
-				</p>
+
+			<p className="text-gray-600 text-sm">{habit.shortDescription}</p>
+
+			{isExpanded && (
+				<div className="mt-4 text-gray-700 text-sm z-10">
+					{habit.detailedDescription}
+				</div>
 			)}
 
 			{/* Expanded Details */}
 			{isExpanded && (
 				<div className="mt-4">
-					<p className="text-gray-700">{habit.detailedDescription}</p>
 					<button
 						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex justify-center mx-auto  transition-transform active:scale-95 border-2"
 						onClick={(e) => {

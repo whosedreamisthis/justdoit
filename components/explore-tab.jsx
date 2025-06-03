@@ -19,7 +19,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 		localStorage.setItem('expandedCategory', newCategory); // ✅ Saves state persistently
 	};
 	const handleExpand = (id) => {
-		console.log(`Expanding Habit ID: ${id}`); // ✅ Debug log
 		setExpandedCard((prev) => (prev === id ? null : id)); // ✅ Toggle expansion correctly
 	};
 

@@ -69,15 +69,6 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	};
 
 	const updateProgress = (goalId, newProgress) => {
-		console.log(
-			'Goal updated:',
-			goalId,
-			'New progress:',
-			newProgress,
-			'Completed:',
-			newProgress >= 100
-		);
-
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId
@@ -102,9 +93,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 					behavior: 'smooth',
 					block: 'center',
 				});
-				console.log('Scrolled to completed goal:', goalId);
 			} else {
-				console.log('Completed goal not found in DOM yet. Retrying...');
 				setTimeout(() => {
 					const retryCompletedGoalElement = document.querySelector(
 						`[data-goal-id="${goalId}"]`
@@ -114,7 +103,6 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 							behavior: 'smooth',
 							block: 'end',
 						});
-						console.log('Scrolled after retry:', goalId);
 					}
 				}, 100);
 			}

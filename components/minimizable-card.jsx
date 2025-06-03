@@ -18,7 +18,6 @@ export default function MinimizableCard({
 					: 'max-h-32 overflow-hidden z-0 shadow-none'
 			} border border-black`}
 			onClick={() => {
-				console.log(`Expanding habit: ${habit.title}`); // ✅ Debug log
 				onExpand();
 			}}
 		>

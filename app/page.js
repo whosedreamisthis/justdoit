@@ -80,24 +80,6 @@ export default function App() {
 
 		let timeUntilWeeklyReset = nextSundayMidnight.getTime() - now.getTime();
 
-		// --- START OF TESTING MODIFICATIONS ---
-		// THESE LINES MUST BE UNCOMMENTED for testing to run in 5 and 10 seconds!
-		// timeUntilDailyReset = 5000; // 5 seconds for daily reset
-		// timeUntilWeeklyReset = 10000; // 10 seconds for weekly reset
-		// --- END OF TESTING MODIFICATIONS ---
-
-		console.log('Now (TESTING DATE):', now.toISOString()); // Changed log to reflect testing
-		console.log(
-			'Next Daily Reset (Test):',
-			midnightToday.toISOString(),
-			`(${timeUntilDailyReset}ms)`
-		);
-		console.log(
-			'Next Weekly Reset (Sunday 00:00 - Test):',
-			nextSundayMidnight.toISOString(),
-			`(${timeUntilWeeklyReset}ms)`
-		);
-
 		const dailyTimer = setTimeout(() => {
 			setGoals((prevGoals) =>
 				prevGoals.map((goal) => ({

@@ -197,8 +197,16 @@ body::-webkit-scrollbar {
 .progress-icon {
 	font-size: 25px; /* ✅ Adjust to your preferred size */
 	color: black;
-	color: red;
 
+	width: '50px';
+}
+
+.explore-icon {
+	display: flex;
+	justify-content: center;
+
+	font-size: 25px; /* ✅ Adjust to your preferred size */
+	color: black;
 	width: '50px';
 }
 html,

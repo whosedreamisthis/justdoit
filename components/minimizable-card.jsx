@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
+
 export default function MinimizableCard({
 	index,
 	habit,
@@ -32,19 +35,18 @@ export default function MinimizableCard({
 					{habit.detailedDescription}
 				</div>
 			)}
-
-			{/* Expanded Details */}
 			{isExpanded && (
-				<div className="mt-4">
-					<button
-						className="mt-3 bg-subtle-background text-charcoal py-2 px-4 rounded-lg hover:bg-olive-earth flex justify-center mx-auto  transition-transform active:scale-95 border-2"
-						onClick={(e) => {
-							e.stopPropagation(); // Prevent card from collapsing
-							onSelect(habit.id);
-						}}
-					>
-						Select Habit
-					</button>
+				<div className="flex flex-col h-full rounded-lg">
+					<div className="flex flex-row justify-end items-end gap-2">
+						<FontAwesomeIcon
+							icon={faSquareCheck}
+							className="far goal-card-icon z-20"
+							onClick={(e) => {
+								e.stopPropagation(); // Prevent card collapse
+								onSelect(habit.id);
+							}}
+						></FontAwesomeIcon>
+					</div>
 				</div>
 			)}
 		</div>

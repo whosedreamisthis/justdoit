@@ -64,7 +64,7 @@ export default function App() {
 	};
 
 	const onGoalEdited = (goalId) => {
-		console.log('onGoalEdited', goalId);
+		toast.success(`"Goals can't be edited yet.`);
 	};
 
 	const onReSort = (goals) => {

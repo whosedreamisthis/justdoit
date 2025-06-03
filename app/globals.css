@@ -170,7 +170,7 @@ body::-webkit-scrollbar {
 }
 .minimized-card,
 .minimized-goal-card {
-	height: 80px; /* ✅ Match both components */
+	height: 100px; /* ✅ Match both components */
 }
 .card-container {
 	display: flex;
@@ -209,6 +209,15 @@ body::-webkit-scrollbar {
 	color: black;
 	width: '50px';
 }
+.day-square {
+	background-color: #3b3b3b;
+	height: 20px;
+	width: 20px;
+	z-index: 1000;
+	color: #f5e8d4;
+	border-width: 1px;
+	border-radius: 5px;
+}
 html,
 body,
 #root {
@@ -216,4 +225,31 @@ body,
 	height: 100%;
 	margin: 0;
 	padding: 0;
+}
+.day-squares-container {
+	display: flex; /* Makes the container a flex container */
+	flex-direction: row; /* Arranges items in a row (this is the default, but good to be explicit) */
+	/* Optional: How to align items vertically in the row if the parent has height */
+	align-items: center; /* Aligns items to the center vertically */
+	/* Optional: How to distribute space horizontally if there's extra space */
+	justify-content: flex-start; /* Aligns items to the start (left) of the row */
+	/* Or justify-content: center; for horizontally centering the row of squares */
+	/* Or justify-content: space-between; to space them out evenly */
+
+	/* Add any other container styling, e.g., padding */
+	padding-left: 0px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+
+	gap: 12px;
+	/* Optional: If you want the container to wrap to the next line if squares overflow */
+	flex-wrap: wrap;
+}
+.bg-deep-olive {
+	/* Previous: background-color: #4f4a41; (Darker) */
+	background-color: #a48f72; /* ✅ Lighter earthy gray/brown (matches expand-arrow color) */
+	/* Or */
+	/* background-color: #cdc9c3; */ /* A very light, slightly warm gray */
+	/* Or */
+	/* background-color: #b0a8a0; */ /* A medium-light stone gray */
 }

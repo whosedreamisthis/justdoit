@@ -5,7 +5,15 @@ import '@/app/globals.css';
 
 export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
-
+	const [currentDayIndex, setCurrentDayIndex] = useState(
+		getDayOfWeekIndex(new Date())
+	);
+	function getDayOfWeekIndex(date) {
+		// getDay() returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+		// We want Monday to be 0, Tuesday 1, ..., Sunday 6
+		const day = date.getDay();
+		return day === 0 ? 6 : day - 1; // Convert Sunday (0) to 6, Monday (1) to 0, etc.
+	}
 	const handleExpand = (id) => {
 		setExpandedGoal(expandedGoal === id ? null : id); // Toggle expansion
 	};
@@ -168,6 +176,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 							{/* ✅ Adds animation */}
 							<MinimizableGoalCard
 								goal={goal}
+								currentDayIndex={currentDayIndex}
 								onEdit={onEdit}
 								isExpanded={expandedGoal === goal.id}
 								onExpand={() => handleExpand(goal.id)}

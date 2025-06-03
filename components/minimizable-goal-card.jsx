@@ -16,9 +16,23 @@ export default function MinimizableGoalCard({
 	onProgressChange,
 	updateProgress,
 	onDelete,
+	currentDayIndex,
 }) {
+	const completedSquareColorClass = 'bg-deep-olive'; // This corresponds to your CSS .bg-deep-olive
+
+	// Array of day square elements
+	const daySquares = Array.from({ length: 7 }).map((_, index) => {
+		// Determine if this square should be filled
+		console.log(goal);
+		const shouldFill = goal.progress >= 100 && index === currentDayIndex;
+		// Apply the conditional class
+		const squareClass = `day-square ${
+			shouldFill ? completedSquareColorClass : ''
+		}`;
+
+		return <div key={index} className={squareClass}></div>;
+	});
 	const handleDelete = (e) => {
-		console.log('handledelete');
 		e.stopPropagation(); // Prevent card collapse when clicking X
 		onDelete(goal.id); // ✅ Trigger delete function
 	};
@@ -64,11 +78,12 @@ export default function MinimizableGoalCard({
 			onComplete(goal.id);
 		}
 	};
+
 	return (
 		<div
 			className={`relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
 				goal.color
-			} ${isExpanded ? 'h-auto' : 'h-20'}`}
+			} ${isExpanded ? 'h-auto' : 'h-25'}`}
 			onClick={onExpand}
 			style={{ overflow: 'visible', borderRadius: '8px' }}
 		>
@@ -88,9 +103,9 @@ export default function MinimizableGoalCard({
 						<h2 className="text-lg font-bold text-gray-800">
 							{goal.title}
 						</h2>
-						<p className="text-gray-600 text-sm">
-							{goal.shortDescription}
-						</p>
+						<div className="day-squares-container gap-10 pb-4">
+							{daySquares}
+						</div>
 					</div>
 					<div className="absolute top-1 right-1">
 						<FontAwesomeIcon
@@ -106,7 +121,6 @@ export default function MinimizableGoalCard({
 				</div>
 
 				{/* + Button to Increase Progress */}
-				<div className="card-buttons goal-buttons flex flex-col justify-center gap-1"></div>
 			</div>
 
 			{isExpanded && (

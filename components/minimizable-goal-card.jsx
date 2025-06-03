@@ -76,7 +76,7 @@ export default function MinimizableGoalCard({
 			</button>
 
 			{/* Card Content - Placed above progress bar */}
-			<div className="relative flex justify-between items-center z-10">
+			<div className="card-container relative flex justify-between items-center z-10">
 				{/* Title & Short Description */}
 				<div className="flex flex-col">
 					<h2 className="text-lg font-bold text-gray-800">
@@ -88,7 +88,7 @@ export default function MinimizableGoalCard({
 				</div>
 
 				{/* + Button to Increase Progress */}
-				<div className="flex flex-row justify-between gap-2 mt-[10px]">
+				<div className="card-buttons goal-buttons flex flex-row justify-end gap-1">
 					<button
 						className="progress-button bg-subtle-background text-charcoal py-1 px-3 rounded-lg hover:bg-green-600 mb-2 border-2"
 						onClick={decreaseProgress}

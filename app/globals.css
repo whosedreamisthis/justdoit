@@ -172,3 +172,25 @@ body::-webkit-scrollbar {
 .minimized-goal-card {
 	height: 80px; /* ✅ Match both components */
 }
+.card-container {
+	display: flex;
+	/* flex-direction: column; */
+	justify-content: space-between; /* ✅ Push content to top, buttons to bottom */
+	position: relative;
+	padding-bottom: 40px; /* ✅ Creates space for buttons */
+}
+
+.card-buttons {
+	display: flex;
+	justify-content: flex-end; /* ✅ Align buttons to the right */
+	gap: 8px; /* ✅ Space between + and - buttons */
+}
+.goal-buttons {
+	position: absolute;
+	bottom: 25px;
+	right: -10px; /* ✅ Forces buttons to the bottom-right */
+	display: flex;
+	gap: 8px; /* ✅ Spaces out + and - */
+
+	font-size: xx-large;
+}

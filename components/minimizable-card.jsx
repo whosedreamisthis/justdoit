@@ -8,9 +8,6 @@ export default function MinimizableCard({
 	isExpanded,
 	onExpand,
 }) {
-	console.log('short', habit.shortDescription);
-
-	console.log('long', habit.detailedDescription);
 	return (
 		<div
 			className={`${

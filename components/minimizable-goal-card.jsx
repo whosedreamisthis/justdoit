@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// minimizable-goal-card.jsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Removed unused useState import
 import {
 	faTrashCan,
 	faPencil,
@@ -19,21 +19,22 @@ export default function MinimizableGoalCard({
 	onDelete,
 	currentDayIndex,
 }) {
-	const completedSquareColorClass = 'bg-deep-olive'; // This corresponds to your CSS .bg-deep-olive
-	console.log('goal', goal);
-	// Array of day square elements
-	const daySquares = goal.daySquares.map((day, index) => {
-		const shouldFill = day; //goal.progress >= 100 && index === currentDayIndex;
-		// Apply the conditional class
+	const completedSquareColorClass = 'bg-deep-olive';
+
+	// --- MINIMAL CHANGE 1: Use goal.completedDays instead of goal.daySquares ---
+	const daySquares = goal.completedDays.map((day, index) => {
+		// CHANGED HERE!
+		const shouldFill = day;
 		const squareClass = `day-square ${
 			shouldFill ? completedSquareColorClass : ''
 		}`;
 
 		return <div key={index} className={squareClass}></div>;
 	});
+
 	const handleDelete = (e) => {
-		e.stopPropagation(); // Prevent card collapse when clicking X
-		onDelete(goal.id); // ✅ Trigger delete function
+		e.stopPropagation();
+		onDelete(goal.id);
 	};
 
 	const decreaseProgress = (e) => {
@@ -48,34 +49,34 @@ export default function MinimizableGoalCard({
 
 		updateProgress(goal.id, newProgress);
 		if (goal.progress === 100 && newProgress < 100) {
-			onProgressChange(goal.id); // ✅ Trigger movement upwards
+			onProgressChange(goal.id);
 		}
 	};
 
 	const increaseProgress = (e) => {
 		e.stopPropagation();
 
-		// const segmentIncrement = 100 / totalSegments;
-		// const newProgress = Math.min(goal.progress + segmentIncrement, 100);
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
 		let newProgress = Math.min(
 			validProgress + 100 / goal.totalSegments,
 			100
 		);
+
 		if (goal.progress === 100) {
 			newProgress = 0;
-			const newDays = goal.daySquares;
+			// --- MINIMAL CHANGE 2: Use goal.completedDays and copy it ---
+			const newDays = [...goal.completedDays]; // CHANGED HERE and ensures a copy!
 			newDays[currentDayIndex] = false;
 			updateDaysProgress(goal.id, newDays);
-			console.log('NEW DAYS ', newDays);
 		}
 
-		updateProgress(goal.id, newProgress); // ✅ Save progress correctly
+		updateProgress(goal.id, newProgress);
 
 		if (newProgress === 100) {
 			onComplete(goal.id);
-			const newDays = goal.daySquares;
+			// --- MINIMAL CHANGE 3: Use goal.completedDays and copy it ---
+			const newDays = [...goal.completedDays]; // CHANGED HERE and ensures a copy!
 			newDays[currentDayIndex] = true;
 			updateDaysProgress(goal.id, newDays);
 		}
@@ -85,13 +86,12 @@ export default function MinimizableGoalCard({
 		<div
 			className={`${
 				goal.progress >= 100 ? 'completed-card' : 'card'
-			}  relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
+			} relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden ${
 				goal.color
 			} ${isExpanded ? 'h-auto' : 'h-25'} border border-black`}
 			onClick={onExpand}
 			style={{ overflow: 'visible', borderRadius: '8px' }}
 		>
-			{/* Progress Bar - Background fills as progress increases */}
 			<div
 				className={`absolute inset-0 bg-blue-earth transition-all h-full w-full ${
 					goal.progress === 100 ? 'rounded-lg' : 'rounded-l-lg'
@@ -99,9 +99,7 @@ export default function MinimizableGoalCard({
 				style={{ width: `${goal.progress}%` }}
 			></div>
 
-			{/* Card Content - Placed above progress bar */}
 			<div className="card-container relative flex justify-between items-center z-10">
-				{/* Title & Short Description */}
 				<div className="flex flex-row justify-around gap-20">
 					<div>
 						<h2 className="text-lg font-bold text-gray-800">
@@ -123,8 +121,6 @@ export default function MinimizableGoalCard({
 						></FontAwesomeIcon>
 					</div>
 				</div>
-
-				{/* + Button to Increase Progress */}
 			</div>
 
 			{isExpanded && (
@@ -134,7 +130,7 @@ export default function MinimizableGoalCard({
 							icon={faPencil}
 							className="far goal-card-icon z-20"
 							onClick={(e) => {
-								e.stopPropagation(); // Prevent card collapse
+								e.stopPropagation();
 								onEdit(goal.id);
 							}}
 						></FontAwesomeIcon>

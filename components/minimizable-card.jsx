@@ -11,7 +11,7 @@ export default function MinimizableCard({
 				habit.color
 			} rounded-lg p-4 cursor-pointer transition-all ${
 				isExpanded
-					? 'max-h-[500px] overflow-auto z-10 shadow-xl'
+					? 'max-h-[500px] overflow-auto z-10'
 					: 'max-h-32 overflow-hidden z-0 shadow-none'
 			}`}
 			onClick={() => {

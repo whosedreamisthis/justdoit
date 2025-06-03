@@ -67,6 +67,14 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 					</div>
 				))}
 			</div>
+			<div className="flex justify-center items-center min-h-[200px]">
+				{!expandedCategory && (
+					<p className="text-lg text-charcoal text-center">
+						Find habits that fit your lifestyle—start by choosing a
+						category!
+					</p>
+				)}
+			</div>
 		</div>
 	);
 }

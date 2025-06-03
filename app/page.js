@@ -58,7 +58,8 @@ export default function App() {
 			color: selectedHabit.color,
 			shortDescription: selectedHabit.shortDescription,
 		};
-		setGoals([...goals, newGoal]);
+		const newGoals = [...goals, newGoal];
+		setGoals(newGoals.sort((a, b) => (a.progress === 100 ? 1 : -1)));
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
@@ -67,7 +68,9 @@ export default function App() {
 	};
 
 	const onReSort = (goals) => {
-		setGoals(goals);
+		setGoals((prevGoals) =>
+			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
+		);
 	};
 	// console.log(habitsByCategory['Creativity & Nature Connection']);
 	return (

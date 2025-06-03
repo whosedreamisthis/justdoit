@@ -18,6 +18,32 @@ export default function App() {
 		return [];
 	});
 	useEffect(() => {
+		const now = new Date();
+		const tomorrowMidnight = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate() + 1,
+			0,
+			0,
+			0
+		);
+
+		const timeUntilReset = tomorrowMidnight.getTime() - now.getTime();
+
+		console.log('Now:', now.toISOString());
+		console.log('Tomorrow Midnight:', tomorrowMidnight.toISOString());
+		console.log('Time Until Reset:', timeUntilReset);
+
+		const timer = setTimeout(() => {
+			setGoals((prevGoals) =>
+				prevGoals.map((goal) => ({ ...goal, progress: 0 }))
+			);
+		}, timeUntilReset);
+
+		return () => clearTimeout(timer);
+	}, []);
+
+	useEffect(() => {
 		if (goals.length > 0) {
 			localStorage.setItem('userGoals', JSON.stringify(goals));
 		}

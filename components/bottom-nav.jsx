@@ -8,7 +8,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 	];
 
 	return (
-		<div className="tab-buttons botton-nav fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around py-2">
+		<div className="tab-buttons botton-nav fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around">
 			{tabs.map((tab) => (
 				<button
 					key={tab.id}

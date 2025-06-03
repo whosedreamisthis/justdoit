@@ -1,0 +1,5 @@
+<button
+	class="flex-1 text-center py-3 font-semibold text-lg transition-all text-charcoal bg-subtle hover:bg-gray-200 border-2"
+>
+	Goals
+</button>

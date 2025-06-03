@@ -131,7 +131,7 @@ body::-webkit-scrollbar {
 }
 .bottom-nav {
 	position: fixed;
-	bottom: 0;
+	/* bottom: 0; */
 	width: 100%;
 	z-index: 1000; /* ✅ Ensures it's above overlapping content */
 }
@@ -140,10 +140,9 @@ body::-webkit-scrollbar {
 	position: fixed;
 	bottom: 0;
 	width: 100%;
-	background: white;
 	display: flex;
 	justify-content: space-around; /* ✅ Even spacing for buttons */
-	padding: 10px 0;
+	/* padding: 10px 0; */
 	z-index: 1000; /* ✅ Ensures tab buttons stay on top */
 	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
 }

@@ -159,3 +159,9 @@ body::-webkit-scrollbar {
 	font-size: 24px; /* ✅ Slightly bigger for better visibility */
 	transition: color 0.3s ease-in-out; /* ✅ Smooth transition when toggling */
 }
+.category-container {
+	border: 2px solid #a48f72; /* ✅ Earthy tone */
+	border-radius: 8px; /* ✅ Slightly rounded edges for a softer feel */
+	padding: 12px; /* ✅ Adds breathing room inside the category */
+	margin-bottom: 10px; /* ✅ Creates separation between categories */
+}

@@ -34,7 +34,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}
-						className="p-3 rounded-lg bg-warm-sand cursor-pointer"
+						className="p-3 rounded-lg bg-warm-sand cursor-pointer category-container"
 					>
 						{/* ✅ Clickable category header */}
 						<div

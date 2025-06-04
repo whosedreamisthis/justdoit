@@ -1,6 +1,6 @@
 // minimizable-goal-card.jsx
 import { useState, useEffect, useRef } from 'react';
-import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- ADD THIS IMPORT
+import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- CHANGED IMPORT PATH/NAME
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faTrashCan,
@@ -14,8 +14,8 @@ import { toast } from 'react-hot-toast';
 
 export default function MinimizableGoalCard({
 	goal,
-	onEdit, // This prop isn't directly used internally but kept for API consistency
-	isExpanded, // This prop is passed to the hook
+	onEdit,
+	isExpanded,
 	onExpand,
 	onComplete,
 	onProgressChange,
@@ -44,27 +44,24 @@ export default function MinimizableGoalCard({
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
-	const cardRef = ScrollOnExpand(isExpanded); // <--- USE THE CUSTOM HOOK HERE!
+	const cardRef = ScrollOnExpand(isExpanded); // <--- CHANGED USAGE
 
-	// This useEffect ensures that when the goal prop changes,
-	// our internal editing states are reset and populated from the new goal.
 	useEffect(() => {
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || ''); // Ensures editedShortDescription is synced
+		setEditedShortDescription(goal.shortDescription || '');
 		setEditedColor(goal.color);
-		setIsEditing(false); // Crucially resets editing mode when goal or expansion changes
+		setIsEditing(false);
 	}, [goal.id, goal.title, goal.shortDescription, goal.color, isExpanded]);
 
-	// Focus on title input when entering edit mode
 	useEffect(() => {
 		if (isEditing && titleInputRef.current) {
 			titleInputRef.current.focus();
-			titleInputRef.current.setSelectionRange(0, 0); // Place cursor at the beginning
+			titleInputRef.current.setSelectionRange(0, 0);
 		}
 	}, [isEditing]);
 
-	const completedSquareColorClass = 'bg-deep-olive';
-
+	const completedSquareColorClass = 'day-square-filled-green';
+	console.log('goal.completedDays', goal.completedDays[1]);
 	const daySquares = goal.completedDays.map((day, index) => {
 		const shouldFill = day;
 		const squareClass = `day-square ${
@@ -143,14 +140,14 @@ export default function MinimizableGoalCard({
 	const handleCancelEdit = (e) => {
 		e.stopPropagation();
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || ''); // Reset to original goal.shortDescription
+		setEditedShortDescription(goal.shortDescription || '');
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
 
 	return (
 		<div
-			ref={cardRef} // <--- ATTACH THE REF FROM THE CUSTOM HOOK HERE!
+			ref={cardRef}
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
                 relative rounded-lg p-4 cursor-pointer transition-all flex flex-col
@@ -162,7 +159,6 @@ export default function MinimizableGoalCard({
 				borderRadius: '8px',
 			}}
 			onClick={() => {
-				// Only allow expansion/collapse if not in editing mode
 				if (!isEditing) {
 					onExpand();
 				}
@@ -178,9 +174,7 @@ export default function MinimizableGoalCard({
 			</div>
 
 			<div className="card-container relative flex justify-between items-start z-10">
-				{/* Left side: Content that changes based on expand/edit state */}
 				<div className="flex-grow pr-12 min-w-0">
-					{/* Display Mode (Expanded, Not Editing) */}
 					{isExpanded && !isEditing && (
 						<>
 							<h2 className="text-lg font-bold text-gray-800 break-words">
@@ -194,7 +188,6 @@ export default function MinimizableGoalCard({
 						</>
 					)}
 
-					{/* Collapsed Mode (Not Expanded) */}
 					{!isExpanded && (
 						<>
 							<h2 className="text-lg font-bold text-gray-800 break-words">
@@ -206,10 +199,8 @@ export default function MinimizableGoalCard({
 						</>
 					)}
 
-					{/* EDIT MODE (Expanded, Editing) - This is the consolidated block */}
 					{isExpanded && isEditing && (
 						<>
-							{/* Title Label and Input */}
 							<div className="mb-2">
 								<label
 									htmlFor="goal-title"
@@ -232,7 +223,6 @@ export default function MinimizableGoalCard({
 								/>
 							</div>
 
-							{/* Short Description Label and Input */}
 							<div className="mb-4">
 								<label
 									htmlFor="goal-short-description"
@@ -256,7 +246,6 @@ export default function MinimizableGoalCard({
 								></textarea>
 							</div>
 
-							{/* Color Picker - ONLY SHOW FOR INCOMPLETE GOALS WHEN EDITING */}
 							{goal.progress < 100 && (
 								<div className="mb-4">
 									<label className="block text-sm font-medium text-gray-700">
@@ -288,7 +277,6 @@ export default function MinimizableGoalCard({
 					)}
 				</div>
 
-				{/* Right side: Progress Icon (absolute position) */}
 				<div className="absolute top-1 right-1">
 					<FontAwesomeIcon
 						icon={
@@ -300,10 +288,8 @@ export default function MinimizableGoalCard({
 				</div>
 			</div>
 
-			{/* Control buttons (Edit/Save/Cancel/Delete) always at the bottom of expanded view */}
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
-					{/* CONTROL BUTTONS (Edit/Save/Cancel/Delete) */}
 					<div className="flex flex-row justify-end items-end gap-2 mt-auto">
 						{isEditing ? (
 							<>
@@ -326,7 +312,7 @@ export default function MinimizableGoalCard({
 								className="far goal-card-icon z-20"
 								onClick={(e) => {
 									e.stopPropagation();
-									setIsEditing(true); // Set isEditing to true to reveal edit fields
+									setIsEditing(true);
 								}}
 							></FontAwesomeIcon>
 						)}

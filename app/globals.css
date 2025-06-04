@@ -295,3 +295,7 @@ body,
 .button-secondary-light {
 	background-color: #b08e77;
 }
+
+.day-square-filled-green {
+	background-color: #77dd77; /* Or your preferred deep pastel green hex code */
+}

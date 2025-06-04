@@ -5,8 +5,6 @@ const isProd = process.env.NODE_ENV === 'production';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	// Required for static export
-	output: 'export',
-
 	// Optional: Set a base path if your GitHub Pages URL is like
 	// https://yourusername.github.io/your-repo-name/
 	// Replace 'your-repo-name' with the actual name of your GitHub repository
@@ -20,6 +18,9 @@ const nextConfig = {
 	// OR define image domains. For GitHub Pages, unoptimized is usually easier.
 	images: {
 		unoptimized: true,
+	},
+	experimental: {
+		serverActions: true,
 	},
 
 	// Your existing webpack, compiler, etc., configurations go here

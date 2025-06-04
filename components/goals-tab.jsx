@@ -11,6 +11,8 @@ export default function GoalsTab({
 	onUpdateGoal,
 }) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
+	const [movingGoal, setMovingGoal] = useState(null);
+
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
 	);
@@ -111,25 +113,32 @@ export default function GoalsTab({
 			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
 		);
 	};
+
+	// const [movingGoal, setMovingGoal] = useState(null);
+
 	const moveIncompleteGoal = (goalId) => {
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.sort((a, b) =>
-				a.progress === 100 ? 1 : -1
-			);
+		setMovingGoal(goalId); // Mark the goal as "moving"
 
-			// Use setTimeout to ensure sorting completes before scrolling
-			setTimeout(() => {
-				const element = goalRefs.current[goalId];
-				if (element) {
-					element.scrollIntoView({
-						behavior: 'smooth',
-						block: 'center',
-					});
-				}
-			}, 100);
+		setTimeout(() => {
+			setGoals((prevGoals) => {
+				const updatedGoals = [...prevGoals].sort((a, b) =>
+					a.progress === 100 ? 1 : -1
+				);
 
-			return updatedGoals;
-		});
+				setTimeout(() => {
+					setMovingGoal(null); // Remove animation class after moving
+					const element = goalRefs.current[goalId];
+					if (element) {
+						element.scrollIntoView({
+							behavior: 'smooth',
+							block: 'center',
+						});
+					}
+				}, 500); // Allow animation time before scrolling
+
+				return updatedGoals;
+			});
+		}, 300); // Delay sorting to allow animation
 	};
 
 	const sortGoals = (goals) => {

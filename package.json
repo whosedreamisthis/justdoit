@@ -1,37 +1,33 @@
 {
-	"name": "justdoit",
-	"version": "0.1.0",
-	"private": true,
-	"homepage": "https://whosedreamisthis.github.io/justdoit/",
-	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "next lint",
-		"predeploy": "npm run build",
-		"deploy": "gh-pages -d out"
-	},
-	"dependencies": {
-		"@clerk/nextjs": "^6.20.2",
-		"@fortawesome/fontawesome-svg-core": "^6.7.2",
-		"@fortawesome/free-regular-svg-icons": "^6.7.2",
-		"@fortawesome/free-solid-svg-icons": "^6.7.2",
-		"@fortawesome/react-fontawesome": "^0.2.2",
-		"@heroui/react": "^2.7.8",
-		"@heroui/system": "^2.4.15",
-		"@heroui/tabs": "^2.2.16",
-		"@heroui/theme": "^2.4.15",
-		"@react-navigation/bottom-tabs": "^7.3.14",
-		"framer-motion": "^12.15.0",
-		"next": "^15.3.2",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
-		"react-hot-toast": "^2.5.2",
-		"react-tabs": "^6.1.0"
-	},
-	"devDependencies": {
-		"@tailwindcss/postcss": "^4",
-		"gh-pages": "^6.3.0",
-		"tailwindcss": "^4"
-	}
+  "name": "justdoit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.20.2",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@heroui/react": "^2.7.8",
+    "@heroui/system": "^2.4.15",
+    "@heroui/tabs": "^2.2.16",
+    "@heroui/theme": "^2.4.15",
+    "@react-navigation/bottom-tabs": "^7.3.14",
+    "framer-motion": "^12.15.0",
+    "next": "^15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.5.2",
+    "react-tabs": "^6.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
 }

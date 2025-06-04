@@ -20,7 +20,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
 							? 'active-tab'
-							: 'text-charcoal bg-subtle hover:bg-gray-200 border-2'
+							: 'text-charcoal bg-subtle hover:button-secondary-light border-2'
 					}`}
 					onClick={() => {
 						setActiveTab(tab.id);
@@ -37,7 +37,12 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 			<div className="profile flex flex-col justify-end pb-1 border-t-1">
 				<button
 					className={`
-                    flex flex-col items-center justify-center
+                    flex flex-col items-center justify-center ${
+						activeTab === 'profile'
+							? 'bg-charcoal'
+							: 'bg-subtle-background'
+					}
+					}
                     flex-grow                 // Makes the button take up equal space
                     px-2 py-3                 // Adds generous padding for clickable area
                     text-sm
@@ -58,6 +63,9 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					<SignedOut>
 						<FontAwesomeIcon
 							icon={faUser}
+							color={
+								activeTab === 'profile' ? '#f3dac4' : '#3b3b3b'
+							}
 							size="lg" // Use size="lg" or "xl" for better visibility
 							className="mb-1" // Add some margin below the icon if you have text
 						/>

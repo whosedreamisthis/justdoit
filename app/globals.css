@@ -57,6 +57,9 @@ body::-webkit-scrollbar {
 .bg-subtle-background {
 	background-color: #f3dac4; /* ✅ Warm Beige */
 }
+.text-subtle {
+	color: #f3dac4; /* ✅ Warm Beige */
+}
 
 .bg-card-0 {
 	background-color: #e6a57d;

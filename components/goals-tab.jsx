@@ -112,9 +112,24 @@ export default function GoalsTab({
 		);
 	};
 	const moveIncompleteGoal = (goalId) => {
-		setGoals((prevGoals) =>
-			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
-		);
+		setGoals((prevGoals) => {
+			const updatedGoals = prevGoals.sort((a, b) =>
+				a.progress === 100 ? 1 : -1
+			);
+
+			// Use setTimeout to ensure sorting completes before scrolling
+			setTimeout(() => {
+				const element = goalRefs.current[goalId];
+				if (element) {
+					element.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+				}
+			}, 100);
+
+			return updatedGoals;
+		});
 	};
 
 	const sortGoals = (goals) => {

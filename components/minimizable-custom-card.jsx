@@ -10,7 +10,7 @@ export default function MinimizableCustomCard({
 }) {
 	const [customTitle, setCustomTitle] = useState('');
 	const [customShortDescription, setCustomShortDescription] = useState('');
-	const [customColor, setCustomColor] = useState('#FFFF99');
+	const [customColor, setCustomColor] = useState('#828E6F');
 
 	const colorInputRef = useRef(null); // Ref for the hidden color input
 
@@ -121,7 +121,7 @@ export default function MinimizableCustomCard({
 						<div className="flex items-center gap-2">
 							{/* Clickable color swatch */}
 							<div
-								className="w-8 h-8 border border-gray-300 rounded-md cursor-pointer"
+								className="w-8 h-8 border border-black rounded-md cursor-pointer mt-3 shadow-md"
 								style={{ backgroundColor: customColor }}
 								onClick={(e) => {
 									e.stopPropagation();

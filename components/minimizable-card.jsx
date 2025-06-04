@@ -34,7 +34,13 @@ export default function MinimizableCard({
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
 					<div className="add-button-container flex flex-row justify-end items-end gap-2">
-						<button className="add-button" onClick={() => {}}>
+						<button
+							className="add-button"
+							onClick={(e) => {
+								e.stopPropagation(); // Prevent card collapse
+								onSelect(habit.id);
+							}}
+						>
 							Add
 						</button>
 					</div>

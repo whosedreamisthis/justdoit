@@ -29,13 +29,8 @@ export default function MinimizableCard({
 			{/* Title & Short Description */}
 			<h2 className="text-lg font-bold text-gray-800">{habit.title}</h2>
 
-			<p className="text-gray-600 text-sm">{habit.shortDescription}</p>
+			<p className="text-gray-600 text-sm">{habit.description}</p>
 
-			{isExpanded && (
-				<div className="mt-4 text-gray-700 text-sm z-10">
-					{habit.detailedDescription}
-				</div>
-			)}
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
 					<div className="add-button-container flex flex-row justify-end items-end gap-2">

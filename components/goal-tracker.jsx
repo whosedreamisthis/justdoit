@@ -37,8 +37,8 @@ export default function MinimizableGoalCard({
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
-	const [editedShortDescription, setEditedShortDescription] = useState(
-		goal.shortDescription || 'test 2'
+	const [editedDescription, setEditedDescription] = useState(
+		goal.description || 'test 2'
 	);
 	const [editedColor, setEditedColor] = useState(goal.color);
 
@@ -46,10 +46,10 @@ export default function MinimizableGoalCard({
 
 	useEffect(() => {
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || '');
+		setEditedDescription(goal.description || '');
 		setEditedColor(goal.color);
 		setIsEditing(false); // Reset editing state when goal or expansion changes
-	}, [goal.id, goal.title, goal.shortDescription, goal.color, isExpanded]);
+	}, [goal.id, goal.title, goal.description, goal.color, isExpanded]);
 
 	useEffect(() => {
 		if (isEditing && titleInputRef.current) {
@@ -128,7 +128,7 @@ export default function MinimizableGoalCard({
 		const updatedGoal = {
 			...goal,
 			title: editedTitle.trim(),
-			shortDescription: editedShortDescription.trim(),
+			description: editedDescription.trim(),
 			color: editedColor,
 		};
 		onUpdateGoal(updatedGoal);
@@ -139,7 +139,7 @@ export default function MinimizableGoalCard({
 	const handleCancelEdit = (e) => {
 		e.stopPropagation();
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || '');
+		setEditedDescription(goal.description || '');
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
@@ -203,9 +203,9 @@ export default function MinimizableGoalCard({
 					)}
 
 					{/* Short Description - Display when expanded AND not editing */}
-					{isExpanded && goal.shortDescription && (
+					{isExpanded && goal.description && (
 						<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
-							{goal.shortDescription}
+							{goal.description}
 						</p>
 					)}
 
@@ -244,11 +244,9 @@ export default function MinimizableGoalCard({
 								</label>
 								<textarea
 									id="goal-short-description"
-									value={editedShortDescription} // This should always show the current edited value
+									value={editedDescription} // This should always show the current edited value
 									onChange={(e) =>
-										setEditedShortDescription(
-											e.target.value
-										)
+										setEditedDescription(e.target.value)
 									}
 									onClick={(e) => e.stopPropagation()}
 									className="mt-1 p-1 w-full rounded text-gray-500"

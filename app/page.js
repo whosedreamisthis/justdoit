@@ -248,7 +248,7 @@ export default function App() {
 			progress: 0,
 			totalSegments: 1,
 			color: selectedHabit.color,
-			shortDescription: selectedHabit.shortDescription,
+			description: selectedHabit.description,
 			isCompleted: false,
 			completedDays: [false, false, false, false, false, false, false],
 		};

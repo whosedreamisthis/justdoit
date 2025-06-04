@@ -9,7 +9,7 @@ export default function MinimizableCustomCard({
 	onExpand,
 }) {
 	const [customTitle, setCustomTitle] = useState('');
-	const [customShortDescription, setCustomShortDescription] = useState('');
+	const [customDescription, setCustomDescription] = useState('');
 	const [customColor, setCustomColor] = useState('#A7B39E'); // Default to a pastel pink
 
 	const pastelColors = [
@@ -35,15 +35,13 @@ export default function MinimizableCustomCard({
 			id: uniqueId,
 			title: customTitle.trim(),
 			color: customColor,
-			shortDescription:
-				customShortDescription.trim() || 'Your personalized habit.',
-			detailedDescription: '',
+			description: customDescription.trim() || 'Your personalized habit.',
 		};
 
 		onSelect(newCustomHabit);
 
 		setCustomTitle('');
-		setCustomShortDescription('');
+		setCustomDescription('');
 		setCustomColor('#FFD1DC'); // Reset to default pastel pink after adding
 		onExpand(); // Minimize the card after adding
 		// toast.success(`"${newCustomHabit.title}" custom habit added!`);
@@ -107,9 +105,9 @@ export default function MinimizableCustomCard({
 						</label>
 						<textarea
 							id="custom-short-description"
-							value={customShortDescription}
+							value={customDescription}
 							onChange={(e) =>
-								setCustomShortDescription(e.target.value)
+								setCustomDescription(e.target.value)
 							}
 							onClick={(e) => e.stopPropagation()}
 							rows="2"

@@ -10,10 +10,18 @@ export default function MinimizableCustomCard({
 }) {
 	const [customTitle, setCustomTitle] = useState('');
 	const [customShortDescription, setCustomShortDescription] = useState('');
-	const [customColor, setCustomColor] = useState('#828E6F');
+	const [customColor, setCustomColor] = useState('#FFD1DC'); // Default to a pastel pink
 
-	const colorInputRef = useRef(null); // Ref for the hidden color input
-
+	const pastelColors = [
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#B6E8B6', // Soft Pistachio Green
+		'#E0BBE4', // Lavender
+		'#D3D3D3', // Light Gray
+		'#EBf6D9', // Light Terracotta / Rose-Brown
+		'#FFA07A', // Light Salmon
+	];
 	const handleAddCustomHabit = (e) => {
 		e.stopPropagation();
 
@@ -36,9 +44,9 @@ export default function MinimizableCustomCard({
 
 		setCustomTitle('');
 		setCustomShortDescription('');
-		setCustomColor('#FFFF99');
-		onExpand();
-		toast.success(`"${newCustomHabit.title}" custom habit added!`);
+		setCustomColor('#FFD1DC'); // Reset to default pastel pink after adding
+		onExpand(); // Minimize the card after adding
+		// toast.success(`"${newCustomHabit.title}" custom habit added!`);
 	};
 
 	return (
@@ -53,7 +61,6 @@ export default function MinimizableCustomCard({
                 border border-black
             `}
 			style={{ backgroundColor: customColor }}
-			// Removed onClick from here, it's now on the header div below
 		>
 			{/* Card Header: Handles expand/minimize */}
 			<div className="cursor-pointer" onClick={() => onExpand()}>
@@ -112,51 +119,44 @@ export default function MinimizableCustomCard({
 					</div>
 
 					<div className="mb-4">
-						<label
-							htmlFor="custom-color"
-							className="block text-sm font-medium text-gray-700"
-						>
-							CardColor:
+						<label className="block text-sm font-medium text-gray-700">
+							Card Color:
 						</label>
-						<div className="flex items-center gap-2">
-							{/* Clickable color swatch */}
-							<div
-								className="w-8 h-8 border border-black rounded-md cursor-pointer mt-3 shadow-md"
-								style={{ backgroundColor: customColor }}
-								onClick={(e) => {
-									e.stopPropagation();
-									colorInputRef.current.click(); // Programmatically click the hidden input
-								}}
-							></div>
-							{/* Original input, now hidden */}
-							<input
-								ref={colorInputRef}
-								type="color"
-								id="custom-color"
-								value={customColor}
-								onChange={(e) => {
-									e.stopPropagation();
-									setCustomColor(e.target.value);
-								}}
-								onClick={(e) => e.stopPropagation()}
-								className="hidden"
-								title="Choose your custom habit card color"
-							/>
+						{/* Display 16 pastel colors in a 2x8 grid */}
+						<div className="grid grid-cols-8 gap-2 mt-1">
+							{pastelColors.map((color, index) => (
+								<div
+									key={index}
+									className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
+										customColor === color
+											? 'border-gray-500'
+											: 'border-gray-300'
+									}`}
+									style={{ backgroundColor: color }}
+									onClick={(e) => {
+										e.stopPropagation();
+										setCustomColor(color);
+									}}
+									title={color}
+								></div>
+							))}
 						</div>
 					</div>
 
-					{isExpanded && (
-						<div className="flex flex-col h-full rounded-lg">
-							<div className="add-button-container flex flex-row justify-end items-end gap-2">
-								<button
-									className="add-button"
-									onClick={handleAddCustomHabit}
-								>
-									Add
-								</button>
-							</div>
+					<div className="flex flex-col h-full rounded-lg">
+						<div className="add-button-container flex flex-row justify-end items-end gap-2">
+							<button
+								className="add-button"
+								onClick={handleAddCustomHabit}
+							>
+								<FontAwesomeIcon
+									icon={faSquareCheck}
+									className="mr-2"
+								/>
+								Add
+							</button>
 						</div>
-					)}
+					</div>
 				</div>
 			)}
 		</div>

@@ -151,7 +151,7 @@ export default function MinimizableGoalCard({
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
                 relative rounded-lg p-4 cursor-pointer transition-all flex flex-col
-                ${isExpanded ? 'h-auto' : 'h-25'} border border-black
+                ${isExpanded ? 'h-auto' : 'h-25'} 
             `}
 			style={{
 				backgroundColor: isEditing ? editedColor : goal.color,

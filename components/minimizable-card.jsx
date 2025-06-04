@@ -16,7 +16,7 @@ export default function MinimizableCard({
 				isExpanded
 					? 'max-h-[500px] overflow-auto z-10'
 					: 'max-h-32 overflow-hidden z-0 shadow-none'
-			} border border-black`}
+			}`}
 			onClick={() => {
 				onExpand();
 			}}

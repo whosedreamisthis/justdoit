@@ -258,12 +258,12 @@ body,
 }
 
 .card {
-	border-color: #3b3b3b;
+	border-color: #bbbbbb;
 	border-width: 1px;
 }
 
 .completed-card {
-	border-color: #3b3b3b;
+	border-color: #bbbbbb;
 	border-width: 1px;
 }
 

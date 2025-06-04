@@ -15,6 +15,33 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 		}
 	}, []);
 
+	const displayCustomCard = () => {
+		const customHabit = {
+			id: 'custom-id',
+			title: 'custom title',
+			color: '#ff0000',
+			shortDescription: 'short custom habit description',
+			detailedDescription: '',
+		};
+		return (
+			<div
+				// 	key={habit.id}
+				// 	ref={(el) =>
+				// 		(cardRefs.current[habit.id] = el)
+				// 	}
+				className="rounded-xl shadow-md bg-subtle-background"
+				style={{ backgroundColor: 'red' }}
+			>
+				<MinimizableCard
+					habit={customHabit}
+					onSelect={onSelect}
+					isExpanded={expandedCard === 'custom'}
+					onExpand={() => handleExpand('custom')}
+				/>
+			</div>
+		);
+	};
+
 	const toggleCategory = (category) => {
 		const newCategory = expandedCategory === category ? null : category;
 		setExpandedCategory(newCategory);
@@ -48,6 +75,8 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			</h2>
 
 			<div className="flex flex-col gap-3">
+				<div>{displayCustomCard()}</div>
+
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}
@@ -65,7 +94,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 								{expandedCategory === category ? '▼' : '►'}
 							</span>
 						</div>
-
 						{expandedCategory === category && (
 							<div className="mt-2 space-y-2 habits-container">
 								{habitsByCategory[category].map((habit) => (

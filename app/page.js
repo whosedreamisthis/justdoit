@@ -44,7 +44,10 @@ export default function App() {
 		// const now = testNow; // <--- This line MUST BE UNCOMMENTED for testing!
 
 		const now = new Date(); // REMEMBER TO UNCOMMENT THIS LINE AND REMOVE 'testNow' RELATED LINES FOR PRODUCTION!
+		// const testNow = new Date(); // Get current date
+		// testNow.setHours(23, 59, 50, 0); // Set to 11:59:50 PM for quick daily reset
 
+		// const now = testNow;
 		const midnightToday = new Date(
 			now.getFullYear(),
 			now.getMonth(),
@@ -81,13 +84,15 @@ export default function App() {
 		let timeUntilWeeklyReset = nextSundayMidnight.getTime() - now.getTime();
 
 		const dailyTimer = setTimeout(() => {
-			setGoals((prevGoals) =>
-				prevGoals.map((goal) => ({
+			setGoals((prevGoals) => {
+				const updatedGoals = prevGoals.map((goal) => ({
 					...goal,
 					progress: 0,
 					isCompleted: false, // Reset overall completion status
-				}))
-			);
+				}));
+				localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // Explicitly save daily reset
+				return updatedGoals;
+			});
 			console.log('Daily Reset Triggered!'); // Added log for clarity
 		}, timeUntilDailyReset);
 
@@ -145,13 +150,24 @@ export default function App() {
 	};
 
 	const onExploreHabitSelected = (habitId) => {
-		const selectedHabit = findHabit(habitId);
+		let selectedHabit = null;
+		if (habitId === 'custom-id') {
+			selectedHabit = {
+				id: 'custom-id',
+				title: 'custom title',
+				color: '#ff0000',
+				shortDescription: 'short custom habit description',
+				detailedDescription: '',
+			};
+		} else {
+			selectedHabit = findHabit(habitId);
+		}
+
 		if (!selectedHabit) return;
 
 		const uniqueKey = `${habitId}-${Date.now()}`;
 		const newGoal = {
 			id: uniqueKey,
-			title2: selectedHabit.title,
 			title: selectedHabit.title,
 			progress: 0,
 			totalSegments: selectedHabit.title === 'Daily Hydration' ? 8 : 1,

@@ -1,3 +1,4 @@
+// app/page.js
 'use client';
 import { useState, useEffect } from 'react';
 import BottomTabs from '@/components/bottom-nav';
@@ -132,18 +133,6 @@ export default function App() {
 		}
 	}, [goals]);
 
-	// This useEffect (commented out) is typically not needed if state is loaded in useState initializer.
-	/*
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
-            if (storedGoals) {
-                setGoals(storedGoals);
-            }
-        }
-    }, [activeTab]);
-    */
-
 	const findHabit = (habitId) => {
 		let selectedHabit = null;
 		Object.keys(habitsByCategory).forEach((category) => {
@@ -157,18 +146,15 @@ export default function App() {
 	};
 
 	const onExploreHabitSelected = (habitDetails) => {
-		// Changed parameter name to habitDetails
 		let selectedHabit = null;
 
-		// Check if the habitDetails is a custom habit (its ID will start with 'custom-')
 		if (habitDetails.id && habitDetails.id.startsWith('custom-')) {
-			selectedHabit = habitDetails; // Directly use the provided custom habit object
+			selectedHabit = habitDetails;
 		} else {
-			// For pre-defined habits, find them by their ID from habits.json
 			selectedHabit = findHabit(habitDetails.id);
 		}
 
-		console.log('selectedHabit', selectedHabit); // This log will now show the correct habit object
+		console.log('selectedHabit', selectedHabit);
 		if (!selectedHabit) {
 			console.error(
 				'Habit not found or invalid habit details.',
@@ -177,43 +163,30 @@ export default function App() {
 			return;
 		}
 
-		const uniqueKey = `${selectedHabit.id}-${Date.now()}`; // Use selectedHabit.id for uniqueKey
+		const uniqueKey = `${selectedHabit.id}-${Date.now()}`;
 		const newGoal = {
 			id: uniqueKey,
 			title: selectedHabit.title,
 			progress: 0,
-			// Check if title is 'Daily Hydration' for segments, otherwise default to 1.
-			// This logic correctly uses the selectedHabit's title.
 			totalSegments: selectedHabit.title === 'Daily Hydration' ? 8 : 1,
 			color: selectedHabit.color,
 			shortDescription: selectedHabit.shortDescription,
-			isCompleted: false, // Explicitly set isCompleted for new goals
-			completedDays: [false, false, false, false, false, false, false], // Correctly initialized
+			isCompleted: false,
+			completedDays: [false, false, false, false, false, false, false],
 		};
 		const newGoals = [...goals, newGoal];
-		// Sort by isCompleted (false first, true last), then by progress
-		// setGoals(
-		// 	newGoals.sort(
-		// 		(a, b) =>
-		// 			(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1) ||
-		// 			a.progress - b.progress
-		// 	)
-		// );
 		setGoals(
 			newGoals.sort((a, b) => {
-				// Extract timestamps from IDs if they exist and start with 'custom-'
 				const idA = a.id?.includes('-') ? a.id.split('-').pop() : null;
 				const idB = b.id?.includes('-') ? b.id.split('-').pop() : null;
 
-				const timestampA = idA ? parseInt(idA, 10) : 0; // Use 0 for non-timestamped IDs
-				const timestampB = idB ? parseInt(idB, 10) : 0; // Use 0 for non-timestamped IDs
+				const timestampA = idA ? parseInt(idA, 10) : 0;
+				const timestampB = idB ? parseInt(idB, 10) : 0;
 
-				// Prioritize by timestamp (descending: newer on top)
 				if (timestampA !== timestampB) {
 					return timestampB - timestampA;
 				}
 
-				// If timestamps are the same (or not present), fall back to existing sorting
 				const completionComparison =
 					(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1);
 				if (completionComparison !== 0) {
@@ -225,12 +198,17 @@ export default function App() {
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
-	const onGoalEdited = (goalId) => {
-		toast.success(`"Goals can't be edited yet.`);
+	// --- Minimal Change: Remove the old onGoalEdited and add the new handleUpdateGoal ---
+	const handleUpdateGoal = (updatedGoal) => {
+		setGoals((prevGoals) =>
+			prevGoals.map((goal) =>
+				goal.id === updatedGoal.id ? updatedGoal : goal
+			)
+		);
+		// toast.success is now handled within MinimizableGoalCard for edit actions.
 	};
 
 	const onReSort = () => {
-		// Sort by isCompleted (false first, true last)
 		setGoals((prevGoals) =>
 			[...prevGoals].sort(
 				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
@@ -249,8 +227,9 @@ export default function App() {
 						<GoalsTab
 							goals={goals}
 							onReSort={onReSort}
-							onEdit={onGoalEdited}
-							setGoals={setGoals}
+							// --- Minimal Change: Pass the new update handler ---
+							onUpdateGoal={handleUpdateGoal}
+							setGoals={setGoals} // Keep setGoals if GoalsTab uses it directly for other operations
 						/>
 					)}
 					{activeTab === 'explore' && (

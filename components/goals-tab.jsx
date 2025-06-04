@@ -3,7 +3,14 @@ import { useState, useEffect, useRef } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
 
-export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
+export default function GoalsTab({
+	goals,
+	onEdit,
+	onReSort,
+	setGoals,
+	onUpdateGoal,
+}) {
+	// Added onUpdateGoal to props
 	const [expandedGoal, setExpandedGoal] = useState(null);
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
@@ -46,7 +53,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 					if (element) {
 						element.scrollIntoView({
 							behavior: 'smooth',
-							block: 'start', // Changed from 'nearest' to 'start'
+							block: 'start',
 						});
 					}
 				}, 50);
@@ -114,11 +121,11 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
-		const newProgress = Math.max(
-			goal.progress - 100 / goal.totalSegments,
-			0
-		);
+		// This function seems incomplete/unused as it doesn't modify state based on goal.id or newProgress
+		// If you intend to use this, ensure it calls updateProgress with specific goal.id
+		// For example: updateProgress(someGoalId, newProgress);
 	};
+
 	const deleteGoal = (goalId) => {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
@@ -146,7 +153,7 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 							<MinimizableGoalCard
 								goal={goal}
 								currentDayIndex={currentDayIndex}
-								onEdit={onEdit}
+								// --- Removed onEdit prop from here, as editing is now internal to the card ---
 								isExpanded={expandedGoal === goal.id}
 								onExpand={() => handleExpand(goal.id)}
 								onComplete={() => moveCompletedGoal(goal.id)}
@@ -160,6 +167,8 @@ export default function GoalsTab({ goals, onEdit, onReSort, setGoals }) {
 									updateDaysProgress(goal.id, newDaysProgress)
 								}
 								onDelete={deleteGoal}
+								// --- Minimal Change: Pass the new update handler ---
+								onUpdateGoal={onUpdateGoal}
 							/>
 						</div>
 					);

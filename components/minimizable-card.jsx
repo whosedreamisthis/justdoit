@@ -38,7 +38,7 @@ export default function MinimizableCard({
 							className="add-button"
 							onClick={(e) => {
 								e.stopPropagation(); // Prevent card collapse
-								onSelect(habit.id);
+								onSelect(habit);
 							}}
 						>
 							Add

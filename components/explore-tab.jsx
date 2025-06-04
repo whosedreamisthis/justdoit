@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import MinimizableCard from './minimizable-card';
+import MinimizableCustomCard from './minimizable-custom-card'; // Import the new component
+
 import '@/app/globals.css';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
@@ -14,33 +16,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			setExpandedCategory(savedCategory);
 		}
 	}, []);
-
-	const displayCustomCard = () => {
-		const customHabit = {
-			id: 'custom-id',
-			title: 'custom title',
-			color: '#ff0000',
-			shortDescription: 'short custom habit description',
-			detailedDescription: '',
-		};
-		return (
-			<div
-				// 	key={habit.id}
-				// 	ref={(el) =>
-				// 		(cardRefs.current[habit.id] = el)
-				// 	}
-				className="rounded-xl shadow-md bg-subtle-background"
-				style={{ backgroundColor: 'red' }}
-			>
-				<MinimizableCard
-					habit={customHabit}
-					onSelect={onSelect}
-					isExpanded={expandedCard === 'custom'}
-					onExpand={() => handleExpand('custom')}
-				/>
-			</div>
-		);
-	};
 
 	const toggleCategory = (category) => {
 		const newCategory = expandedCategory === category ? null : category;
@@ -73,10 +48,21 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			<h2 className="text-3xl font-bold text-primary mb-4">
 				Explore New Habits
 			</h2>
+			{/* Integrate MinimizableCustomCard here */}
 
 			<div className="flex flex-col gap-3">
-				<div>{displayCustomCard()}</div>
-
+				<div
+					key="custom-habit-card" // Unique key for the custom card container
+					ref={(el) => (cardRefs.current['custom'] = el)} // Assign ref for scrolling
+					className="rounded-xl shadow-md bg-subtle-background"
+					// style={{ backgroundColor: '#ff0000' }} // This will be handled by MinimizableCustomCard
+				>
+					<MinimizableCustomCard
+						onSelect={onSelect} // Pass the onSelect handler from page.js
+						isExpanded={expandedCard === 'custom'}
+						onExpand={() => handleExpand('custom')} // Use 'custom' as the ID for the custom card
+					/>
+				</div>
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}

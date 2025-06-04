@@ -149,27 +149,34 @@ export default function App() {
 		return selectedHabit;
 	};
 
-	const onExploreHabitSelected = (habitId) => {
+	const onExploreHabitSelected = (habitDetails) => {
+		// Changed parameter name to habitDetails
 		let selectedHabit = null;
-		if (habitId === 'custom-id') {
-			selectedHabit = {
-				id: 'custom-id',
-				title: 'custom title',
-				color: '#ff0000',
-				shortDescription: 'short custom habit description',
-				detailedDescription: '',
-			};
+
+		// Check if the habitDetails is a custom habit (its ID will start with 'custom-')
+		if (habitDetails.id && habitDetails.id.startsWith('custom-')) {
+			selectedHabit = habitDetails; // Directly use the provided custom habit object
 		} else {
-			selectedHabit = findHabit(habitId);
+			// For pre-defined habits, find them by their ID from habits.json
+			selectedHabit = findHabit(habitDetails.id);
 		}
 
-		if (!selectedHabit) return;
+		console.log('selectedHabit', selectedHabit); // This log will now show the correct habit object
+		if (!selectedHabit) {
+			console.error(
+				'Habit not found or invalid habit details.',
+				habitDetails
+			);
+			return;
+		}
 
-		const uniqueKey = `${habitId}-${Date.now()}`;
+		const uniqueKey = `${selectedHabit.id}-${Date.now()}`; // Use selectedHabit.id for uniqueKey
 		const newGoal = {
 			id: uniqueKey,
 			title: selectedHabit.title,
 			progress: 0,
+			// Check if title is 'Daily Hydration' for segments, otherwise default to 1.
+			// This logic correctly uses the selectedHabit's title.
 			totalSegments: selectedHabit.title === 'Daily Hydration' ? 8 : 1,
 			color: selectedHabit.color,
 			shortDescription: selectedHabit.shortDescription,

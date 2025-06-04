@@ -214,8 +214,8 @@ body::-webkit-scrollbar {
 }
 .day-square {
 	background-color: #3b3b3b;
-	height: 20px;
-	width: 20px;
+	height: 40px;
+	width: 40px;
 	z-index: 1000;
 	color: #f3dac4;
 	border-width: 1px;
@@ -312,4 +312,31 @@ body,
 .goal-item.moving-up {
 	transform: translateY(-30px); /* Animates upward */
 	opacity: 0.8; /* Makes transition noticeable */
+}
+
+.day-square {
+	/* Current or previous size */
+	width: 16px; /* Example: adjust as needed */
+	height: 16px; /* Example: adjust as needed */
+	border: 1px solid #fff; /* Example: your border style */
+	background-color: #f0f0f0; /* Example: default background */
+	/* Add other styles like border-radius, etc. if you have them */
+
+	/* To make them slightly larger, increase width and height */
+	width: 20px; /* Increased from 16px */
+	height: 20px; /* Increased from 16px */
+}
+
+/* Make sure this class is defined as well for completed squares */
+.day-square-filled-green {
+	background-color: #4caf50; /* Example green color */
+}
+
+/* The container holding the squares might also need adjustments for spacing */
+.day-squares-container {
+	display: flex;
+
+	gap: 5px; /* Adjust gap as needed if squares become too close */
+	/* original was gap-10, which might be too large for larger squares */
+	/* Consider changing gap: 10px; to something smaller like gap: 5px; if they are too spread out */
 }

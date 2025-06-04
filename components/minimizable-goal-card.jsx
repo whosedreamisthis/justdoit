@@ -1,6 +1,6 @@
 // minimizable-goal-card.jsx
 import { useState, useEffect, useRef } from 'react';
-import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- CHANGED IMPORT PATH/NAME
+import ScrollOnExpand from '../hooks/scroll-on-expand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faTrashCan,
@@ -44,7 +44,10 @@ export default function MinimizableGoalCard({
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
-	const cardRef = ScrollOnExpand(isExpanded); // <--- CHANGED USAGE
+	const cardRef = ScrollOnExpand(isExpanded); // This hook handles scroll on expand
+
+	// --- NEW: Ref to store previous progress for detecting completion ---
+	const prevProgressRef = useRef(goal.progress);
 
 	useEffect(() => {
 		setEditedTitle(goal.title);
@@ -60,13 +63,32 @@ export default function MinimizableGoalCard({
 		}
 	}, [isEditing]);
 
+	// --- NEW: Effect to scroll into view when goal is completed ---
+	useEffect(() => {
+		// Check if the goal *just* became 100% completed
+		if (goal.progress === 100 && prevProgressRef.current < 100) {
+			if (cardRef.current) {
+				// Scroll the card into view with smooth behavior
+				cardRef.current.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center',
+				});
+			}
+		}
+		// Update the previous progress ref for the next render
+		prevProgressRef.current = goal.progress;
+	}, [goal.progress, cardRef]); // Dependencies: Re-run when goal.progress changes or cardRef changes
+
+	// -----------------------------------------------------------------
+
 	const completedSquareColorClass = 'day-square-filled-green';
-	console.log('goal.completedDays', goal.completedDays[1]);
+
+	// MODIFICATION HERE: Making the day squares slightly larger
 	const daySquares = goal.completedDays.map((day, index) => {
 		const shouldFill = day;
 		const squareClass = `day-square ${
 			shouldFill ? completedSquareColorClass : ''
-		}`;
+		} w-8 h-8`; // ADDED: w-8 h-8 for a larger size (32px by default in Tailwind)
 		return <div key={index} className={squareClass}></div>;
 	});
 
@@ -197,7 +219,7 @@ export default function MinimizableGoalCard({
 									: goal.title}
 							</h2>
 
-							<div className="day-squares-container gap-10 pb-4">
+							<div className="day-squares-container flex gap-4 pb-4">
 								{daySquares}
 							</div>
 						</>

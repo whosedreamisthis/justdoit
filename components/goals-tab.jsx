@@ -46,23 +46,28 @@ export default function GoalsTab({
 	}, []);
 
 	const handleExpand = (id) => {
-		// If a goal is currently moving, prevent focus override
+		// If a goal is currently moving, prevent expanded cards from stealing focus
 		if (movingGoal) return;
 
 		setExpandedGoal((prevExpandedGoal) => {
 			const newExpandedGoal = prevExpandedGoal === id ? null : id;
 
-			if (newExpandedGoal !== null) {
-				setTimeout(() => {
-					const element = goalRefs.current[newExpandedGoal];
-					if (element) {
+			// Ensure scrolling **only if the goal is NOT fully visible**
+			setTimeout(() => {
+				const element = goalRefs.current[newExpandedGoal];
+				if (element) {
+					const rect = element.getBoundingClientRect();
+					const viewportHeight = window.innerHeight;
+
+					if (!(rect.top >= 0 && rect.bottom <= viewportHeight)) {
 						element.scrollIntoView({
 							behavior: 'smooth',
 							block: 'center',
 						});
 					}
-				}, 350);
-			}
+				}
+			}, 350);
+
 			return newExpandedGoal;
 		});
 	};

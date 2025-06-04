@@ -11,6 +11,7 @@ import {
 	faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
+import DaySquares from './day-squares';
 
 export default function MinimizableGoalCard({
 	goal,
@@ -84,13 +85,13 @@ export default function MinimizableGoalCard({
 	const completedSquareColorClass = 'day-square-filled-green';
 
 	// MODIFICATION HERE: Making the day squares slightly larger
-	const daySquares = goal.completedDays.map((day, index) => {
-		const shouldFill = day;
-		const squareClass = `day-square ${
-			shouldFill ? completedSquareColorClass : ''
-		} w-8 h-8`; // ADDED: w-8 h-8 for a larger size (32px by default in Tailwind)
-		return <div key={index} className={squareClass}></div>;
-	});
+	// const daySquares = goal.completedDays.map((day, index) => {
+	// 	const shouldFill = day;
+	// 	const squareClass = `day-square ${
+	// 		shouldFill ? completedSquareColorClass : ''
+	// 	} w-8 h-8`; // ADDED: w-8 h-8 for a larger size (32px by default in Tailwind)
+	// 	return <div key={index} className={squareClass}></div>;
+	// });
 
 	const handleDelete = (e) => {
 		e.stopPropagation();
@@ -213,14 +214,15 @@ export default function MinimizableGoalCard({
 
 					{!isExpanded && (
 						<>
-							<h2 className="text-lg font-bold text-gray-800 break-words truncate">
-								{goal.title.length > 25
-									? `${goal.title.slice(0, 22)}...`
-									: goal.title}
-							</h2>
-
-							<div className="day-squares-container flex gap-4 pb-4">
-								{daySquares}
+							<div className="flex flex-col items-start">
+								<h2 className="text-lg font-bold text-gray-800 break-words truncate">
+									{goal.title.length > 25
+										? `${goal.title.slice(0, 22)}...`
+										: goal.title}
+								</h2>
+								<DaySquares
+									completedDays={goal.completedDays}
+								/>
 							</div>
 						</>
 					)}

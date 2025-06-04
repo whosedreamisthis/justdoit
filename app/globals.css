@@ -299,3 +299,9 @@ body,
 .day-square-filled-green {
 	background-color: #77dd77; /* Or your preferred deep pastel green hex code */
 }
+.title {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: min(80%, 500px); /* Adjust based on screen size */
+}

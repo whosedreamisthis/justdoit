@@ -195,8 +195,10 @@ export default function MinimizableGoalCard({
 							/>
 						</div>
 					) : (
-						<h2 className="text-lg font-bold text-gray-800 break-words">
-							{goal.title}
+						<h2 className="text-lg font-bold text-gray-800 break-words truncate">
+							{goal.title.length > 20
+								? `${goal.title.slice(0, 17)}...`
+								: goal.title}
 						</h2>
 					)}
 

@@ -177,9 +177,10 @@ export default function MinimizableGoalCard({
 				<div className="flex-grow pr-12 min-w-0">
 					{isExpanded && !isEditing && (
 						<>
-							<h2 className="text-lg font-bold text-gray-800 break-words">
+							<h2 className="title text-lg font-bold text-gray-800">
 								{goal.title}
 							</h2>
+
 							{goal.shortDescription && (
 								<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
 									{goal.shortDescription}
@@ -190,9 +191,12 @@ export default function MinimizableGoalCard({
 
 					{!isExpanded && (
 						<>
-							<h2 className="text-lg font-bold text-gray-800 break-words">
-								{goal.title}
+							<h2 className="text-lg font-bold text-gray-800 break-words truncate">
+								{goal.title.length > 25
+									? `${goal.title.slice(0, 22)}...`
+									: goal.title}
 							</h2>
+
 							<div className="day-squares-container gap-10 pb-4">
 								{daySquares}
 							</div>

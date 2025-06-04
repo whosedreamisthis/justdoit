@@ -1,4 +1,6 @@
 import '@/app/globals.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
@@ -29,6 +31,20 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					{tab.label}
 				</button>
 			))}
+			<div className="profile flex flex-col justify-end pb-1 border-t-1">
+				<FontAwesomeIcon
+					icon={faUser}
+					className="far goal-card-icon z-20"
+					onClick={() => {
+						setActiveTab('profile');
+						document
+							.querySelector('.tab-buttons')
+							.addEventListener('click', () => {
+								console.log('Tab button clicked!');
+							});
+					}}
+				></FontAwesomeIcon>
+			</div>
 		</div>
 	);
 }

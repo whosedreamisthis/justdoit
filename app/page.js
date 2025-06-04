@@ -6,7 +6,7 @@ import ExploreTab from '@/components/explore-tab';
 import GoalsTab from '@/components/goals-tab';
 import { toast } from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
-
+import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 
 export default function App() {
@@ -206,9 +206,7 @@ export default function App() {
 							onSelect={onExploreHabitSelected}
 						/>
 					)}
-					{activeTab === 'settings' && (
-						<p>Manage your settings here!</p>
-					)}
+					{activeTab === 'profile' && <ProfileTab />}
 				</div>
 
 				{/* Bottom Navigation */}

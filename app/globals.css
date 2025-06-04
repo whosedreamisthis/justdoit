@@ -276,3 +276,7 @@ body,
 	background-color: #f3dac4;
 	margin-top: 10px;
 }
+.profile {
+	width: 50px;
+	border-color: #3b3b3b;
+}

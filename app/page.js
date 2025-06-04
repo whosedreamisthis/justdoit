@@ -29,7 +29,14 @@ export default function App() {
 		}
 		return [];
 	});
-
+	useEffect(() => {
+		//if (activeTab === 'goals') {
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth', // Optional: for a smooth scrolling animation
+		});
+		//}
+	}, [activeTab]);
 	// --- Minimal Change: Re-introducing the comprehensive daily/weekly reset logic ---
 	useEffect(() => {
 		// --- START OF TESTING MODIFICATIONS ---

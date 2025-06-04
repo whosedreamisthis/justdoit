@@ -19,7 +19,6 @@ export default function App() {
 			if (storedGoals && storedGoals.length > 0) {
 				return storedGoals.map((goal) => ({
 					...goal,
-					// Minimal change: Ensure isCompleted and completedDays are set for existing goals
 					isCompleted:
 						typeof goal.isCompleted === 'boolean'
 							? goal.isCompleted
@@ -30,108 +29,187 @@ export default function App() {
 		}
 		return [];
 	});
+
+	// New state for last reset timestamps
+	const [lastDailyResetTime, setLastDailyResetTime] = useState(() => {
+		if (typeof window !== 'undefined') {
+			const storedTime = localStorage.getItem('lastDailyResetTime');
+			return storedTime ? new Date(storedTime) : null;
+		}
+		return null;
+	});
+
+	const [lastWeeklyResetTime, setLastWeeklyResetTime] = useState(() => {
+		if (typeof window !== 'undefined') {
+			const storedTime = localStorage.getItem('lastWeeklyResetTime');
+			return storedTime ? new Date(storedTime) : null;
+		}
+		return null;
+	});
+
 	useEffect(() => {
-		//if (activeTab === 'goals') {
 		window.scrollTo({
 			top: 0,
-			behavior: 'smooth', // Optional: for a smooth scrolling animation
+			behavior: 'smooth',
 		});
-		//}
 	}, [activeTab]);
-	// --- Minimal Change: Re-introducing the comprehensive daily/weekly reset logic ---
+
+	// --- REVISED DAILY/WEEKLY RESET LOGIC ---
 	useEffect(() => {
-		// --- START OF TESTING MODIFICATIONS ---
-		// You currently have:
-		// const nowForTesting = new Date();
-		// nowForTesting.setDate(nowForTesting.getDate() - nowForTesting.getDay()); // Set to most recent Sunday
-		// nowForTesting.setHours(23, 59, 50, 0); // Set to 10 seconds before midnight
-		// const now = nowForTesting;
-		// This is good for flexible testing, but let's stick to the simpler hardcoded one for now to ensure consistency:
+		const now = new Date();
 
-		// const testNow = new Date('2025-06-08T23:59:50'); // This is a Sunday, 10 seconds before midnight UTC
-		// const now = testNow; // <--- This line MUST BE UNCOMMENTED for testing!
-
-		const now = new Date(); // REMEMBER TO UNCOMMENT THIS LINE AND REMOVE 'testNow' RELATED LINES FOR PRODUCTION!
-		// const testNow = new Date(); // Get current date
-		// testNow.setHours(23, 59, 50, 0); // Set to 11:59:50 PM for quick daily reset
-
-		// const now = testNow;
-		const midnightToday = new Date(
-			now.getFullYear(),
-			now.getMonth(),
-			now.getDate(),
-			0,
-			0,
-			0
-		);
-
-		let timeUntilDailyReset = midnightToday.getTime() - now.getTime();
-		if (timeUntilDailyReset < 0) {
-			midnightToday.setDate(midnightToday.getDate() + 1);
-			timeUntilDailyReset = midnightToday.getTime() - now.getTime();
-		}
-
-		const currentDayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-		let daysUntilNextSunday = (7 - currentDayOfWeek) % 7;
-
-		const nextSundayMidnight = new Date(midnightToday);
-		if (currentDayOfWeek === 0 && now.getTime() < midnightToday.getTime()) {
-			// It's Sunday before midnight, reset is today at midnight.
-		} else {
-			nextSundayMidnight.setDate(
-				midnightToday.getDate() + daysUntilNextSunday
+		const getMidnightForDate = (date) => {
+			return new Date(
+				date.getFullYear(),
+				date.getMonth(),
+				date.getDate(),
+				0,
+				0,
+				0
 			);
+		};
+
+		const getNextSundayMidnight = (currentDate) => {
+			const midnight = getMidnightForDate(currentDate);
+			let daysUntilNextSunday = (7 - midnight.getDay()) % 7; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+			const nextSunday = new Date(midnight);
+			nextSunday.setDate(midnight.getDate() + daysUntilNextSunday);
+
+			// If it's Sunday and already past midnight, set for next Sunday
 			if (
-				currentDayOfWeek === 0 &&
-				now.getTime() > midnightToday.getTime()
+				midnight.getDay() === 0 &&
+				currentDate.getTime() >= midnight.getTime()
 			) {
-				nextSundayMidnight.setDate(nextSundayMidnight.getDate() + 7);
+				nextSunday.setDate(nextSunday.getDate() + 7);
 			}
+			return nextSunday;
+		};
+
+		let currentGoals = [...goals]; // Create a mutable copy for immediate updates
+
+		// --- Handle MISSED DAILY RESET ---
+		let shouldPerformDailyReset = false;
+		const todayMidnight = getMidnightForDate(now);
+
+		if (lastDailyResetTime) {
+			const lastResetMidnight = getMidnightForDate(lastDailyResetTime);
+			// Check if today is a different day than the last reset day and we've passed midnight
+			if (todayMidnight.getTime() > lastResetMidnight.getTime()) {
+				shouldPerformDailyReset = true;
+			}
+		} else {
+			// First run, set lastDailyResetTime to today's midnight
+			shouldPerformDailyReset = false; // Will set in finally block
 		}
 
-		let timeUntilWeeklyReset = nextSundayMidnight.getTime() - now.getTime();
+		if (shouldPerformDailyReset) {
+			console.log('Missed Daily Reset Detected! Applying now.');
+			currentGoals = currentGoals.map((goal) => ({
+				...goal,
+				progress: 0,
+				isCompleted: false,
+			}));
+		}
 
-		const dailyTimer = setTimeout(() => {
+		// --- Handle MISSED WEEKLY RESET ---
+		let shouldPerformWeeklyReset = false;
+		const nextSunday = getNextSundayMidnight(now); // Calculate based on current 'now'
+
+		if (lastWeeklyResetTime) {
+			const lastResetSundayMidnight =
+				getNextSundayMidnight(lastWeeklyResetTime);
+			// If the current next Sunday is different from the last reset Sunday
+			// AND we've passed the last recorded reset time
+			if (
+				nextSunday.getTime() > lastResetSundayMidnight.getTime() &&
+				now.getTime() >= lastResetSundayMidnight.getTime()
+			) {
+				shouldPerformWeeklyReset = true;
+			}
+		} else {
+			// First run, set lastWeeklyResetTime to this upcoming Sunday
+			shouldPerformWeeklyReset = false; // Will set in finally block
+		}
+
+		if (shouldPerformWeeklyReset) {
+			console.log('Missed Weekly Reset Detected! Applying now.');
+			currentGoals = currentGoals.map((goal) => ({
+				...goal,
+				completedDays: Array(7).fill(false),
+				progress: 0,
+				isCompleted: false,
+			}));
+		}
+
+		// --- Apply immediate resets if any were necessary ---
+		if (shouldPerformDailyReset || shouldPerformWeeklyReset) {
+			setGoals(currentGoals); // Update React state
+			localStorage.setItem('userGoals', JSON.stringify(currentGoals)); // Persist immediately
+		}
+
+		// --- SCHEDULE NEXT TIMERS ---
+		const timeUntilDailyReset =
+			todayMidnight.getTime() + 24 * 60 * 60 * 1000 - now.getTime(); // Next midnight
+		const timeUntilWeeklyReset = nextSunday.getTime() - now.getTime(); // Next Sunday midnight
+
+		const dailyTimerId = setTimeout(() => {
 			setGoals((prevGoals) => {
 				const updatedGoals = prevGoals.map((goal) => ({
 					...goal,
 					progress: 0,
-					isCompleted: false, // Reset overall completion status
+					isCompleted: false,
 				}));
-				localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // Explicitly save daily reset
+				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				setLastDailyResetTime(new Date()); // Update last reset time
 				return updatedGoals;
 			});
-			console.log('Daily Reset Triggered!'); // Added log for clarity
+			console.log('Daily Reset Triggered!');
 		}, timeUntilDailyReset);
 
-		// --- THE MINIMAL CHANGE IS HERE: COMBINING THE TWO setGoals CALLS ---
-		const weeklyTimer = setTimeout(() => {
-			setGoals((prevGoals) =>
-				prevGoals.map((goal) => ({
+		const weeklyTimerId = setTimeout(() => {
+			setGoals((prevGoals) => {
+				const updatedGoals = prevGoals.map((goal) => ({
 					...goal,
-					completedDays: Array(7).fill(false), // Reset all daily squares for the new week
-					progress: 0, // Also reset progress for the new week
-					isCompleted: false, // And completion status for the new week
-				}))
-			);
-			console.log('WEEKLY RESET TRIGGERED!'); // Added log for clarity
+					completedDays: Array(7).fill(false),
+					progress: 0,
+					isCompleted: false,
+				}));
+				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				setLastWeeklyResetTime(new Date()); // Update last reset time
+				return updatedGoals;
+			});
+			console.log('WEEKLY RESET TRIGGERED!');
 		}, timeUntilWeeklyReset);
-		// --- END OF MINIMAL CHANGE ---
 
+		// --- Clean up on unmount ---
 		return () => {
-			clearTimeout(dailyTimer);
-			clearTimeout(weeklyTimer);
+			clearTimeout(dailyTimerId);
+			clearTimeout(weeklyTimerId);
 		};
-	}, []);
-	// --- End of daily/weekly reset useEffect ---
+	}, [goals]); // Add goals as a dependency to re-run on goal changes for missed reset checks
 
 	useEffect(() => {
+		// Save goals to localStorage whenever goals state changes
 		if (goals.length > 0) {
 			localStorage.setItem('userGoals', JSON.stringify(goals));
 		} else {
-			localStorage.removeItem('userGoals'); // Clear if goals become empty
+			localStorage.removeItem('userGoals');
 		}
-	}, [goals]);
+		// Save last reset times to localStorage whenever they change
+		if (lastDailyResetTime) {
+			localStorage.setItem(
+				'lastDailyResetTime',
+				lastDailyResetTime.toISOString()
+			);
+		}
+		if (lastWeeklyResetTime) {
+			localStorage.setItem(
+				'lastWeeklyResetTime',
+				lastWeeklyResetTime.toISOString()
+			);
+		}
+	}, [goals, lastDailyResetTime, lastWeeklyResetTime]); // Added lastResetTime dependencies
 
 	const findHabit = (habitId) => {
 		let selectedHabit = null;
@@ -198,14 +276,12 @@ export default function App() {
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
-	// --- Minimal Change: Remove the old onGoalEdited and add the new handleUpdateGoal ---
 	const handleUpdateGoal = (updatedGoal) => {
 		setGoals((prevGoals) =>
 			prevGoals.map((goal) =>
 				goal.id === updatedGoal.id ? updatedGoal : goal
 			)
 		);
-		// toast.success is now handled within MinimizableGoalCard for edit actions.
 	};
 
 	const onReSort = () => {
@@ -221,15 +297,13 @@ export default function App() {
 			<Toaster position="top-right" reverseOrder={false} />
 
 			<div className="min-h-screen flex flex-col">
-				{/* Tab Content */}
 				<div className="flex-grow p-4 pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab
 							goals={goals}
 							onReSort={onReSort}
-							// --- Minimal Change: Pass the new update handler ---
 							onUpdateGoal={handleUpdateGoal}
-							setGoals={setGoals} // Keep setGoals if GoalsTab uses it directly for other operations
+							setGoals={setGoals}
 						/>
 					)}
 					{activeTab === 'explore' && (
@@ -241,7 +315,6 @@ export default function App() {
 					{activeTab === 'profile' && <ProfileTab />}
 				</div>
 
-				{/* Bottom Navigation */}
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 			</div>
 		</>

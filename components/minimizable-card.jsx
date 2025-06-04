@@ -1,5 +1,7 @@
+// minimizable-card.jsx
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
+import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- ADD THIS IMPORT
 
 export default function MinimizableCard({
 	index,
@@ -8,8 +10,11 @@ export default function MinimizableCard({
 	isExpanded,
 	onExpand,
 }) {
+	const cardRef = ScrollOnExpand(isExpanded); // <--- ADD THIS LINE
+
 	return (
 		<div
+			ref={cardRef} // <--- ADD THIS PROP
 			className={`${
 				habit.color
 			} card rounded-lg p-4 cursor-pointer transition-all ${

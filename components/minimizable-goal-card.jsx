@@ -1,5 +1,6 @@
 // minimizable-goal-card.jsx
 import { useState, useEffect, useRef } from 'react';
+import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- ADD THIS IMPORT
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faTrashCan,
@@ -14,7 +15,7 @@ import { toast } from 'react-hot-toast';
 export default function MinimizableGoalCard({
 	goal,
 	onEdit, // This prop isn't directly used internally but kept for API consistency
-	isExpanded,
+	isExpanded, // This prop is passed to the hook
 	onExpand,
 	onComplete,
 	onProgressChange,
@@ -43,6 +44,7 @@ export default function MinimizableGoalCard({
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
+	const cardRef = ScrollOnExpand(isExpanded); // <--- USE THE CUSTOM HOOK HERE!
 
 	// This useEffect ensures that when the goal prop changes,
 	// our internal editing states are reset and populated from the new goal.
@@ -148,10 +150,11 @@ export default function MinimizableGoalCard({
 
 	return (
 		<div
+			ref={cardRef} // <--- ATTACH THE REF FROM THE CUSTOM HOOK HERE!
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
                 relative rounded-lg p-4 cursor-pointer transition-all flex flex-col
-                ${isExpanded ? 'h-auto' : 'h-25'} 
+                ${isExpanded ? 'h-auto' : 'h-25'}
             `}
 			style={{
 				backgroundColor: isEditing ? editedColor : goal.color,
@@ -254,7 +257,7 @@ export default function MinimizableGoalCard({
 							</div>
 
 							{/* Color Picker - ONLY SHOW FOR INCOMPLETE GOALS WHEN EDITING */}
-							{goal.progress < 100 && ( // Added this condition
+							{goal.progress < 100 && (
 								<div className="mb-4">
 									<label className="block text-sm font-medium text-gray-700">
 										Card Color:

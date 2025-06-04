@@ -32,18 +32,30 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 				</button>
 			))}
 			<div className="profile flex flex-col justify-end pb-1 border-t-1">
-				<FontAwesomeIcon
-					icon={faUser}
-					className="far goal-card-icon z-20"
-					onClick={() => {
-						setActiveTab('profile');
-						document
-							.querySelector('.tab-buttons')
-							.addEventListener('click', () => {
-								console.log('Tab button clicked!');
-							});
-					}}
-				></FontAwesomeIcon>
+				<button
+					className={`
+                    flex flex-col items-center justify-center
+                    flex-grow                 // Makes the button take up equal space
+                    px-2 py-3                 // Adds generous padding for clickable area
+                    text-sm
+                    ${
+						activeTab === 'profile'
+							? 'text-primary font-semibold'
+							: 'text-gray-500'
+					}
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary // Accessibility: visual feedback on focus
+                    transition-colors duration-200 // Smooth color changes
+                `}
+					onClick={() => setActiveTab('profile')} // Attach onClick to the button
+					aria-label="Profile" // Important for accessibility
+				>
+					<FontAwesomeIcon
+						icon={faUser}
+						size="lg" // Use size="lg" or "xl" for better visibility
+						className="mb-1" // Add some margin below the icon if you have text
+					/>
+					{/* Add text label if desired, e.g., <span>Profile</span> */}
+				</button>
 			</div>
 		</div>
 	);

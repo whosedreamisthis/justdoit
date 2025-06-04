@@ -37,19 +37,24 @@ export default function MinimizableGoalCard({
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
+	const [editedShortDescription, setEditedShortDescription] = useState(
+		goal.shortDescription || ''
+	);
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
 
 	useEffect(() => {
 		setEditedTitle(goal.title);
+		setEditedShortDescription(goal.shortDescription || '');
 		setEditedColor(goal.color);
-		setIsEditing(false);
-	}, [goal.id, goal.title, goal.color, isExpanded]);
+		setIsEditing(false); // Reset editing state when goal or expansion changes
+	}, [goal.id, goal.title, goal.shortDescription, goal.color, isExpanded]);
 
 	useEffect(() => {
 		if (isEditing && titleInputRef.current) {
 			titleInputRef.current.focus();
+			// Set cursor at the beginning
 			titleInputRef.current.setSelectionRange(0, 0);
 		}
 	}, [isEditing]);
@@ -61,7 +66,6 @@ export default function MinimizableGoalCard({
 		const squareClass = `day-square ${
 			shouldFill ? completedSquareColorClass : ''
 		}`;
-
 		return <div key={index} className={squareClass}></div>;
 	});
 
@@ -124,6 +128,7 @@ export default function MinimizableGoalCard({
 		const updatedGoal = {
 			...goal,
 			title: editedTitle.trim(),
+			shortDescription: editedShortDescription.trim(),
 			color: editedColor,
 		};
 		onUpdateGoal(updatedGoal);
@@ -134,6 +139,7 @@ export default function MinimizableGoalCard({
 	const handleCancelEdit = (e) => {
 		e.stopPropagation();
 		setEditedTitle(goal.title);
+		setEditedShortDescription(goal.shortDescription || '');
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
@@ -164,28 +170,51 @@ export default function MinimizableGoalCard({
 			></div>
 
 			<div className="card-container relative flex justify-between items-start z-10">
-				{/* Left side: Title/Input and Day Squares */}
-				{/* CHANGE: Increased pr-4 to pr-12 to provide more space for the absolute icon */}
+				{/* Left side: Title/Input, Description, and Day Squares (conditional) */}
 				<div className="flex-grow pr-12 min-w-0">
 					{isEditing ? (
-						<input
-							type="text"
-							value={editedTitle}
-							onChange={(e) => setEditedTitle(e.target.value)}
-							onClick={(e) => e.stopPropagation()}
-							ref={titleInputRef}
-							className="text-lg text-gray-500 p-1 rounded w-full"
-							style={{ backgroundColor: '#f3dac4' }}
-							placeholder="Goal Title"
-						/>
+						<div className="mb-2">
+							{' '}
+							{/* Added div for label and input */}
+							<label
+								htmlFor="goal-title"
+								className="block text-base font-medium text-gray-700 font-bold"
+							>
+								{' '}
+								{/* Increased text-sm to text-base */}
+								Goal Title:
+							</label>
+							<input
+								id="goal-title" // Added id for label association
+								type="text"
+								value={editedTitle}
+								onChange={(e) => setEditedTitle(e.target.value)}
+								onClick={(e) => e.stopPropagation()}
+								ref={titleInputRef}
+								className="text-lg text-gray-500 p-1 rounded w-full"
+								style={{ backgroundColor: '#f3dac4' }}
+								placeholder="Goal Title"
+							/>
+						</div>
 					) : (
 						<h2 className="text-lg font-bold text-gray-800 break-words">
 							{goal.title}
 						</h2>
 					)}
-					<div className="day-squares-container gap-10 pb-4">
-						{daySquares}
-					</div>
+
+					{/* Short Description - Display when expanded AND not editing */}
+					{!isEditing && isExpanded && goal.shortDescription && (
+						<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
+							{goal.shortDescription}
+						</p>
+					)}
+
+					{/* Day squares only when NOT expanded */}
+					{!isExpanded && (
+						<div className="day-squares-container gap-10 pb-4">
+							{daySquares}
+						</div>
+					)}
 				</div>
 
 				{/* Right side: Progress Icon (absolute position) */}
@@ -203,32 +232,60 @@ export default function MinimizableGoalCard({
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
 					{isEditing && (
-						<div className="mb-4">
-							<label className="block text-sm font-medium text-gray-700">
-								Card Color:
-							</label>
-							<div className="grid grid-cols-8 gap-2 mt-1">
-								{pastelColors.map((color, idx) => (
-									<div
-										key={idx}
-										className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
-											editedColor === color
-												? 'border-indigo-500'
-												: 'border-gray-300'
-										}`}
-										style={{ backgroundColor: color }}
-										onClick={(e) => {
-											e.stopPropagation();
-											setEditedColor(color);
-										}}
-										title={color}
-									></div>
-								))}
+						<>
+							{/* Input for Short Description (only when editing) */}
+							<div className="mb-4">
+								<label
+									htmlFor="goal-short-description"
+									className="block text-base font-medium text-gray-700 font-bold"
+								>
+									{' '}
+									{/* Increased text-sm to text-base */}
+									Short Description:
+								</label>
+								<textarea
+									id="goal-short-description"
+									value={editedShortDescription}
+									onChange={(e) =>
+										setEditedShortDescription(
+											e.target.value
+										)
+									}
+									onClick={(e) => e.stopPropagation()}
+									className="mt-1 p-1 w-full rounded text-gray-500"
+									style={{ backgroundColor: '#f3dac4' }}
+									rows="3"
+									placeholder="Add a short description for your goal (optional)"
+								></textarea>
 							</div>
-						</div>
+
+							<div className="mb-4">
+								<label className="block text-sm font-medium text-gray-700">
+									Card Color:
+								</label>
+								<div className="grid grid-cols-8 gap-2 mt-1">
+									{pastelColors.map((color, idx) => (
+										<div
+											key={idx}
+											className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
+												editedColor === color
+													? 'border-indigo-500'
+													: 'border-gray-300'
+											}`}
+											style={{ backgroundColor: color }}
+											onClick={(e) => {
+												e.stopPropagation();
+												setEditedColor(color);
+											}}
+											title={color}
+										></div>
+									))}
+								</div>
+							</div>
+						</>
 					)}
 
-					<div className="flex flex-row justify-end items-end gap-2">
+					<div className="flex flex-row justify-end items-end gap-2 mt-auto">
 						{isEditing ? (
 							<>
 								<FontAwesomeIcon

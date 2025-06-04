@@ -10,7 +10,7 @@ export default function MinimizableCustomCard({
 }) {
 	const [customTitle, setCustomTitle] = useState('');
 	const [customShortDescription, setCustomShortDescription] = useState('');
-	const [customColor, setCustomColor] = useState('#FFD1DC'); // Default to a pastel pink
+	const [customColor, setCustomColor] = useState('#B6E8B6'); // Default to a pastel pink
 
 	const pastelColors = [
 		'#FFD1DC', // Light Pink
@@ -145,14 +145,11 @@ export default function MinimizableCustomCard({
 
 					<div className="flex flex-col h-full rounded-lg">
 						<div className="add-button-container flex flex-row justify-end items-end gap-2">
+							{/* The add-button class is re-applied here */}
 							<button
 								className="add-button"
 								onClick={handleAddCustomHabit}
 							>
-								<FontAwesomeIcon
-									icon={faSquareCheck}
-									className="mr-2"
-								/>
 								Add
 							</button>
 						</div>

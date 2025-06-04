@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Page Not Found</title>
+		<script type="text/javascript">
+			// This script redirects all 404s back to the root of the app,
+			// allowing Next.js's client-side router to handle the path.
+			(function () {
+				var redirect = sessionStorage.getItem('redirect');
+				if (redirect) {
+					sessionStorage.removeItem('redirect');
+					window.location.replace(redirect);
+				}
+			})();
+		</script>
+		<script>
+			// GitHub Pages doesn't execute client-side redirects from 404.html directly
+			// so we need a small JS snippet to force a redirect.
+			// This assumes your app's root is index.html
+			var segmentCount = (window.location.pathname.match(/\//g) || [])
+				.length;
+			var locationPath = window.location.pathname.substring(
+				0,
+				window.location.pathname.lastIndexOf('/')
+			);
+			if (window.location.pathname.endsWith('/')) {
+				locationPath += '/'; // Preserve trailing slash if it was present
+			}
+			var basepath = locationPath; // Or define your actual basepath here if not root.
+
+			// For GitHub Pages, `window.location.pathname` will include the repo name.
+			// E.g., /YOUR_REPO_NAME/some/path
+			// We need to strip out the repo name to get the actual path relative to the app.
+			// This is crucial if your app uses a basePath.
+			var repoName = '/justdoit'; // Replace with your actual repo name from basePath
+			if (window.location.pathname.startsWith(repoName)) {
+				basepath = repoName + '/'; // Set the base path to the root of your app on GitHub Pages
+			} else {
+				basepath = '/'; // Fallback to root if repoName not found (e.g., if hosted directly at username.github.io)
+			}
+
+			if (window.location.hash) {
+				window.location.replace(
+					basepath + window.location.hash.slice(1)
+				);
+			} else if (window.location.pathname) {
+				window.location.replace(
+					basepath + window.location.pathname.slice(repoName.length)
+				);
+			} else {
+				window.location.replace(basepath);
+			}
+		</script>
+	</head>
+	<body>
+		<p>Redirecting...</p>
+	</body>
+</html>

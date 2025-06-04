@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast';
 
 export default function MinimizableGoalCard({
 	goal,
-	onEdit,
+	onEdit, // This prop isn't directly used internally but kept for API consistency
 	isExpanded,
 	onExpand,
 	onComplete,
@@ -44,18 +44,20 @@ export default function MinimizableGoalCard({
 
 	const titleInputRef = useRef(null);
 
+	// This useEffect ensures that when the goal prop changes,
+	// our internal editing states are reset and populated from the new goal.
 	useEffect(() => {
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || '');
+		setEditedShortDescription(goal.shortDescription || ''); // Ensures editedShortDescription is synced
 		setEditedColor(goal.color);
-		setIsEditing(false); // Reset editing state when goal or expansion changes
+		setIsEditing(false); // Crucially resets editing mode when goal or expansion changes
 	}, [goal.id, goal.title, goal.shortDescription, goal.color, isExpanded]);
 
+	// Focus on title input when entering edit mode
 	useEffect(() => {
 		if (isEditing && titleInputRef.current) {
 			titleInputRef.current.focus();
-			// Set cursor at the beginning
-			titleInputRef.current.setSelectionRange(0, 0);
+			titleInputRef.current.setSelectionRange(0, 0); // Place cursor at the beginning
 		}
 	}, [isEditing]);
 
@@ -139,7 +141,7 @@ export default function MinimizableGoalCard({
 	const handleCancelEdit = (e) => {
 		e.stopPropagation();
 		setEditedTitle(goal.title);
-		setEditedShortDescription(goal.shortDescription || '');
+		setEditedShortDescription(goal.shortDescription || ''); // Reset to original goal.shortDescription
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
@@ -157,6 +159,7 @@ export default function MinimizableGoalCard({
 				borderRadius: '8px',
 			}}
 			onClick={() => {
+				// Only allow expansion/collapse if not in editing mode
 				if (!isEditing) {
 					onExpand();
 				}
@@ -167,80 +170,71 @@ export default function MinimizableGoalCard({
 					goal.progress === 100 ? 'rounded-lg' : 'rounded-l-lg'
 				}`}
 				style={{ width: `${goal.progress}%` }}
-			></div>
-
-			<div className="card-container relative flex justify-between items-start z-10">
-				{/* Left side: Title/Input, Description, and Day Squares (conditional) */}
-				<div className="flex-grow pr-12 min-w-0">
-					{isEditing ? (
-						<div className="mb-2">
-							{' '}
-							{/* Added div for label and input */}
-							<label
-								htmlFor="goal-title"
-								className="block text-base font-medium text-gray-700 font-bold"
-							>
-								{' '}
-								{/* Increased text-sm to text-base */}
-								Goal Title:
-							</label>
-							<input
-								id="goal-title" // Added id for label association
-								type="text"
-								value={editedTitle}
-								onChange={(e) => setEditedTitle(e.target.value)}
-								onClick={(e) => e.stopPropagation()}
-								ref={titleInputRef}
-								className="text-lg text-gray-500 p-1 rounded w-full"
-								style={{ backgroundColor: '#f3dac4' }}
-								placeholder="Goal Title"
-							/>
-						</div>
-					) : (
-						<h2 className="text-lg font-bold text-gray-800 break-words">
-							{goal.title}
-						</h2>
-					)}
-
-					{/* Short Description - Display when expanded AND not editing */}
-					{!isEditing && isExpanded && goal.shortDescription && (
-						<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
-							{goal.shortDescription}
-						</p>
-					)}
-
-					{/* Day squares only when NOT expanded */}
-					{!isExpanded && (
-						<div className="day-squares-container gap-10 pb-4">
-							{daySquares}
-						</div>
-					)}
-				</div>
-
-				{/* Right side: Progress Icon (absolute position) */}
-				<div className="absolute top-1 right-1">
-					<FontAwesomeIcon
-						icon={
-							goal.progress === 100 ? faSquareCheck : faSquarePlus
-						}
-						className="far goal-card-icon z-20"
-						onClick={increaseProgress}
-					></FontAwesomeIcon>
-				</div>
+			>
+				{' '}
 			</div>
 
-			{isExpanded && (
-				<div className="flex flex-col h-full rounded-lg">
-					{isEditing && (
+			<div className="card-container relative flex justify-between items-start z-10">
+				{/* Left side: Content that changes based on expand/edit state */}
+				<div className="flex-grow pr-12 min-w-0">
+					{/* Display Mode (Expanded, Not Editing) */}
+					{isExpanded && !isEditing && (
 						<>
-							{/* Input for Short Description (only when editing) */}
+							<h2 className="text-lg font-bold text-gray-800 break-words">
+								{goal.title}
+							</h2>
+							{goal.shortDescription && (
+								<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
+									{goal.shortDescription}
+								</p>
+							)}
+						</>
+					)}
+
+					{/* Collapsed Mode (Not Expanded) */}
+					{!isExpanded && (
+						<>
+							<h2 className="text-lg font-bold text-gray-800 break-words">
+								{goal.title}
+							</h2>
+							<div className="day-squares-container gap-10 pb-4">
+								{daySquares}
+							</div>
+						</>
+					)}
+
+					{/* EDIT MODE (Expanded, Editing) - This is the consolidated block */}
+					{isExpanded && isEditing && (
+						<>
+							{/* Title Label and Input */}
+							<div className="mb-2">
+								<label
+									htmlFor="goal-title"
+									className="block text-base font-medium text-gray-700 font-bold"
+								>
+									Goal Title:
+								</label>
+								<input
+									id="goal-title"
+									type="text"
+									value={editedTitle}
+									onChange={(e) =>
+										setEditedTitle(e.target.value)
+									}
+									onClick={(e) => e.stopPropagation()}
+									ref={titleInputRef}
+									className="text-lg text-gray-500 p-1 rounded w-full"
+									style={{ backgroundColor: '#f3dac4' }}
+									placeholder="Goal Title"
+								/>
+							</div>
+
+							{/* Short Description Label and Input */}
 							<div className="mb-4">
 								<label
 									htmlFor="goal-short-description"
 									className="block text-base font-medium text-gray-700 font-bold"
 								>
-									{' '}
-									{/* Increased text-sm to text-base */}
 									Short Description:
 								</label>
 								<textarea
@@ -259,32 +253,54 @@ export default function MinimizableGoalCard({
 								></textarea>
 							</div>
 
-							<div className="mb-4">
-								<label className="block text-sm font-medium text-gray-700">
-									Card Color:
-								</label>
-								<div className="grid grid-cols-8 gap-2 mt-1">
-									{pastelColors.map((color, idx) => (
-										<div
-											key={idx}
-											className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
-												editedColor === color
-													? 'border-indigo-500'
-													: 'border-gray-300'
-											}`}
-											style={{ backgroundColor: color }}
-											onClick={(e) => {
-												e.stopPropagation();
-												setEditedColor(color);
-											}}
-											title={color}
-										></div>
-									))}
+							{/* Color Picker - ONLY SHOW FOR INCOMPLETE GOALS WHEN EDITING */}
+							{goal.progress < 100 && ( // Added this condition
+								<div className="mb-4">
+									<label className="block text-sm font-medium text-gray-700">
+										Card Color:
+									</label>
+									<div className="grid grid-cols-8 gap-2 mt-1">
+										{pastelColors.map((color, idx) => (
+											<div
+												key={idx}
+												className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
+													editedColor === color
+														? 'border-indigo-500'
+														: 'border-gray-300'
+												}`}
+												style={{
+													backgroundColor: color,
+												}}
+												onClick={(e) => {
+													e.stopPropagation();
+													setEditedColor(color);
+												}}
+												title={color}
+											></div>
+										))}
+									</div>
 								</div>
-							</div>
+							)}
 						</>
 					)}
+				</div>
 
+				{/* Right side: Progress Icon (absolute position) */}
+				<div className="absolute top-1 right-1">
+					<FontAwesomeIcon
+						icon={
+							goal.progress === 100 ? faSquareCheck : faSquarePlus
+						}
+						className="far goal-card-icon z-20"
+						onClick={increaseProgress}
+					></FontAwesomeIcon>
+				</div>
+			</div>
+
+			{/* Control buttons (Edit/Save/Cancel/Delete) always at the bottom of expanded view */}
+			{isExpanded && (
+				<div className="flex flex-col h-full rounded-lg">
+					{/* CONTROL BUTTONS (Edit/Save/Cancel/Delete) */}
 					<div className="flex flex-row justify-end items-end gap-2 mt-auto">
 						{isEditing ? (
 							<>
@@ -307,7 +323,7 @@ export default function MinimizableGoalCard({
 								className="far goal-card-icon z-20"
 								onClick={(e) => {
 									e.stopPropagation();
-									setIsEditing(true);
+									setIsEditing(true); // Set isEditing to true to reveal edit fields
 								}}
 							></FontAwesomeIcon>
 						)}

@@ -1,12 +1,15 @@
 import '@/app/globals.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-
+import {
+	faUser,
+	faBullseye,
+	faCompass,
+} from '@fortawesome/free-solid-svg-icons';
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
-		{ id: 'goals', label: 'Goals' },
-		{ id: 'explore', label: 'Explore' },
-		// { id: 'settings', label: 'Settings' },
+		{ id: 'goals', label: 'Goals', icon: faBullseye },
+		{ id: 'explore', label: 'Explore', icon: faCompass },
 	];
 
 	return (
@@ -49,11 +52,16 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					onClick={() => setActiveTab('profile')} // Attach onClick to the button
 					aria-label="Profile" // Important for accessibility
 				>
-					<FontAwesomeIcon
-						icon={faUser}
-						size="lg" // Use size="lg" or "xl" for better visibility
-						className="mb-1" // Add some margin below the icon if you have text
-					/>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
+					<SignedOut>
+						<FontAwesomeIcon
+							icon={faUser}
+							size="lg" // Use size="lg" or "xl" for better visibility
+							className="mb-1" // Add some margin below the icon if you have text
+						/>
+					</SignedOut>
 					{/* Add text label if desired, e.g., <span>Profile</span> */}
 				</button>
 			</div>

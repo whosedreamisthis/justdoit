@@ -284,3 +284,11 @@ body,
 .profile-tab {
 	color: black;
 }
+
+.button-primary-light {
+	background-color: #e6b89c;
+}
+
+.button-secondary-light {
+	background-color: #b08e77;
+}

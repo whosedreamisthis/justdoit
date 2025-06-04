@@ -185,12 +185,35 @@ export default function App() {
 		};
 		const newGoals = [...goals, newGoal];
 		// Sort by isCompleted (false first, true last), then by progress
+		// setGoals(
+		// 	newGoals.sort(
+		// 		(a, b) =>
+		// 			(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1) ||
+		// 			a.progress - b.progress
+		// 	)
+		// );
 		setGoals(
-			newGoals.sort(
-				(a, b) =>
-					(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1) ||
-					a.progress - b.progress
-			)
+			newGoals.sort((a, b) => {
+				// Extract timestamps from IDs if they exist and start with 'custom-'
+				const idA = a.id?.includes('-') ? a.id.split('-').pop() : null;
+				const idB = b.id?.includes('-') ? b.id.split('-').pop() : null;
+
+				const timestampA = idA ? parseInt(idA, 10) : 0; // Use 0 for non-timestamped IDs
+				const timestampB = idB ? parseInt(idB, 10) : 0; // Use 0 for non-timestamped IDs
+
+				// Prioritize by timestamp (descending: newer on top)
+				if (timestampA !== timestampB) {
+					return timestampB - timestampA;
+				}
+
+				// If timestamps are the same (or not present), fall back to existing sorting
+				const completionComparison =
+					(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1);
+				if (completionComparison !== 0) {
+					return completionComparison;
+				}
+				return a.progress - b.progress;
+			})
 		);
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};

@@ -100,21 +100,18 @@ export default function MinimizableCustomCard({
 							placeholder="e.g., Practice for 15 minutes daily"
 						></textarea>
 					</div>
-
-					<div className="flex flex-col h-full rounded-lg">
-						<div className="add-button-container flex flex-row justify-end items-end gap-2">
-							<button
-								className="add-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center transition duration-300 ease-in-out transform hover:scale-105"
-								onClick={handleAddCustomHabit}
-							>
-								<FontAwesomeIcon
-									icon={faSquareCheck}
-									className="mr-2"
-								/>
-								Add Habit
-							</button>
+					{isExpanded && (
+						<div className="flex flex-col h-full rounded-lg">
+							<div className="add-button-container flex flex-row justify-end items-end gap-2">
+								<button
+									className="add-button"
+									onClick={handleAddCustomHabit}
+								>
+									Add
+								</button>
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			)}
 		</div>

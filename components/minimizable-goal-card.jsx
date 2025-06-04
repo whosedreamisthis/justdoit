@@ -12,6 +12,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 
+// --- NEW: Import the DaySquares component ---
+import DaySquares from './day-squares'; // Adjust path as necessary
+
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
@@ -44,9 +47,8 @@ export default function MinimizableGoalCard({
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
-	const cardRef = ScrollOnExpand(isExpanded); // This hook handles scroll on expand
+	const cardRef = ScrollOnExpand(isExpanded);
 
-	// --- NEW: Ref to store previous progress for detecting completion ---
 	const prevProgressRef = useRef(goal.progress);
 
 	useEffect(() => {
@@ -63,34 +65,22 @@ export default function MinimizableGoalCard({
 		}
 	}, [isEditing]);
 
-	// --- NEW: Effect to scroll into view when goal is completed ---
 	useEffect(() => {
-		// Check if the goal *just* became 100% completed
 		if (goal.progress === 100 && prevProgressRef.current < 100) {
 			if (cardRef.current) {
-				// Scroll the card into view with smooth behavior
 				cardRef.current.scrollIntoView({
 					behavior: 'smooth',
 					block: 'center',
 				});
 			}
 		}
-		// Update the previous progress ref for the next render
 		prevProgressRef.current = goal.progress;
-	}, [goal.progress, cardRef]); // Dependencies: Re-run when goal.progress changes or cardRef changes
+	}, [goal.progress, cardRef]);
 
-	// -----------------------------------------------------------------
-
-	const completedSquareColorClass = 'day-square-filled-green';
-
-	// MODIFICATION HERE: Making the day squares slightly larger
-	const daySquares = goal.completedDays.map((day, index) => {
-		const shouldFill = day;
-		const squareClass = `day-square ${
-			shouldFill ? completedSquareColorClass : ''
-		} w-8 h-8`; // ADDED: w-8 h-8 for a larger size (32px by default in Tailwind)
-		return <div key={index} className={squareClass}></div>;
-	});
+	// --- REMOVED: No longer defining daySquares here ---
+	// const completedSquareColorClass = 'day-square-filled-green';
+	// const daySquares = goal.completedDays.map((day, index) => { /* ... */ });
+	// ---------------------------------------------------
 
 	const handleDelete = (e) => {
 		e.stopPropagation();
@@ -219,9 +209,9 @@ export default function MinimizableGoalCard({
 									: goal.title}
 							</h2>
 
-							<div className="day-squares-container flex gap-4 pb-4">
-								{daySquares}
-							</div>
+							{/* --- NEW: Use the DaySquares component here --- */}
+							<DaySquares completedDays={goal.completedDays} />
+							{/* ----------------------------------------------- */}
 						</>
 					)}
 

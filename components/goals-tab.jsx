@@ -10,7 +10,6 @@ export default function GoalsTab({
 	setGoals,
 	onUpdateGoal,
 }) {
-	// Added onUpdateGoal to props
 	const [expandedGoal, setExpandedGoal] = useState(null);
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
@@ -53,10 +52,10 @@ export default function GoalsTab({
 					if (element) {
 						element.scrollIntoView({
 							behavior: 'smooth',
-							block: 'start',
+							block: 'center', // CHANGE: Changed from 'start' to 'center'
 						});
 					}
-				}, 50);
+				}, 350); // Delay remains for smooth expansion
 			}
 			return newExpandedGoal;
 		});
@@ -121,9 +120,6 @@ export default function GoalsTab({
 
 	const decreaseProgress = (e) => {
 		e.stopPropagation();
-		// This function seems incomplete/unused as it doesn't modify state based on goal.id or newProgress
-		// If you intend to use this, ensure it calls updateProgress with specific goal.id
-		// For example: updateProgress(someGoalId, newProgress);
 	};
 
 	const deleteGoal = (goalId) => {
@@ -153,7 +149,6 @@ export default function GoalsTab({
 							<MinimizableGoalCard
 								goal={goal}
 								currentDayIndex={currentDayIndex}
-								// --- Removed onEdit prop from here, as editing is now internal to the card ---
 								isExpanded={expandedGoal === goal.id}
 								onExpand={() => handleExpand(goal.id)}
 								onComplete={() => moveCompletedGoal(goal.id)}
@@ -167,7 +162,6 @@ export default function GoalsTab({
 									updateDaysProgress(goal.id, newDaysProgress)
 								}
 								onDelete={deleteGoal}
-								// --- Minimal Change: Pass the new update handler ---
 								onUpdateGoal={onUpdateGoal}
 							/>
 						</div>

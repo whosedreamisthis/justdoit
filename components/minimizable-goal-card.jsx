@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react'; // Import useState and useEffect
+// minimizable-goal-card.jsx
+import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	faTrashCan,
-	faPencil, // This will be the "Edit" button
+	faPencil,
 	faSquarePlus,
 	faSquareCheck,
-	faFloppyDisk, // New: For Save button
-	faXmarkCircle, // New: For Cancel button
+	faFloppyDisk,
+	faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { toast } from 'react-hot-toast'; // Import toast for notifications
+import { toast } from 'react-hot-toast';
 
 export default function MinimizableGoalCard({
 	goal,
-	onEdit, // This prop might become redundant for the new edit flow or handle different type of edit
+	onEdit,
 	isExpanded,
 	onExpand,
 	onComplete,
@@ -20,10 +21,9 @@ export default function MinimizableGoalCard({
 	updateProgress,
 	updateDaysProgress,
 	onDelete,
-	onUpdateGoal, // NEW PROP: Function to call when goal is updated
+	onUpdateGoal,
 	currentDayIndex,
 }) {
-	// Define the 8 pastel colors for the color picker
 	const pastelColors = [
 		'#FFD1DC', // Light Pink
 		'#FFDAB9', // Peach Puff
@@ -35,19 +35,24 @@ export default function MinimizableGoalCard({
 		'#FFA07A', // Light Salmon
 	];
 
-	// State to manage editing mode
 	const [isEditing, setIsEditing] = useState(false);
-	// States to hold temporary edited values
 	const [editedTitle, setEditedTitle] = useState(goal.title);
 	const [editedColor, setEditedColor] = useState(goal.color);
 
-	// Effect to reset edit state when the goal changes (e.g., different card expands)
-	// or when the card expansion state changes
+	const titleInputRef = useRef(null);
+
 	useEffect(() => {
 		setEditedTitle(goal.title);
 		setEditedColor(goal.color);
-		setIsEditing(false); // Ensure edit mode is off when component state changes
-	}, [goal.id, goal.title, goal.color, isExpanded]); // Depend on goal properties and expansion state
+		setIsEditing(false);
+	}, [goal.id, goal.title, goal.color, isExpanded]);
+
+	useEffect(() => {
+		if (isEditing && titleInputRef.current) {
+			titleInputRef.current.focus();
+			titleInputRef.current.setSelectionRange(0, 0);
+		}
+	}, [isEditing]);
 
 	const completedSquareColorClass = 'bg-deep-olive';
 
@@ -108,9 +113,8 @@ export default function MinimizableGoalCard({
 		}
 	};
 
-	// Handler for saving edits
 	const handleSaveEdit = (e) => {
-		e.stopPropagation(); // Prevent card collapse when clicking Save
+		e.stopPropagation();
 
 		if (!editedTitle.trim()) {
 			toast.error('Title cannot be empty.');
@@ -118,44 +122,40 @@ export default function MinimizableGoalCard({
 		}
 
 		const updatedGoal = {
-			...goal, // Keep existing goal properties
-			title: editedTitle.trim(), // Update title
-			color: editedColor, // Update color
+			...goal,
+			title: editedTitle.trim(),
+			color: editedColor,
 		};
-		onUpdateGoal(updatedGoal); // Call the parent function to persist changes
-		setIsEditing(false); // Exit edit mode
+		onUpdateGoal(updatedGoal);
+		setIsEditing(false);
 		toast.success('Goal updated!');
 	};
 
-	// Handler for canceling edits
 	const handleCancelEdit = (e) => {
-		e.stopPropagation(); // Prevent card collapse when clicking Cancel
-		setEditedTitle(goal.title); // Revert title to original
-		setEditedColor(goal.color); // Revert color to original
-		setIsEditing(false); // Exit edit mode
+		e.stopPropagation();
+		setEditedTitle(goal.title);
+		setEditedColor(goal.color);
+		setIsEditing(false);
 	};
 
 	return (
 		<div
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
-                relative rounded-lg p-4 cursor-pointer transition-all flex flex-col overflow-hidden
+                relative rounded-lg p-4 cursor-pointer transition-all flex flex-col
                 ${isExpanded ? 'h-auto' : 'h-25'} border border-black
             `}
-			// Apply editedColor when in editing mode, otherwise use original goal.color
 			style={{
 				backgroundColor: isEditing ? editedColor : goal.color,
 				overflow: 'visible',
 				borderRadius: '8px',
 			}}
 			onClick={() => {
-				// Only allow expansion/collapse if not currently editing
 				if (!isEditing) {
 					onExpand();
 				}
 			}}
 		>
-			{/* Progress bar */}
 			<div
 				className={`absolute inset-0 bg-blue-earth transition-all h-full w-full ${
 					goal.progress === 100 ? 'rounded-lg' : 'rounded-l-lg'
@@ -163,46 +163,45 @@ export default function MinimizableGoalCard({
 				style={{ width: `${goal.progress}%` }}
 			></div>
 
-			<div className="card-container relative flex justify-between items-center z-10">
-				<div className="flex flex-row justify-around gap-20">
-					<div>
-						{/* Conditional rendering for Title: Input field when editing, H2 when not */}
-						{isEditing ? (
-							<input
-								type="text"
-								value={editedTitle}
-								onChange={(e) => setEditedTitle(e.target.value)}
-								onClick={(e) => e.stopPropagation()} // Stop propagation to prevent card collapse
-								className="text-lg font-bold text-gray-800 bg-white p-1 rounded w-3/4"
-								placeholder="Goal Title"
-							/>
-						) : (
-							<h2 className="text-lg font-bold text-gray-800">
-								{goal.title}
-							</h2>
-						)}
+			<div className="card-container relative flex justify-between items-start z-10">
+				{/* Left side: Title/Input and Day Squares */}
+				{/* CHANGE: Increased pr-4 to pr-12 to provide more space for the absolute icon */}
+				<div className="flex-grow pr-12 min-w-0">
+					{isEditing ? (
+						<input
+							type="text"
+							value={editedTitle}
+							onChange={(e) => setEditedTitle(e.target.value)}
+							onClick={(e) => e.stopPropagation()}
+							ref={titleInputRef}
+							className="text-lg text-gray-500 p-1 rounded w-full"
+							style={{ backgroundColor: '#f3dac4' }}
+							placeholder="Goal Title"
+						/>
+					) : (
+						<h2 className="text-lg font-bold text-gray-800 break-words">
+							{goal.title}
+						</h2>
+					)}
+					<div className="day-squares-container gap-10 pb-4">
+						{daySquares}
+					</div>
+				</div>
 
-						<div className="day-squares-container gap-10 pb-4">
-							{daySquares}
-						</div>
-					</div>
-					<div className="absolute top-1 right-1">
-						<FontAwesomeIcon
-							icon={
-								goal.progress === 100
-									? faSquareCheck
-									: faSquarePlus
-							}
-							className="far goal-card-icon z-20"
-							onClick={increaseProgress}
-						></FontAwesomeIcon>
-					</div>
+				{/* Right side: Progress Icon (absolute position) */}
+				<div className="absolute top-1 right-1">
+					<FontAwesomeIcon
+						icon={
+							goal.progress === 100 ? faSquareCheck : faSquarePlus
+						}
+						className="far goal-card-icon z-20"
+						onClick={increaseProgress}
+					></FontAwesomeIcon>
 				</div>
 			</div>
 
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
-					{/* Color selection grid, only visible when editing */}
 					{isEditing && (
 						<div className="mb-4">
 							<label className="block text-sm font-medium text-gray-700">
@@ -219,8 +218,8 @@ export default function MinimizableGoalCard({
 										}`}
 										style={{ backgroundColor: color }}
 										onClick={(e) => {
-											e.stopPropagation(); // Prevent card collapse
-											setEditedColor(color); // Set the new color
+											e.stopPropagation();
+											setEditedColor(color);
 										}}
 										title={color}
 									></div>
@@ -232,14 +231,12 @@ export default function MinimizableGoalCard({
 					<div className="flex flex-row justify-end items-end gap-2">
 						{isEditing ? (
 							<>
-								{/* Save Button */}
 								<FontAwesomeIcon
 									icon={faFloppyDisk}
 									className="far goal-card-icon z-20 text-green-600 hover:text-green-800"
 									onClick={handleSaveEdit}
 									title="Save Changes"
 								></FontAwesomeIcon>
-								{/* Cancel Button */}
 								<FontAwesomeIcon
 									icon={faXmarkCircle}
 									className="far goal-card-icon z-20 text-red-600 hover:text-red-800"
@@ -248,14 +245,12 @@ export default function MinimizableGoalCard({
 								></FontAwesomeIcon>
 							</>
 						) : (
-							// Edit Button (pencil icon)
 							<FontAwesomeIcon
 								icon={faPencil}
 								className="far goal-card-icon z-20"
 								onClick={(e) => {
-									e.stopPropagation(); // Prevent card collapse
-									// onEdit(goal.id); // This line can be removed if onEdit is not used elsewhere for this new flow
-									setIsEditing(true); // Enter edit mode
+									e.stopPropagation();
+									setIsEditing(true);
 								}}
 							></FontAwesomeIcon>
 						)}

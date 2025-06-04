@@ -250,7 +250,7 @@ export default function MinimizableGoalCard({
 									}
 									onClick={(e) => e.stopPropagation()}
 									className="mt-1 p-1 w-full rounded text-gray-500"
-									style={{ backgroundColor: '#f3dac4' }}
+									style={{ backgroundColor: 'white' }}
 									rows="3"
 									placeholder="Add a short description for your goal (optional)"
 								></textarea>

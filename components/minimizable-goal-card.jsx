@@ -246,7 +246,7 @@ export default function MinimizableGoalCard({
 									onClick={(e) => e.stopPropagation()}
 									ref={titleInputRef}
 									className="text-lg text-gray-500 p-1 rounded w-full"
-									style={{ backgroundColor: '#f3dac4' }}
+									style={{ backgroundColor: '#f0f0f0' }}
 									placeholder="Goal Title"
 								/>
 							</div>
@@ -266,7 +266,7 @@ export default function MinimizableGoalCard({
 									}
 									onClick={(e) => e.stopPropagation()}
 									className="mt-1 p-1 w-full rounded text-gray-500"
-									style={{ backgroundColor: '#f3dac4' }}
+									style={{ backgroundColor: '#f0f0f0' }}
 									rows="3"
 									placeholder="Add a short description for your goal (optional)"
 								></textarea>

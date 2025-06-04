@@ -309,7 +309,7 @@ body,
 	transition: transform 0.5s ease-in-out, opacity 0.3s;
 }
 
-.goal-item.moving {
-	opacity: 0.5;
-	transform: translateY(-10px);
+.goal-item.moving-up {
+	transform: translateY(-30px); /* Animates upward */
+	opacity: 0.8; /* Makes transition noticeable */
 }

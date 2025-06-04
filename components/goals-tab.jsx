@@ -12,6 +12,7 @@ export default function GoalsTab({
 }) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
 	const [movingGoal, setMovingGoal] = useState(null);
+	const [transitioningGoals, setTransitioningGoals] = useState([]);
 
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
@@ -45,6 +46,9 @@ export default function GoalsTab({
 	}, []);
 
 	const handleExpand = (id) => {
+		// If a goal is currently moving, prevent focus override
+		if (movingGoal) return;
+
 		setExpandedGoal((prevExpandedGoal) => {
 			const newExpandedGoal = prevExpandedGoal === id ? null : id;
 
@@ -52,18 +56,12 @@ export default function GoalsTab({
 				setTimeout(() => {
 					const element = goalRefs.current[newExpandedGoal];
 					if (element) {
-						const rect = element.getBoundingClientRect();
-						const viewportHeight = window.innerHeight;
-
-						// Scroll **only if the element is not fully visible**
-						if (!(rect.top >= 0 && rect.bottom <= viewportHeight)) {
-							element.scrollIntoView({
-								behavior: 'smooth',
-								block: 'center',
-							});
-						}
+						element.scrollIntoView({
+							behavior: 'smooth',
+							block: 'center',
+						});
 					}
-				}, 350); // Delay remains for smooth expansion
+				}, 350);
 			}
 			return newExpandedGoal;
 		});
@@ -114,10 +112,8 @@ export default function GoalsTab({
 		);
 	};
 
-	// const [movingGoal, setMovingGoal] = useState(null);
-
 	const moveIncompleteGoal = (goalId) => {
-		setMovingGoal(goalId); // Mark the goal as "moving"
+		setMovingGoal(goalId); // Temporarily mark the goal as moving
 
 		setTimeout(() => {
 			setGoals((prevGoals) => {
@@ -126,7 +122,7 @@ export default function GoalsTab({
 				);
 
 				setTimeout(() => {
-					setMovingGoal(null); // Remove animation class after moving
+					setMovingGoal(null); // Clear movement state
 					const element = goalRefs.current[goalId];
 					if (element) {
 						element.scrollIntoView({
@@ -134,11 +130,11 @@ export default function GoalsTab({
 							block: 'center',
 						});
 					}
-				}, 500); // Allow animation time before scrolling
+				}, 500); // Ensure movement finishes before scrolling
 
 				return updatedGoals;
 			});
-		}, 300); // Delay sorting to allow animation
+		}, 300); // Allow movement animation before reordering
 	};
 
 	const sortGoals = (goals) => {
@@ -172,8 +168,12 @@ export default function GoalsTab({
 							id={`goal-${goal.id}`}
 							key={goal.id}
 							data-goal-id={goal.id}
-							className={`rounded-xl shadow-md goal-item`}
-							style={{ backgroundColor: `${goal.color}` }}
+							className={`rounded-xl shadow-md goal-item ${
+								transitioningGoals.includes(goal.id)
+									? 'moving-up'
+									: ''
+							}`}
+							style={{ backgroundColor: goal.color }}
 							ref={(el) => (goalRefs.current[goal.id] = el)}
 						>
 							<MinimizableGoalCard

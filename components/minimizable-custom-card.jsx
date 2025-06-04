@@ -10,7 +10,7 @@ export default function MinimizableCustomCard({
 }) {
 	const [customTitle, setCustomTitle] = useState('');
 	const [customShortDescription, setCustomShortDescription] = useState('');
-	const [customColor, setCustomColor] = useState('#B6E8B6'); // Default to a pastel pink
+	const [customColor, setCustomColor] = useState('#A7B39E'); // Default to a pastel pink
 
 	const pastelColors = [
 		'#FFD1DC', // Light Pink

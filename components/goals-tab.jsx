@@ -50,10 +50,16 @@ export default function GoalsTab({
 				setTimeout(() => {
 					const element = goalRefs.current[newExpandedGoal];
 					if (element) {
-						element.scrollIntoView({
-							behavior: 'smooth',
-							block: 'center', // CHANGE: Changed from 'start' to 'center'
-						});
+						const rect = element.getBoundingClientRect();
+						const viewportHeight = window.innerHeight;
+
+						// Scroll **only if the element is not fully visible**
+						if (!(rect.top >= 0 && rect.bottom <= viewportHeight)) {
+							element.scrollIntoView({
+								behavior: 'smooth',
+								block: 'center',
+							});
+						}
 					}
 				}, 350); // Delay remains for smooth expansion
 			}

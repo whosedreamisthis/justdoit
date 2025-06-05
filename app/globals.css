@@ -365,14 +365,14 @@ body,
 	color: #779ecb;
 }
 
-.stats-container {
-	width: 180px;
-	height: 180px;
-}
-.stats-card {
-	width: 180px;
-	height: 180px;
-}
+/* .stats-container {
+	background-color: red;
+
+} */
+/* .stats-card {
+	background-color: red;
+	
+} */
 
 .stats-item {
 	border-color: #3b3b3b;
@@ -382,3 +382,74 @@ body,
 .tab-title {
 	text-align: center;
 }
+.react-calendar {
+	color: #333; /* Darker text */
+}
+
+.react-calendar__tile {
+	font-weight: bold; /* Make day numbers more visible */
+	color: black;
+}
+
+.react-calendar__tile--now {
+	background-color: transparent !important;
+	color: #000 !important; /* Adjust text color for visibility */
+	border: 2px solid #000 !important; /* Optional: add a border */
+	border-radius: 5px;
+}
+
+.react-calendar .react-calendar__tile--now {
+	border: 1px solid black !important; /* Set border width & color in one property */
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+	background-color: #ffdd44 !important;
+	border-color: red !important;
+}
+.react-calendar__month-view__days__day--weekend {
+	color: black !important; /* Change text color */
+}
+
+.highlighted-cell {
+	background-color: #77dd77 !important;
+	/* max-width: 40px !important; */
+	/* max-height: 40px !important; */
+	display: flex;
+	align-items: center;
+	border: 1px solid black !important;
+	border-radius: 3px;
+	justify-content: center;
+	font-weight: bold;
+	color: black;
+}
+/* MyCalendar.css */
+
+/* Override the active/selected tile background color */
+.react-calendar__tile--active {
+	background-color: transparent !important; /* Prevents the selected tile from changing background */
+	/* You might also want to ensure its text color doesn't change on selection */
+	color: inherit !important; /* Keep the number color the same as unselected tiles */
+}
+
+/* You might also want to remove hover effects if you don't want any visual change on hover */
+.react-calendar__tile:hover:not(.highlighted-cell):not(
+		.react-calendar__tile--active
+	) {
+	background-color: transparent !important;
+}
+
+/* Your existing highlighted cell style */
+.highlighted-cell {
+	background-color: lightblue; /* Example highlight color */
+	color: white; /* Example: make the number white for highlighted cells */
+}
+
+/* Optional: If you had any previous disabled styles, you can remove or comment them out now */
+/*
+.react-calendar__tile--disabled {
+  background-color: transparent !important;
+  color: inherit !important;
+  cursor: default !important;
+}
+*/

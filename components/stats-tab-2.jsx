@@ -8,9 +8,9 @@ export default function StatsTab({ goals }) {
 				Statistics 2
 			</h2>
 			<div className="flex justify-center mt-6">
-				<div className="grid grid-cols-1 gap-x-4 gap-y-4 max-w-sm sm:max-w-md md:max-w-lg">
+				<div className="grid grid-cols-2 gap-x-4 gap-y-4 max-w-sm sm:max-w-md md:max-w-lg">
 					{goals.map((goal) => (
-						<div className="stats-container m-2" key={goal.id}>
+						<div className="stats-container" key={goal.id}>
 							<StatsCard goal={goal} />
 						</div>
 					))}

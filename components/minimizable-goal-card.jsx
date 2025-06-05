@@ -188,8 +188,8 @@ export default function MinimizableGoalCard({
 				{' '}
 			</div>
 
-			<div className="card-container relative flex justify-between items-start z-10">
-				<div className="flex-grow pr-12 min-w-0">
+			<div className="relative flex justify-between items-start z-10">
+				<div className="flex-grow min-w-0">
 					{isExpanded && !isEditing && (
 						<>
 							<h2 className="title text-lg font-bold text-gray-800">
@@ -221,7 +221,7 @@ export default function MinimizableGoalCard({
 
 					{isExpanded && isEditing && (
 						<>
-							<div className="mb-2">
+							<div className="my-2">
 								<label
 									htmlFor="goal-title"
 									className="block text-base font-medium text-gray-700 font-bold"
@@ -280,15 +280,19 @@ export default function MinimizableGoalCard({
 					)}
 				</div>
 
-				<div className="absolute top-1 right-1">
-					<FontAwesomeIcon
-						icon={
-							goal.progress === 100 ? faSquareCheck : faSquarePlus
-						}
-						className="far goal-card-icon z-20"
-						onClick={increaseProgress}
-					></FontAwesomeIcon>
-				</div>
+				{!isEditing && (
+					<div className="absolute top-0 right-0">
+						<FontAwesomeIcon
+							icon={
+								goal.progress === 100
+									? faSquareCheck
+									: faSquarePlus
+							}
+							className="far goal-card-icon z-20"
+							onClick={increaseProgress}
+						></FontAwesomeIcon>
+					</div>
+				)}
 			</div>
 
 			{isExpanded && (

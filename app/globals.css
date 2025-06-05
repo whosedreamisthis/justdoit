@@ -337,3 +337,17 @@ body,
 	/* original was gap-10, which might be too large for larger squares */
 	/* Consider changing gap: 10px; to something smaller like gap: 5px; if they are too spread out */
 }
+.profile-tab,
+.explore-container {
+	overflow: hidden;
+	scrollbar-width: none; /* Firefox */
+}
+
+.profile-tab::-webkit-scrollbar,
+.explore-container::-webkit-scrollbar {
+	display: none; /* Chrome, Safari */
+}
+
+.description {
+	max-width: 250px;
+}

@@ -197,7 +197,7 @@ export default function MinimizableGoalCard({
 							</h2>
 
 							{goal.description && (
-								<p className="text-sm text-gray-700 mt-1 mb-2 break-words">
+								<p className="description text-sm text-gray-700 mt-1 mb-2 break-words">
 									{goal.description}
 								</p>
 							)}

@@ -37,10 +37,20 @@ export default function MinimizableCustomCard({
 		// toast.success(`"${newCustomHabit.title}" custom habit added!`);
 	};
 
+	// className={`
+	//             ${goal.progress >= 100 ? 'completed-card' : 'card'}
+	//             relative rounded-lg p-4 transition-all flex flex-col
+	//             ${isExpanded ? 'h-auto' : 'h-25'}
+	//         `}
+	// style={{
+	// 				backgroundColor: isEditing ? editedColor : goal.color,
+	// 				overflow: 'visible',
+	// 				borderRadius: '8px',
+	// 			}}
 	return (
 		<div
 			className={`
-                rounded-lg p-4 transition-all
+                relative rounded-lg p-4 transition-all
                 ${
 					isExpanded
 						? 'max-h-[500px] overflow-auto z-10'
@@ -82,7 +92,8 @@ export default function MinimizableCustomCard({
 							value={customTitle}
 							onChange={(e) => setCustomTitle(e.target.value)}
 							onClick={(e) => e.stopPropagation()}
-							className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2"
+							className="text-lg text-gray-500 p-1 rounded w-full"
+							style={{ backgroundColor: '#f0f0f0' }}
 							placeholder="e.g., Learn Spanish"
 						/>
 					</div>
@@ -91,7 +102,7 @@ export default function MinimizableCustomCard({
 							htmlFor="custom-short-description"
 							className="block text-sm font-medium text-gray-700"
 						>
-							Short Description (Optional):
+							Description (Optional):
 						</label>
 						<textarea
 							id="custom-short-description"
@@ -101,6 +112,7 @@ export default function MinimizableCustomCard({
 							}
 							onClick={(e) => e.stopPropagation()}
 							rows="2"
+							style={{ backgroundColor: '#f0f0f0' }}
 							className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2"
 							placeholder="e.g., Practice for 15 minutes daily"
 						></textarea>

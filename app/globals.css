@@ -154,9 +154,6 @@ body::-webkit-scrollbar {
 	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
 }
 
-.goals-container {
-	padding-bottom: 150px; /* ✅ Creates space for scrolling past tab buttons */
-}
 .expand-arrow {
 	color: #a48f72; /* ✅ Softer earthy tone */
 	font-size: 24px; /* ✅ Slightly bigger for better visibility */

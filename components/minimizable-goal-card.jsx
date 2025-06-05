@@ -156,19 +156,22 @@ export default function MinimizableGoalCard({
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
-
+	//  ${isExpanded ? 'h-auto' : 'h-25'}
 	return (
 		<div
 			ref={cardRef}
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
-                relative rounded-lg p-4 transition-all flex flex-col
-                ${isExpanded ? 'h-auto' : 'h-25'}
+                relative rounded-lg p-4 transition-all
+                
+				${
+					isExpanded
+						? 'max-h-[500px] overflow-auto z-10'
+						: 'max-h-32 overflow-hidden z-0 shadow-none'
+				}
             `}
 			style={{
 				backgroundColor: isEditing ? editedColor : goal.color,
-				overflow: 'visible',
-				borderRadius: '8px',
 			}}
 			onClick={() => {
 				if (!isEditing) {
@@ -240,12 +243,12 @@ export default function MinimizableGoalCard({
 								/>
 							</div>
 
-							<div className="mb-4">
+							<div className="my-4">
 								<label
 									htmlFor="goal-short-description"
 									className="block text-base font-medium text-gray-700 font-bold"
 								>
-									Short Description:
+									Description:
 								</label>
 								<textarea
 									id="goal-short-description"
@@ -257,12 +260,12 @@ export default function MinimizableGoalCard({
 									className="mt-1 p-1 w-full rounded text-gray-500"
 									style={{ backgroundColor: '#f0f0f0' }}
 									rows="3"
-									placeholder="Add a short description for your goal (optional)"
+									placeholder="Add a description for your goal (optional)"
 								></textarea>
 							</div>
 							{goal.progress < 100 && (
 								<div className="mb-4">
-									<label className="block text-sm font-medium text-gray-700">
+									<label className="block font-medium text-gray-700">
 										Card Color:
 									</label>
 									<ColorSquares

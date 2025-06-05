@@ -72,7 +72,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	};
 
 	return (
-		<div className="explore-container p-6 bg-subtle-background">
+		<div className="explore-container p-3 bg-subtle-background">
 			<h2 className="text-3xl font-bold mb-4 text-primary">
 				Explore Habits
 			</h2>

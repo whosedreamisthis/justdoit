@@ -24,7 +24,7 @@ export default function MinimizableCard({
 				onExpand();
 			}}
 		>
-			{/* Title & Short Description */}
+			{/* Title &  Description */}
 			<h2 className="text-lg font-bold text-gray-800">{habit.title}</h2>
 
 			<p className="text-gray-600 text-sm">{habit.description}</p>

@@ -31,10 +31,26 @@ export default function MinimizableGoalCard({
 		'#FFDAB9', // Peach Puff
 		'#FFFACD', // Lemon Chiffon
 		'#A7B39E', // Light Pastely Olive Green
-		'#E0BBE4', // Lavender
-		'#D3D3D3', // Light Gray
-		'#EBD6D0', // Light Terracotta / Rose-Brown
-		'#FFA07A', // Light Salmon
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#A7B39E', // Light Pastely Olive Green
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#A7B39E',
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#A7B39E',
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#A7B39E',
+		'#FFD1DC', // Light Pink
+		'#FFDAB9', // Peach Puff
+		'#FFFACD', // Lemon Chiffon
+		'#A7B39E',
 	];
 
 	const [isEditing, setIsEditing] = useState(false);
@@ -271,19 +287,20 @@ export default function MinimizableGoalCard({
 									placeholder="Add a short description for your goal (optional)"
 								></textarea>
 							</div>
-
 							{goal.progress < 100 && (
 								<div className="mb-4">
 									<label className="block text-sm font-medium text-gray-700">
 										Card Color:
 									</label>
-									<div className="grid grid-cols-8 gap-2 mt-1">
-										{pastelColors.map((color, idx) => (
+									<div className="grid grid-cols-8 justify-around gap-x-2">
+										{' '}
+										{/* //"grid grid-cols-8 gap-2 mt-1" */}
+										{pastelColors.map((color, index) => (
 											<div
-												key={idx}
-												className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
+												key={index}
+												className={`w-4 h-4 rounded-md border-2 m-2 p-2 ${
 													editedColor === color
-														? 'border-indigo-500'
+														? 'border-gray-500'
 														: 'border-gray-300'
 												}`}
 												style={{

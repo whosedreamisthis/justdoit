@@ -255,6 +255,7 @@ export default function MinimizableGoalCard({
 									placeholder="Add a short description for your goal (optional)"
 								></textarea>
 							</div>
+							<div>HERE </div>
 
 							<div className="mb-4">
 								<label className="block text-sm font-medium text-gray-700">

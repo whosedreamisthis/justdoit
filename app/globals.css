@@ -373,3 +373,12 @@ body,
 	width: 180px;
 	height: 180px;
 }
+
+.stats-item {
+	border-color: #3b3b3b;
+	border-width: 1px;
+}
+
+.tab-title {
+	text-align: center;
+}

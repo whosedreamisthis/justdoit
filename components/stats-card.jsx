@@ -11,15 +11,18 @@ export default function StatsCard({ goal }) {
 	console.log(daysArray);
 
 	return (
-		<div className="stats-card bg-white p-4 rounded-md shadow-md">
-			<h2 className="text-md font-bold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis mb-4">
+		<div
+			className={`stats-card p-4 rounded-md shadow-md`}
+			style={{ backgroundColor: goal.color }}
+		>
+			<h2 className="tab-title text-md font-bold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis mb-4">
 				{goal.title}
 			</h2>
 			<div className="grid grid-cols-7 gap-1 w-fit m-2">
 				{daysArray.map((day, index) => (
 					<div
 						key={index}
-						className={`w-4 h-4 rounded-sm stats-item ${
+						className={`w-4 h-4 stats-item ${
 							day ? 'bg-green-500' : 'bg-gray-300'
 						}`}
 					></div>

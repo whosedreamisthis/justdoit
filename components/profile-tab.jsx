@@ -40,7 +40,8 @@ export default function ProfileTab() {
 						Sign in or create an account to personalize your
 						experience and track your goals!
 					</p>
-					<div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+					{/* <div className="flex flex-row sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"> */}
+					<div className="flex flex-row gap-4">
 						<SignInButton mode="modal">
 							<button
 								className="

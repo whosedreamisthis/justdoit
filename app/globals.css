@@ -357,3 +357,10 @@ body,
 .description {
 	max-width: 250px;
 }
+
+.progress-complete {
+	color: green;
+}
+.progress-incomplete {
+	color: #779ecb;
+}

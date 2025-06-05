@@ -288,7 +288,11 @@ export default function MinimizableGoalCard({
 									? faSquareCheck
 									: faSquarePlus
 							}
-							className="far goal-card-icon z-20"
+							className={`far goal-card-icon z-20 ${
+								goal.progress === 100
+									? 'progress-complete'
+									: 'progress-incomplete'
+							}`}
 							onClick={increaseProgress}
 						></FontAwesomeIcon>
 					</div>

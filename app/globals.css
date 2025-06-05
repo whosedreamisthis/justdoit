@@ -158,6 +158,7 @@ body::-webkit-scrollbar {
 	/* padding: 10px 0; */
 	z-index: 1000; /* ✅ Ensures tab buttons stay on top */
 	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
+	background-color: #f3dac4;
 }
 
 .expand-arrow {

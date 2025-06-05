@@ -12,17 +12,18 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
 		{ id: 'goals', label: 'Goals', icon: faHome },
 		{ id: 'explore', label: 'Explore', icon: faMagnifyingGlass },
+		{ id: 'profile', label: 'Profile', icon: faUser },
 	];
 
 	return (
-		<div className="tab-buttons botton-nav fixed bottom-0 left-0 right-0 bg-subtle-background shadow-lg border-t flex justify-around">
+		<div className="tab-buttons fixed su shadow-lg flex justify-around">
 			{tabs.map((tab) => (
 				<button
 					key={tab.id}
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
 							? 'active-tab'
-							: 'text-charcoal bg-subtle hover:button-secondary-light border-2'
+							: 'text-charcoal bg-subtle hover:button-secondary-light'
 					}`}
 					onClick={() => {
 						setActiveTab(tab.id);
@@ -34,17 +35,62 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					}}
 				>
 					<div className="flex flex-col" style={{ fontSize: '12px' }}>
-						<FontAwesomeIcon
-							icon={tab.icon}
-							color={activeTab === tab.id ? '#f3dac4' : '3b3b3b'}
-							size="lg" // Use size="lg" or "xl" for better visibility
-							className="mb-1" // Add some margin below the icon if you have text
-						/>
-						{tab.label}
+						{/* <SignedIn>
+							<UserButton />
+						</SignedIn>
+						<SignedOut>
+							<FontAwesomeIcon
+								icon={faUser}
+								color={
+									activeTab === tab.id ? '#f3dac4' : '3b3b3b'
+								}
+							/>
+						</SignedOut> */}
+
+						{tab.id !== 'profile' && (
+							<FontAwesomeIcon
+								icon={tab.icon}
+								color={
+									activeTab === tab.id ? '#f3dac4' : '3b3b3b'
+								}
+								size="lg" // Use size="lg" or "xl" for better visibility
+								className="mb-1" // Add some margin below the icon if you have text
+							/>
+						)}
+						{tab.id === 'profile' && (
+							<div className="">
+								<SignedIn>
+									<UserButton />
+								</SignedIn>
+								<SignedOut>
+									<FontAwesomeIcon
+										icon={faUser}
+										color={
+											activeTab === tab.id
+												? '#f3dac4'
+												: '3b3b3b'
+										}
+										size="lg" // Use size="lg" or "xl" for better visibility
+										className="mb-1"
+									/>
+								</SignedOut>
+							</div>
+						)}
+						{/* {<SignedIn>
+							<UserButton />
+						</SignedIn>
+						<SignedOut>
+							<FontAwesomeIcon
+								icon={faUser}
+								color={
+									activeTab === tab.id ? '#f3dac4' : '3b3b3b'
+								}
+							/>
+						</SignedOut>} */}
 					</div>
 				</button>
 			))}
-			<div className="profile flex flex-col justify-end pb-1 border-t-1">
+			{/* <div className="profile flex flex-col justify-end pb-1 ">
 				<button
 					className={`
                     flex flex-col items-center justify-center ${
@@ -73,16 +119,11 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					<SignedOut>
 						<FontAwesomeIcon
 							icon={faUser}
-							color={
-								activeTab === 'profile' ? '#f3dac4' : '#3b3b3b'
-							}
-							size="lg" // Use size="lg" or "xl" for better visibility
-							className="mb-1" // Add some margin below the icon if you have text
 						/>
 					</SignedOut>
-					{/* Add text label if desired, e.g., <span>Profile</span> */}
+					
 				</button>
-			</div>
+			</div> */}
 		</div>
 	);
 }

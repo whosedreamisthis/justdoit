@@ -4,12 +4,14 @@ import {
 	faUser,
 	faBullseye,
 	faCompass,
+	faHome,
+	faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
-		{ id: 'goals', label: 'Goals', icon: faBullseye },
-		{ id: 'explore', label: 'Explore', icon: faCompass },
+		{ id: 'goals', label: 'Goals', icon: faHome },
+		{ id: 'explore', label: 'Explore', icon: faMagnifyingGlass },
 	];
 
 	return (
@@ -31,7 +33,15 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 							});
 					}}
 				>
-					{tab.label}
+					<div className="flex flex-col" style={{ fontSize: '12px' }}>
+						<FontAwesomeIcon
+							icon={tab.icon}
+							color={activeTab === tab.id ? '#f3dac4' : '3b3b3b'}
+							size="lg" // Use size="lg" or "xl" for better visibility
+							className="mb-1" // Add some margin below the icon if you have text
+						/>
+						{tab.label}
+					</div>
 				</button>
 			))}
 			<div className="profile flex flex-col justify-end pb-1 border-t-1">

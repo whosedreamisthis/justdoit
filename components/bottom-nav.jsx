@@ -6,12 +6,16 @@ import {
 	faCompass,
 	faHome,
 	faMagnifyingGlass,
+	faChartSimple,
+	faC,
 } from '@fortawesome/free-solid-svg-icons';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 export default function BottomTabs({ activeTab, setActiveTab }) {
 	const tabs = [
 		{ id: 'goals', label: 'Goals', icon: faHome },
 		{ id: 'explore', label: 'Explore', icon: faMagnifyingGlass },
+		{ id: 'stats', label: 'Stats', icon: faChartSimple },
+
 		{ id: 'profile', label: 'Profile', icon: faUser },
 	];
 
@@ -57,71 +61,11 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 									size="lg" // Use size="lg" or "xl" for better visibility
 									className="mb-1"
 								/>
-								{/* <SignedIn>
-									<UserButton />
-								</SignedIn>
-								<SignedOut>
-									<FontAwesomeIcon
-										icon={faUser}
-										color={
-											activeTab === tab.id
-												? '#f3dac4'
-												: '3b3b3b'
-										}
-										size="lg" // Use size="lg" or "xl" for better visibility
-										className="mb-1"
-									/>
-								</SignedOut> */}
 							</div>
 						)}
-						{/* {<SignedIn>
-							<UserButton />
-						</SignedIn>
-						<SignedOut>
-							<FontAwesomeIcon
-								icon={faUser}
-								color={
-									activeTab === tab.id ? '#f3dac4' : '3b3b3b'
-								}
-							/>
-						</SignedOut>} */}
 					</div>
 				</button>
 			))}
-			{/* <div className="profile flex flex-col justify-end pb-1 ">
-				<button
-					className={`
-                    flex flex-col items-center justify-center ${
-						activeTab === 'profile'
-							? 'bg-charcoal'
-							: 'bg-subtle-background'
-					}
-					}
-                    flex-grow                 // Makes the button take up equal space
-                    px-2 py-3                 // Adds generous padding for clickable area
-                    text-sm
-                    ${
-						activeTab === 'profile'
-							? 'text-primary font-semibold'
-							: 'text-gray-500'
-					}
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary // Accessibility: visual feedback on focus
-                    transition-colors duration-200 // Smooth color changes
-                `}
-					onClick={() => setActiveTab('profile')} // Attach onClick to the button
-					aria-label="Profile" // Important for accessibility
-				>
-					<SignedIn>
-						<UserButton />
-					</SignedIn>
-					<SignedOut>
-						<FontAwesomeIcon
-							icon={faUser}
-						/>
-					</SignedOut>
-					
-				</button>
-			</div> */}
 		</div>
 	);
 }

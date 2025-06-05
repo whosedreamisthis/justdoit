@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
-
+import StatsTab from '@/components/stats-tab';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 
@@ -312,6 +312,7 @@ export default function App() {
 							onSelect={onExploreHabitSelected}
 						/>
 					)}
+					{activeTab === 'stats' && <StatsTab goals={goals} />}
 					{activeTab === 'profile' && <ProfileTab />}
 				</div>
 

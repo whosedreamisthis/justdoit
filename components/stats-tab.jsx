@@ -1,26 +1,18 @@
 import '@/app/globals.css';
 import StatsCard from './stats-card';
+
 export default function StatsTab({ goals }) {
 	return (
-		<div className="goals-container p-3 bg-subtle-background">
-			<h2 className="text-3xl font-bold mb-4 text-primary">
-				Track Your Goals
-			</h2>
-			<div className=" grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
-				{goals.map((goal, index) => {
-					return (
-						<div
-							id={`goal-${goal.id}`}
-							key={goal.id}
-							data-goal-id={goal.id}
-							className={`rounded-xl shadow-md goal-item`}
-							style={{ backgroundColor: goal.color }}
-						>
-							<StatsCard goal={goal} />
-						</div>
-					);
-				})}
+		// <div className="rounded-xl bg-subtle-background p-4 sm:p-6">
+		<div className="flex justify-center mt-6">
+			<div className="grid grid-cols-2 gap-x-4 gap-y-4 max-w-sm sm:max-w-md md:max-w-lg">
+				{goals.map((goal) => (
+					<div className="stats-container" key={goal.id}>
+						<StatsCard goal={goal} />
+					</div>
+				))}
 			</div>
 		</div>
+		// </div>
 	);
 }

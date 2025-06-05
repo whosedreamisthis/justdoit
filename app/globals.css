@@ -364,3 +364,12 @@ body,
 .progress-incomplete {
 	color: #779ecb;
 }
+
+.stats-container {
+	width: 150px;
+	height: 150px;
+}
+.stats-card {
+	width: 150px;
+	height: 150px;
+}

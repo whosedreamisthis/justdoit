@@ -297,7 +297,7 @@ export default function App() {
 			<Toaster position="top-right" reverseOrder={false} />
 
 			<div className="min-h-screen flex flex-col">
-				<div className="flex-grow p-4 pb-20">
+				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab
 							goals={goals}

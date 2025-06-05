@@ -162,7 +162,7 @@ export default function GoalsTab({
 	};
 
 	return (
-		<div className="goals-container p-6 bg-subtle-background">
+		<div className="goals-container bg-subtle-background">
 			<h2 className="text-3xl font-bold mb-4 text-primary">
 				Track Your Goals
 			</h2>

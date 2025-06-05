@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
-
+import ColorSquares from './color-squares';
 export default function MinimizableCustomCard({
 	onSelect,
 	isExpanded,
@@ -12,16 +12,6 @@ export default function MinimizableCustomCard({
 	const [customDescription, setCustomDescription] = useState('');
 	const [customColor, setCustomColor] = useState('#A7B39E'); // Default to a pastel pink
 
-	const pastelColors = [
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#B6E8B6', // Soft Pistachio Green
-		'#E0BBE4', // Lavender
-		'#D3D3D3', // Light Gray
-		'#EBf6D9', // Light Terracotta / Rose-Brown
-		'#FFA07A', // Light Salmon
-	];
 	const handleAddCustomHabit = (e) => {
 		e.stopPropagation();
 
@@ -116,29 +106,12 @@ export default function MinimizableCustomCard({
 						></textarea>
 					</div>
 
+					{/* Display 16 pastel colors in a 2x8 grid */}
 					<div className="mb-4">
 						<label className="block text-sm font-medium text-gray-700">
 							Card Color:
 						</label>
-						{/* Display 16 pastel colors in a 2x8 grid */}
-						<div className="grid grid-cols-8 gap-2 mt-1">
-							{pastelColors.map((color, index) => (
-								<div
-									key={index}
-									className={`w-8 h-8 rounded-md cursor-pointer border-2 ${
-										customColor === color
-											? 'border-gray-500'
-											: 'border-gray-300'
-									}`}
-									style={{ backgroundColor: color }}
-									onClick={(e) => {
-										e.stopPropagation();
-										setCustomColor(color);
-									}}
-									title={color}
-								></div>
-							))}
-						</div>
+						<ColorSquares setColor={setCustomColor} />
 					</div>
 
 					<div className="flex flex-col h-full rounded-lg">

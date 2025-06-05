@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import DaySquares from './day-squares';
-
+import ColorSquares from './color-squares';
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
@@ -26,33 +26,6 @@ export default function MinimizableGoalCard({
 	onUpdateGoal,
 	currentDayIndex,
 }) {
-	const pastelColors = [
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E', // Light Pastely Olive Green
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E', // Light Pastely Olive Green
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E',
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E',
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E',
-		'#FFD1DC', // Light Pink
-		'#FFDAB9', // Peach Puff
-		'#FFFACD', // Lemon Chiffon
-		'#A7B39E',
-	];
-
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
 	const [editedDescription, setEditedDescription] = useState(
@@ -292,27 +265,10 @@ export default function MinimizableGoalCard({
 									<label className="block text-sm font-medium text-gray-700">
 										Card Color:
 									</label>
-									<div className="grid grid-cols-8 justify-around gap-x-2">
-										{' '}
-										{/* //"grid grid-cols-8 gap-2 mt-1" */}
-										{pastelColors.map((color, index) => (
-											<div
-												key={index}
-												className={`w-4 h-4 rounded-md border-2 m-2 p-2 ${
-													editedColor === color
-														? 'border-gray-500'
-														: 'border-gray-300'
-												}`}
-												style={{
-													backgroundColor: color,
-												}}
-												onClick={(e) => {
-													e.stopPropagation();
-													setEditedColor(color);
-												}}
-												title={color}
-											></div>
-										))}
+									<div className="flex justify-center items-center w-full">
+										<ColorSquares
+											setColor={setEditedColor}
+										/>
 									</div>
 								</div>
 							)}

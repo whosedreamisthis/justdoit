@@ -7,6 +7,7 @@ import {
 	SignedIn,
 	SignedOut,
 	UserButton,
+	SignOutButton,
 } from '@clerk/nextjs';
 
 export default function ProfileTab() {
@@ -19,6 +20,18 @@ export default function ProfileTab() {
 
 			<SignedIn>
 				<p className="text-lg text-charcoal">You are signed in!</p>
+				<SignOutButton mode="modal">
+					<button
+						className="
+                                px-8 py-3 mt-4 rounded-lg text-lg font-bold
+                                button-secondary-light text-text-on-buttons
+                                hover:bg-button-primary-dark transition-colors duration-200
+                                shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-primary-light
+                            "
+					>
+						Sign Out
+					</button>
+				</SignOutButton>
 			</SignedIn>
 
 			<SignedOut>

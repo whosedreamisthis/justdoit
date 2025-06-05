@@ -35,18 +35,6 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					}}
 				>
 					<div className="flex flex-col" style={{ fontSize: '12px' }}>
-						{/* <SignedIn>
-							<UserButton />
-						</SignedIn>
-						<SignedOut>
-							<FontAwesomeIcon
-								icon={faUser}
-								color={
-									activeTab === tab.id ? '#f3dac4' : '3b3b3b'
-								}
-							/>
-						</SignedOut> */}
-
 						{tab.id !== 'profile' && (
 							<FontAwesomeIcon
 								icon={tab.icon}
@@ -59,7 +47,17 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 						)}
 						{tab.id === 'profile' && (
 							<div className="">
-								<SignedIn>
+								<FontAwesomeIcon
+									icon={faUser}
+									color={
+										activeTab === tab.id
+											? '#f3dac4'
+											: '3b3b3b'
+									}
+									size="lg" // Use size="lg" or "xl" for better visibility
+									className="mb-1"
+								/>
+								{/* <SignedIn>
 									<UserButton />
 								</SignedIn>
 								<SignedOut>
@@ -73,7 +71,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 										size="lg" // Use size="lg" or "xl" for better visibility
 										className="mb-1"
 									/>
-								</SignedOut>
+								</SignedOut> */}
 							</div>
 						)}
 						{/* {<SignedIn>

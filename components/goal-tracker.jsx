@@ -210,11 +210,11 @@ export default function MinimizableGoalCard({
 					)}
 
 					{/* Day squares only when NOT expanded */}
-					{!isExpanded && (
+					{/* {!isExpanded && (
 						<div className="day-squares-container gap-10 pb-4">
 							{daySquares}
 						</div>
-					)}
+					)} */}
 				</div>
 
 				{/* Right side: Progress Icon (absolute position) */}

@@ -212,9 +212,9 @@ export default function MinimizableGoalCard({
 										? `${goal.title.slice(0, 22)}...`
 										: goal.title}
 								</h2>
-								<DaySquares
+								{/* <DaySquares
 									completedDays={goal.completedDays}
-								/>
+								/> */}
 							</div>
 						</>
 					)}

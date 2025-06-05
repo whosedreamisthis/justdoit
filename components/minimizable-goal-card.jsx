@@ -162,7 +162,7 @@ export default function MinimizableGoalCard({
 			ref={cardRef}
 			className={`
                 ${goal.progress >= 100 ? 'completed-card' : 'card'}
-                relative rounded-lg p-4 cursor-pointer transition-all flex flex-col
+                relative rounded-lg p-4 transition-all flex flex-col
                 ${isExpanded ? 'h-auto' : 'h-25'}
             `}
 			style={{

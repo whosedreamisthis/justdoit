@@ -51,7 +51,7 @@ export default function MinimizableCustomCard({
 			style={{ backgroundColor: customColor }}
 		>
 			{/* Card Header: Handles expand/minimize */}
-			<div className="cursor-pointer" onClick={() => onExpand()}>
+			<div onClick={() => onExpand()}>
 				<h2 className="text-lg font-bold text-gray-800">
 					Add a Custom Habit
 				</h2>

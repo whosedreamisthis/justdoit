@@ -84,7 +84,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}
-						className="p-3 rounded-lg bg-warm-sand cursor-pointer category-container"
+						className="p-3 rounded-lg bg-warm-sand category-container"
 					>
 						<div
 							className="flex justify-between items-center"

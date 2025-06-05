@@ -15,9 +15,7 @@ export default function MinimizableCard({
 	return (
 		<div
 			ref={cardRef} // <--- ADD THIS PROP
-			className={`${
-				habit.color
-			} card rounded-lg p-4 cursor-pointer transition-all ${
+			className={`${habit.color} card rounded-lg p-4 transition-all ${
 				isExpanded
 					? 'max-h-[500px] overflow-auto z-10'
 					: 'max-h-32 overflow-hidden z-0 shadow-none'

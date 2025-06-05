@@ -42,11 +42,14 @@ export default function ColorSquares({ setColor, selectedColor }) {
 							? 'border-gray-600'
 							: 'border-gray-300'
 					}`}
-					style={{ backgroundColor: color }}
+					style={{ backgroundColor: color, userSelect: 'none' }}
 					onClick={(e) => {
+						e.preventDefault();
 						e.stopPropagation();
+						e.target.blur();
 						setColor(color); // Pass selected color to parent component
 					}}
+					tabIndex="-1"
 					title={color}
 				></div>
 			))}

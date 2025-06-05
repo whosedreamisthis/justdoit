@@ -111,7 +111,10 @@ export default function MinimizableCustomCard({
 						<label className="block text-sm font-medium text-gray-700">
 							Card Color:
 						</label>
-						<ColorSquares setColor={setCustomColor} />
+						<ColorSquares
+							setColor={setCustomColor}
+							selectedColor={customColor}
+						/>
 					</div>
 
 					<div className="flex flex-col h-full rounded-lg">

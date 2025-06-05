@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function ColorSquares({ setColor }) {
+export default function ColorSquares({ setColor, selectedColor }) {
 	// Define pastel colors inside this file
 	const pastelColors = [
 		'#FFD1DC', // Light Pink
@@ -30,7 +30,7 @@ export default function ColorSquares({ setColor }) {
 	];
 
 	// Track selected color internally
-	const [selectedColor, setSelectedColor] = useState(null);
+	// const [selectedColor, setSelectedColor] = useState(null);
 
 	return (
 		<div className="grid grid-cols-8 gap-4 mt-1">
@@ -45,7 +45,6 @@ export default function ColorSquares({ setColor }) {
 					style={{ backgroundColor: color }}
 					onClick={(e) => {
 						e.stopPropagation();
-						setSelectedColor(color); // Track selected color internally
 						setColor(color); // Pass selected color to parent component
 					}}
 					title={color}

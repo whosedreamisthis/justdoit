@@ -265,7 +265,10 @@ export default function MinimizableGoalCard({
 									<label className="block text-sm font-medium text-gray-700">
 										Card Color:
 									</label>
-									<ColorSquares setColor={setEditedColor} />
+									<ColorSquares
+										setColor={setEditedColor}
+										selectedColor={editedColor}
+									/>
 									{/* <div className="flex justify-center items-center w-full"> */}
 									{/* <div className="grid grid-cols-8 gap-4 justify-center mx-auto w-fit"> */}
 								</div>

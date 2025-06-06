@@ -451,9 +451,12 @@ body,
 */
 .completed-day {
 	background-color: #4caf50 !important; /* Example: Green background for completed days */
-	color: white; /* Example: White text for completed days */
-	border-radius: 50%; /* Optional: make it a circle */
-	background-color: black;
+	color: white !important; /* Example: White text for completed days */
+	border-radius: 5px;
+	/* background-color: black !important; */
+	border-color: red !important;
+	border-width: 5px !important;
+	border: 2px solid black !important;
 }
 
 /* Ensure the highlighted-cell is still distinct, if you keep it */

@@ -333,7 +333,12 @@ export default function App() {
 							onSelect={onExploreHabitSelected}
 						/>
 					)}
-					{activeTab === 'stats' && <StatsTab goals={goals} />}
+					{activeTab === 'stats' && (
+						<StatsTab
+							goals={goals}
+							onUpdateGoal={handleUpdateGoal}
+						/>
+					)}
 					{activeTab === 'profile' && <ProfileTab />}
 				</div>
 

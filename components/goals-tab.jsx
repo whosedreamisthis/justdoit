@@ -1,5 +1,5 @@
 // goals-tab.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
 
@@ -17,13 +17,19 @@ export default function GoalsTab({
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
 	);
-
 	const goalRefs = useRef({});
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
 		return day === 0 ? 6 : day - 1;
 	}
+
+	// Create a sorted copy of `goals` using useMemo
+	const sortedGoals = useMemo(() => {
+		return [...goals].sort(
+			(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
+		);
+	}, [goals]); // Re-sorts whenever `goals` changes
 
 	useEffect(() => {
 		const now = new Date();
@@ -45,116 +51,24 @@ export default function GoalsTab({
 		return () => clearTimeout(dayUpdaterTimer);
 	}, []);
 
-	const sortGoals = (currentGoals) => {
-		return [...currentGoals].sort((a, b) => {
-			const idA = a.id;
-			const idB = b.id;
-
-			const timestampA = idA ? parseInt(idA, 10) : 0;
-			const timestampB = idB ? parseInt(idB, 10) : 0;
-
-			if (timestampA !== timestampB) {
-				return timestampB - timestampA;
-			}
-
-			const completionComparison =
-				(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1);
-			if (completionComparison !== 0) {
-				return completionComparison;
-			}
-			return a.progress - b.progress;
-		});
-	};
-
 	const updateProgress = (goalId, newProgress) => {
 		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) => {
-				if (goal.id === goalId) {
-					const updatedGoal = {
-						...goal,
-						progress: newProgress ?? 0,
-						isCompleted: newProgress >= 100,
-					};
+			const updatedGoals = prevGoals.map((goal) =>
+				goal.id === goalId
+					? {
+							...goal,
+							progress: newProgress ?? 0,
+							isCompleted: newProgress >= 100,
+					  }
+					: goal
+			);
 
-					// Handle completedDays update
-					if (newProgress >= 100) {
-						const today = new Date();
-						const year = today.getFullYear();
-						const month = today.getMonth() + 1; // getMonth() is 0-indexed
-						const day = today.getDate();
+			const sortedGoals = updatedGoals.sort(
+				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
+			);
 
-						// Ensure the nested structure exists and update it immutably
-						updatedGoal.completedDays = {
-							...updatedGoal.completedDays,
-						};
-						if (!updatedGoal.completedDays[year]) {
-							updatedGoal.completedDays[year] = {};
-						}
-						updatedGoal.completedDays[year] = {
-							...updatedGoal.completedDays[year],
-						}; // Make a copy of the year object
-						if (!updatedGoal.completedDays[year][month]) {
-							updatedGoal.completedDays[year][month] = {};
-						}
-						updatedGoal.completedDays[year][month] = {
-							...updatedGoal.completedDays[year][month],
-						}; // Make a copy of the month object
-
-						updatedGoal.completedDays[year][month][day] = true;
-					} else {
-						// If progress goes below 100, unmark the current day as completed
-						const today = new Date();
-						const year = today.getFullYear();
-						const month = today.getMonth() + 1;
-						const day = today.getDate();
-
-						if (updatedGoal.completedDays?.[year]?.[month]?.[day]) {
-							updatedGoal.completedDays = {
-								...updatedGoal.completedDays,
-							};
-							if (updatedGoal.completedDays[year]) {
-								updatedGoal.completedDays[year] = {
-									...updatedGoal.completedDays[year],
-								};
-								if (updatedGoal.completedDays[year][month]) {
-									updatedGoal.completedDays[year][month] = {
-										...updatedGoal.completedDays[year][
-											month
-										],
-									};
-									delete updatedGoal.completedDays[year][
-										month
-									][day];
-
-									// Clean up empty month or year objects if necessary
-									if (
-										Object.keys(
-											updatedGoal.completedDays[year][
-												month
-											]
-										).length === 0
-									) {
-										delete updatedGoal.completedDays[year][
-											month
-										];
-									}
-								}
-								if (
-									Object.keys(updatedGoal.completedDays[year])
-										.length === 0
-								) {
-									delete updatedGoal.completedDays[year];
-								}
-							}
-						}
-					}
-					return updatedGoal;
-				}
-				return goal;
-			});
-
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-			return sortGoals(updatedGoals);
+			localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
+			return sortedGoals;
 		});
 	};
 
@@ -191,38 +105,34 @@ export default function GoalsTab({
 			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">
 				Track Your Goals
 			</h2>
-			<div className=" grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
-				{goals.map((goal, index) => {
-					return (
-						<div
-							id={`goal-${goal.id}`}
-							key={goal.id}
-							data-goal-id={goal.id}
-							className={`rounded-xl shadow-md goal-item ${
-								transitioningGoals.includes(goal.id)
-									? 'moving-up'
-									: ''
-							}`}
-							style={{ backgroundColor: goal.color }}
-							ref={(el) => (goalRefs.current[goal.id] = el)}
-						>
-							<MinimizableGoalCard
-								goal={goal}
-								isExpanded={expandedGoal === goal.id}
-								onExpand={() => handleExpand(goal.id)}
-								onComplete={() => moveCompletedGoal(goal.id)}
-								onProgressChange={() =>
-									moveIncompleteGoal(goal.id)
-								}
-								updateProgress={(id, newProgress) =>
-									updateProgress(id, newProgress)
-								}
-								onDelete={handleDelete}
-								onUpdateGoal={onUpdateGoal}
-							/>
-						</div>
-					);
-				})}
+			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
+				{sortedGoals.map((goal, index) => (
+					<div
+						id={`goal-${goal.id}`}
+						key={goal.id}
+						data-goal-id={goal.id}
+						className={`rounded-xl shadow-md goal-item ${
+							transitioningGoals.includes(goal.id)
+								? 'moving-up'
+								: ''
+						}`}
+						style={{ backgroundColor: goal.color }}
+						ref={(el) => (goalRefs.current[goal.id] = el)}
+					>
+						<MinimizableGoalCard
+							goal={goal}
+							isExpanded={expandedGoal === goal.id}
+							onExpand={() => handleExpand(goal.id)}
+							onComplete={() => moveCompletedGoal(goal.id)}
+							onProgressChange={() => moveIncompleteGoal(goal.id)}
+							updateProgress={(id, newProgress) =>
+								updateProgress(id, newProgress)
+							}
+							onDelete={handleDelete}
+							onUpdateGoal={onUpdateGoal}
+						/>
+					</div>
+				))}
 			</div>
 		</div>
 	);

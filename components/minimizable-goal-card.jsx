@@ -115,10 +115,71 @@ export default function MinimizableGoalCard({
 			></div>
 
 			{/* Title & Description */}
-			<h2 className="relative text-lg font-bold text-gray-800">
-				{goal.title}
-			</h2>
-			<p className="relative text-gray-600 text-sm">{goal.description}</p>
+			{isEditing ? (
+				<div className="relative text-gray-700 text-sm z-10">
+					{/* Editable Title */}
+					<div className="mb-3">
+						<label
+							htmlFor="goal-title"
+							className="block text-sm font-medium text-gray-700"
+						>
+							Goal Title:
+						</label>
+						<input
+							type="text"
+							id="goal-title"
+							value={editedTitle}
+							onChange={(e) => setEditedTitle(e.target.value)}
+							onClick={(e) => e.stopPropagation()}
+							className="text-lg text-gray-500 p-1 rounded w-full"
+							style={{ backgroundColor: '#f0f0f0' }}
+							placeholder="Goal Title"
+						/>
+					</div>
+
+					{/* Editable Description */}
+					<div className="mb-4">
+						<label
+							htmlFor="goal-description"
+							className="block text-sm font-medium text-gray-700"
+						>
+							Description:
+						</label>
+						<textarea
+							id="goal-description"
+							value={editedDescription}
+							onChange={(e) =>
+								setEditedDescription(e.target.value)
+							}
+							onClick={(e) => e.stopPropagation()}
+							className="mt-1 p-1 w-full rounded text-gray-500"
+							style={{ backgroundColor: '#f0f0f0' }}
+							rows="3"
+							placeholder="Add a description for your goal (optional)"
+						></textarea>
+					</div>
+
+					{/* Color Selection */}
+					<div className="mb-4">
+						<label className="block text-sm font-medium text-gray-700">
+							Card Color:
+						</label>
+						<ColorSquares
+							setColor={setEditedColor}
+							selectedColor={editedColor}
+						/>
+					</div>
+				</div>
+			) : (
+				<>
+					<h2 className="relative text-lg font-bold text-gray-800">
+						{goal.title}
+					</h2>
+					<p className="relative text-gray-600 text-sm">
+						{goal.description}
+					</p>
+				</>
+			)}
 
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">

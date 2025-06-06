@@ -148,7 +148,6 @@ export default function GoalsTab({
 							}
 						}
 					}
-					console.log('updatedGoal ', updatedGoal);
 					return updatedGoal;
 				}
 				return goal;

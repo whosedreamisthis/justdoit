@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
+
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 
@@ -34,14 +35,6 @@ export default function App() {
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(() => {
 		if (typeof window !== 'undefined') {
 			const storedTime = localStorage.getItem('lastDailyResetTime');
-			return storedTime ? new Date(storedTime) : null;
-		}
-		return null;
-	});
-
-	const [lastWeeklyResetTime, setLastWeeklyResetTime] = useState(() => {
-		if (typeof window !== 'undefined') {
-			const storedTime = localStorage.getItem('lastWeeklyResetTime');
 			return storedTime ? new Date(storedTime) : null;
 		}
 		return null;
@@ -86,9 +79,6 @@ export default function App() {
 			return nextSunday;
 		};
 
-		let currentGoals = [...goals]; // Create a mutable copy for immediate updates
-
-		// --- Handle MISSED DAILY RESET ---
 		let shouldPerformDailyReset = false;
 		const todayMidnight = getMidnightForDate(now);
 
@@ -99,69 +89,51 @@ export default function App() {
 				shouldPerformDailyReset = true;
 			}
 		} else {
-			// First run, set lastDailyResetTime to today's midnight
-			shouldPerformDailyReset = false; // Will set in finally block
+			// If lastDailyResetTime is null, it means it's the very first load or localStorage was cleared.
+			// No "missed" reset has occurred in this scenario.
+			shouldPerformDailyReset = false;
 		}
 
 		if (shouldPerformDailyReset) {
 			console.log('Missed Daily Reset Detected! Applying now.');
-			currentGoals = currentGoals.map((goal) => ({
+			const updatedGoals = goals.map((goal) => ({
 				...goal,
 				progress: 0,
 				isCompleted: false,
 			}));
+			setGoals(updatedGoals);
+			// FIX: Update lastDailyResetTime immediately after applying a missed reset
+			setLastDailyResetTime(todayMidnight);
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // Persist immediately
 		}
 
 		// --- Handle MISSED WEEKLY RESET ---
-		let shouldPerformWeeklyReset = false;
-		const nextSunday = getNextSundayMidnight(now); // Calculate based on current 'now'
-
-		// --- Apply immediate resets if any were necessary ---
-		if (shouldPerformDailyReset) {
-			setGoals(currentGoals); // Update React state
-			localStorage.setItem('userGoals', JSON.stringify(currentGoals)); // Persist immediately
-		}
+		// (This section was present in your code but empty, leaving it for future weekly reset logic if needed)
+		const nextSunday = getNextSundayMidnight(now);
 
 		// --- SCHEDULE NEXT TIMERS ---
 		const timeUntilDailyReset =
-			todayMidnight.getTime() + 24 * 60 * 60 * 1000 - now.getTime(); // Next midnight
-		const timeUntilWeeklyReset = nextSunday.getTime() - now.getTime(); // Next Sunday midnight
+			todayMidnight.getTime() + 24 * 60 * 60 * 1000 - now.getTime(); // Time until next midnight
 
 		const dailyTimerId = setTimeout(() => {
 			setGoals((prevGoals) => {
-				const updatedGoals = prevGoals.map((goal) => ({
+				const resetGoals = prevGoals.map((goal) => ({
 					...goal,
 					progress: 0,
 					isCompleted: false,
 				}));
-				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-				setLastDailyResetTime(new Date()); // Update last reset time
-				return updatedGoals;
+				localStorage.setItem('userGoals', JSON.stringify(resetGoals));
+				setLastDailyResetTime(new Date()); // Update last reset time to NOW after the timed reset
+				return resetGoals;
 			});
 			console.log('Daily Reset Triggered!');
 		}, timeUntilDailyReset);
 
-		const weeklyTimerId = setTimeout(() => {
-			setGoals((prevGoals) => {
-				const updatedGoals = prevGoals.map((goal) => ({
-					...goal,
-					completedDays: Array(7).fill(false),
-					progress: 0,
-					isCompleted: false,
-				}));
-				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-				setLastWeeklyResetTime(new Date()); // Update last reset time
-				return updatedGoals;
-			});
-			console.log('WEEKLY RESET TRIGGERED!');
-		}, timeUntilWeeklyReset);
-
 		// --- Clean up on unmount ---
 		return () => {
 			clearTimeout(dailyTimerId);
-			clearTimeout(weeklyTimerId);
 		};
-	}, [goals]); // Add goals as a dependency to re-run on goal changes for missed reset checks
+	}, [goals, lastDailyResetTime]); // Added lastDailyResetTime to dependencies for accurate missed reset detection
 
 	useEffect(() => {
 		// Save goals to localStorage whenever goals state changes
@@ -177,13 +149,7 @@ export default function App() {
 				lastDailyResetTime.toISOString()
 			);
 		}
-		if (lastWeeklyResetTime) {
-			localStorage.setItem(
-				'lastWeeklyResetTime',
-				lastWeeklyResetTime.toISOString()
-			);
-		}
-	}, [goals, lastDailyResetTime, lastWeeklyResetTime]); // Added lastResetTime dependencies
+	}, [goals, lastDailyResetTime]); // Added lastResetTime dependencies
 
 	const findHabit = (habitId) => {
 		let selectedHabit = null;
@@ -252,7 +218,6 @@ export default function App() {
 	// app/page.js
 	// ...
 	const handleUpdateGoal = (goalId, updatedGoal) => {
-		console.log('HANDLE UPDATE GOAL');
 		setGoals((prevGoals) =>
 			prevGoals.map((goal) => {
 				if (goal.id === goalId) {
@@ -260,9 +225,9 @@ export default function App() {
 
 					const now = new Date();
 					const year = now.getFullYear();
-					const month = now.getMonth();
+					// FIX: Store month as 1-indexed to match calendar.jsx's retrieval
+					const month = now.getMonth() + 1;
 					const day = now.getDate();
-					console.log('YHERRRRRRRRRRRRRRRRRRRRRRR');
 
 					if (updatedGoal.isCompleted && !goal.isCompleted) {
 						// Goal is being completed now
@@ -292,7 +257,6 @@ export default function App() {
 							}
 						}
 					}
-					console.log(goal);
 					return {
 						...goal,
 						...updatedGoal,

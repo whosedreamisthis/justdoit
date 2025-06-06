@@ -49,6 +49,7 @@ export default function App() {
 
 	// --- REVISED DAILY/WEEKLY RESET LOGIC ---
 	useEffect(() => {
+		console.log('here 1');
 		const now = new Date();
 
 		const getMidnightForDate = (date) => {
@@ -78,9 +79,11 @@ export default function App() {
 			}
 			return nextSunday;
 		};
+		console.log('here 2');
 
 		let shouldPerformDailyReset = false;
 		const todayMidnight = getMidnightForDate(now);
+		console.log('here 3', lastDailyResetTime);
 
 		if (lastDailyResetTime) {
 			const lastResetMidnight = getMidnightForDate(lastDailyResetTime);
@@ -104,7 +107,13 @@ export default function App() {
 			setGoals(updatedGoals);
 			// FIX: Update lastDailyResetTime immediately after applying a missed reset
 			setLastDailyResetTime(todayMidnight);
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // Persist immediately
+			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+			if (lastDailyResetTime) {
+				localStorage.setItem(
+					'lastDailyResetTime',
+					todayMidnight.toISOString()
+				);
+			}
 		}
 
 		// --- Handle MISSED WEEKLY RESET ---

@@ -11,7 +11,6 @@ import {
 	faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
-import DaySquares from './day-squares';
 import ColorSquares from './color-squares';
 export default function MinimizableGoalCard({
 	goal,
@@ -21,10 +20,8 @@ export default function MinimizableGoalCard({
 	onComplete,
 	onProgressChange,
 	updateProgress,
-	updateDaysProgress,
 	onDelete,
 	onUpdateGoal,
-	currentDayIndex,
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -71,17 +68,6 @@ export default function MinimizableGoalCard({
 
 	// -----------------------------------------------------------------
 
-	const completedSquareColorClass = 'day-square-filled-green';
-
-	// MODIFICATION HERE: Making the day squares slightly larger
-	// const daySquares = goal.completedDays.map((day, index) => {
-	// 	const shouldFill = day;
-	// 	const squareClass = `day-square ${
-	// 		shouldFill ? completedSquareColorClass : ''
-	// 	} w-8 h-8`; // ADDED: w-8 h-8 for a larger size (32px by default in Tailwind)
-	// 	return <div key={index} className={squareClass}></div>;
-	// });
-
 	const handleDelete = (e) => {
 		e.stopPropagation();
 		onDelete(goal.id);
@@ -113,20 +99,15 @@ export default function MinimizableGoalCard({
 			100
 		);
 
+		// If the goal was 100% and now is being "un-completed" by pressing the button again
 		if (goal.progress === 100) {
 			newProgress = 0;
-			const newDays = [...goal.completedDays];
-			newDays[currentDayIndex] = false;
-			updateDaysProgress(goal.id, newDays);
 		}
 
 		updateProgress(goal.id, newProgress);
 
 		if (newProgress === 100) {
 			onComplete(goal.id);
-			const newDays = [...goal.completedDays];
-			newDays[currentDayIndex] = true;
-			updateDaysProgress(goal.id, newDays);
 		}
 	};
 
@@ -156,20 +137,19 @@ export default function MinimizableGoalCard({
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
-	//  ${isExpanded ? 'h-auto' : 'h-25'}
 	return (
 		<div
 			ref={cardRef}
 			className={`
-                ${goal.progress >= 100 ? 'completed-card' : 'card'}
-                relative rounded-lg p-4 transition-all
-                
+				${goal.progress >= 100 ? 'completed-card' : 'card'}
+				relative rounded-lg p-4 transition-all
+				
 				${
 					isExpanded
 						? 'max-h-[500px] overflow-auto z-10'
 						: 'max-h-32 overflow-hidden z-0 shadow-none'
 				}
-            `}
+			`}
 			style={{
 				backgroundColor: isEditing ? editedColor : goal.color,
 			}}
@@ -212,9 +192,6 @@ export default function MinimizableGoalCard({
 										? `${goal.title.slice(0, 22)}...`
 										: goal.title}
 								</h2>
-								{/* <DaySquares
-									completedDays={goal.completedDays}
-								/> */}
 							</div>
 						</>
 					)}
@@ -272,8 +249,6 @@ export default function MinimizableGoalCard({
 										setColor={setEditedColor}
 										selectedColor={editedColor}
 									/>
-									{/* <div className="flex justify-center items-center w-full"> */}
-									{/* <div className="grid grid-cols-8 gap-4 justify-center mx-auto w-fit"> */}
 								</div>
 							)}
 						</>

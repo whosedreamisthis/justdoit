@@ -1,5 +1,5 @@
 import MyCalendar from './calendar';
-export default function StatsCard({ goal }) {
+export default function StatsCard({ goal, onUpdateGoal }) {
 	const getDaysInMonth = (month, year) => new Date(year, month, 0).getDate();
 
 	const currentDate = new Date();
@@ -8,9 +8,6 @@ export default function StatsCard({ goal }) {
 
 	const daysInMonth = getDaysInMonth(currentMonth, currentYear);
 	const daysArray = Array(daysInMonth).fill(false);
-
-	console.log(daysArray);
-
 	return (
 		<div
 			className={`stats-card p-4 rounded-md shadow-md`}
@@ -19,7 +16,11 @@ export default function StatsCard({ goal }) {
 			<h2 className="tab-title text-md font-bold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis mb-4">
 				{goal.title}
 			</h2>
-			<MyCalendar></MyCalendar>
+			<MyCalendar
+				goalId={goal.id}
+				completedDays={goal.completedDays}
+				onUpdateGoal={onUpdateGoal} // <--- Pass onUpdateGoal here
+			/>
 		</div>
 	);
 }

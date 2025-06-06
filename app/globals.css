@@ -417,7 +417,7 @@ body,
 	/* max-height: 40px !important; */
 	display: flex;
 	align-items: center;
-	border: 1px solid black !important;
+	/* border: 1px solid black !important; */
 	border-radius: 3px;
 	justify-content: center;
 	font-weight: bold;
@@ -440,10 +440,6 @@ body,
 }
 
 /* Your existing highlighted cell style */
-.highlighted-cell {
-	background-color: lightblue; /* Example highlight color */
-	color: white; /* Example: make the number white for highlighted cells */
-}
 
 /* Optional: If you had any previous disabled styles, you can remove or comment them out now */
 /*
@@ -453,3 +449,45 @@ body,
   cursor: default !important;
 }
 */
+.completed-day {
+	background-color: #4caf50 !important; /* Example: Green background for completed days */
+	color: white; /* Example: White text for completed days */
+	border-radius: 50%; /* Optional: make it a circle */
+	background-color: black;
+}
+
+/* Ensure the highlighted-cell is still distinct, if you keep it */
+.highlighted-cell {
+	background-color: lightblue;
+	color: white;
+}
+
+/* You might want to adjust hover/active states for completed days too */
+.react-calendar__tile.completed-day:hover,
+.react-calendar__tile.completed-day:active {
+	background-color: #45a049; /* Slightly darker green on hover/active */
+	color: white;
+}
+
+/* Override default react-calendar selected styles if needed (as discussed before) */
+.react-calendar__tile--active {
+	background-color: transparent !important;
+	color: inherit !important;
+}
+.react-calendar__tile:hover:not(.highlighted-cell):not(.completed-day):not(
+		.react-calendar__tile--active
+	) {
+	background-color: #f0f0f0; /* Default hover for non-highlighted/completed */
+}
+.react-calendar__tile--active.completed-day {
+	background-color: #4caf50 !important;
+}
+
+.react-calendar__tile--hasActive.completed-day {
+	background-color: #4caf50 !important;
+}
+
+.react-calendar__tile:enabled:hover.completed-day,
+.react-calendar__tile:enabled:focus.completed-day {
+	background-color: #66bb6a !important; /* A slightly different shade for hover/focus */
+}

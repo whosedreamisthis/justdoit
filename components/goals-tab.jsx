@@ -45,120 +45,146 @@ export default function GoalsTab({
 		return () => clearTimeout(dayUpdaterTimer);
 	}, []);
 
-	const handleExpand = (id) => {
-		// If a goal is currently moving, prevent expanded cards from stealing focus
-		if (movingGoal) return;
+	const sortGoals = (currentGoals) => {
+		return [...currentGoals].sort((a, b) => {
+			const idA = a.id;
+			const idB = b.id;
 
-		setExpandedGoal((prevExpandedGoal) => {
-			const newExpandedGoal = prevExpandedGoal === id ? null : id;
+			const timestampA = idA ? parseInt(idA, 10) : 0;
+			const timestampB = idB ? parseInt(idB, 10) : 0;
 
-			// Ensure scrolling **only if the goal is NOT fully visible**
-			setTimeout(() => {
-				const element = goalRefs.current[newExpandedGoal];
-				if (element) {
-					const rect = element.getBoundingClientRect();
-					const viewportHeight = window.innerHeight;
+			if (timestampA !== timestampB) {
+				return timestampB - timestampA;
+			}
 
-					if (!(rect.top >= 0 && rect.bottom <= viewportHeight)) {
-						element.scrollIntoView({
-							behavior: 'smooth',
-							block: 'center',
-						});
-					}
-				}
-			}, 350);
-
-			return newExpandedGoal;
-		});
-	};
-
-	const updateDaysProgress = (goalId, newDaysProgress) => {
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId
-					? {
-							...goal,
-							completedDays: newDaysProgress ?? [
-								false,
-								false,
-								false,
-								false,
-								false,
-								false,
-								false,
-							],
-					  }
-					: goal
-			);
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-			return sortGoals(updatedGoals);
+			const completionComparison =
+				(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1);
+			if (completionComparison !== 0) {
+				return completionComparison;
+			}
+			return a.progress - b.progress;
 		});
 	};
 
 	const updateProgress = (goalId, newProgress) => {
 		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId
-					? {
-							...goal,
-							progress: newProgress ?? 0,
-							completed: newProgress >= 100,
-					  }
-					: goal
-			);
+			const updatedGoals = prevGoals.map((goal) => {
+				if (goal.id === goalId) {
+					const updatedGoal = {
+						...goal,
+						progress: newProgress ?? 0,
+						isCompleted: newProgress >= 100,
+					};
+
+					// Handle completedDays update
+					if (newProgress >= 100) {
+						const today = new Date();
+						const year = today.getFullYear();
+						const month = today.getMonth() + 1; // getMonth() is 0-indexed
+						const day = today.getDate();
+
+						// Ensure the nested structure exists and update it immutably
+						updatedGoal.completedDays = {
+							...updatedGoal.completedDays,
+						};
+						if (!updatedGoal.completedDays[year]) {
+							updatedGoal.completedDays[year] = {};
+						}
+						updatedGoal.completedDays[year] = {
+							...updatedGoal.completedDays[year],
+						}; // Make a copy of the year object
+						if (!updatedGoal.completedDays[year][month]) {
+							updatedGoal.completedDays[year][month] = {};
+						}
+						updatedGoal.completedDays[year][month] = {
+							...updatedGoal.completedDays[year][month],
+						}; // Make a copy of the month object
+
+						updatedGoal.completedDays[year][month][day] = true;
+					} else {
+						// If progress goes below 100, unmark the current day as completed
+						const today = new Date();
+						const year = today.getFullYear();
+						const month = today.getMonth() + 1;
+						const day = today.getDate();
+
+						if (updatedGoal.completedDays?.[year]?.[month]?.[day]) {
+							updatedGoal.completedDays = {
+								...updatedGoal.completedDays,
+							};
+							if (updatedGoal.completedDays[year]) {
+								updatedGoal.completedDays[year] = {
+									...updatedGoal.completedDays[year],
+								};
+								if (updatedGoal.completedDays[year][month]) {
+									updatedGoal.completedDays[year][month] = {
+										...updatedGoal.completedDays[year][
+											month
+										],
+									};
+									delete updatedGoal.completedDays[year][
+										month
+									][day];
+
+									// Clean up empty month or year objects if necessary
+									if (
+										Object.keys(
+											updatedGoal.completedDays[year][
+												month
+											]
+										).length === 0
+									) {
+										delete updatedGoal.completedDays[year][
+											month
+										];
+									}
+								}
+								if (
+									Object.keys(updatedGoal.completedDays[year])
+										.length === 0
+								) {
+									delete updatedGoal.completedDays[year];
+								}
+							}
+						}
+					}
+					console.log('updatedGoal ', updatedGoal);
+					return updatedGoal;
+				}
+				return goal;
+			});
+
 			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
 			return sortGoals(updatedGoals);
 		});
 	};
 
 	const moveCompletedGoal = (goalId) => {
-		setGoals((prevGoals) =>
-			prevGoals.sort((a, b) => (a.progress === 100 ? 1 : -1))
-		);
+		setTransitioningGoals((prev) => [...prev, goalId]);
+		setTimeout(() => {
+			onReSort(); // Trigger re-sort in parent
+			setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
+		}, 300);
 	};
 
 	const moveIncompleteGoal = (goalId) => {
-		setMovingGoal(goalId); // Temporarily mark the goal as moving
-
+		setTransitioningGoals((prev) => [...prev, goalId]);
 		setTimeout(() => {
-			setGoals((prevGoals) => {
-				const updatedGoals = [...prevGoals].sort((a, b) =>
-					a.progress === 100 ? 1 : -1
-				);
-
-				setTimeout(() => {
-					setMovingGoal(null); // Clear movement state
-					const element = goalRefs.current[goalId];
-					if (element) {
-						element.scrollIntoView({
-							behavior: 'smooth',
-							block: 'center',
-						});
-					}
-				}, 500); // Ensure movement finishes before scrolling
-
-				return updatedGoals;
-			});
-		}, 300); // Allow movement animation before reordering
+			onReSort(); // Trigger re-sort in parent
+			setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
+		}, 300);
 	};
 
-	const sortGoals = (goals) => {
-		return [
-			...goals.filter((goal) => !goal.completed),
-			...goals.filter((goal) => goal.completed),
-		];
-	};
-
-	const decreaseProgress = (e) => {
-		e.stopPropagation();
-	};
-
-	const deleteGoal = (goalId) => {
+	const handleDelete = (goalId) => {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
 			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
 			return updatedGoals;
 		});
+	};
+
+	const handleExpand = (goalId) => {
+		setExpandedGoal(expandedGoal === goalId ? null : goalId);
 	};
 
 	return (
@@ -183,7 +209,6 @@ export default function GoalsTab({
 						>
 							<MinimizableGoalCard
 								goal={goal}
-								currentDayIndex={currentDayIndex}
 								isExpanded={expandedGoal === goal.id}
 								onExpand={() => handleExpand(goal.id)}
 								onComplete={() => moveCompletedGoal(goal.id)}
@@ -191,12 +216,9 @@ export default function GoalsTab({
 									moveIncompleteGoal(goal.id)
 								}
 								updateProgress={(id, newProgress) =>
-									updateProgress(goal.id, newProgress)
+									updateProgress(id, newProgress)
 								}
-								updateDaysProgress={(id, newDaysProgress) =>
-									updateDaysProgress(goal.id, newDaysProgress)
-								}
-								onDelete={deleteGoal}
+								onDelete={handleDelete}
 								onUpdateGoal={onUpdateGoal}
 							/>
 						</div>

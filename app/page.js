@@ -23,7 +23,7 @@ export default function App() {
 						typeof goal.isCompleted === 'boolean'
 							? goal.isCompleted
 							: goal.progress >= 100,
-					completedDays: goal.completedDays || Array(7).fill(false),
+					completedDays: goal.completedDays || {},
 				}));
 			}
 		}
@@ -116,34 +116,8 @@ export default function App() {
 		let shouldPerformWeeklyReset = false;
 		const nextSunday = getNextSundayMidnight(now); // Calculate based on current 'now'
 
-		if (lastWeeklyResetTime) {
-			const lastResetSundayMidnight =
-				getNextSundayMidnight(lastWeeklyResetTime);
-			// If the current next Sunday is different from the last reset Sunday
-			// AND we've passed the last recorded reset time
-			if (
-				nextSunday.getTime() > lastResetSundayMidnight.getTime() &&
-				now.getTime() >= lastResetSundayMidnight.getTime()
-			) {
-				shouldPerformWeeklyReset = true;
-			}
-		} else {
-			// First run, set lastWeeklyResetTime to this upcoming Sunday
-			shouldPerformWeeklyReset = false; // Will set in finally block
-		}
-
-		if (shouldPerformWeeklyReset) {
-			console.log('Missed Weekly Reset Detected! Applying now.');
-			currentGoals = currentGoals.map((goal) => ({
-				...goal,
-				completedDays: Array(7).fill(false),
-				progress: 0,
-				isCompleted: false,
-			}));
-		}
-
 		// --- Apply immediate resets if any were necessary ---
-		if (shouldPerformDailyReset || shouldPerformWeeklyReset) {
+		if (shouldPerformDailyReset) {
 			setGoals(currentGoals); // Update React state
 			localStorage.setItem('userGoals', JSON.stringify(currentGoals)); // Persist immediately
 		}
@@ -232,7 +206,6 @@ export default function App() {
 			selectedHabit = findHabit(habitDetails.id);
 		}
 
-		console.log('selectedHabit', selectedHabit);
 		if (!selectedHabit) {
 			console.error(
 				'Habit not found or invalid habit details.',
@@ -250,7 +223,7 @@ export default function App() {
 			color: selectedHabit.color,
 			description: selectedHabit.description,
 			isCompleted: false,
-			completedDays: [false, false, false, false, false, false, false],
+			completedDays: {},
 		};
 		const newGoals = [...goals, newGoal];
 		setGoals(
@@ -276,14 +249,62 @@ export default function App() {
 		toast.success(`"${selectedHabit.title}" added successfully!`);
 	};
 
-	const handleUpdateGoal = (updatedGoal) => {
+	// app/page.js
+	// ...
+	const handleUpdateGoal = (goalId, updatedGoal) => {
+		console.log('HANDLE UPDATE GOAL');
 		setGoals((prevGoals) =>
-			prevGoals.map((goal) =>
-				goal.id === updatedGoal.id ? updatedGoal : goal
-			)
+			prevGoals.map((goal) => {
+				if (goal.id === goalId) {
+					let updatedCompletedDays = { ...goal.completedDays }; // Start with existing
+
+					const now = new Date();
+					const year = now.getFullYear();
+					const month = now.getMonth();
+					const day = now.getDate();
+					console.log('YHERRRRRRRRRRRRRRRRRRRRRRR');
+
+					if (updatedGoal.isCompleted && !goal.isCompleted) {
+						// Goal is being completed now
+						updatedCompletedDays[year] =
+							updatedCompletedDays[year] || {};
+						updatedCompletedDays[year][month] =
+							updatedCompletedDays[year][month] || {};
+						updatedCompletedDays[year][month][day] = true; // Mark as completed
+					} else if (!updatedGoal.isCompleted && goal.isCompleted) {
+						// Goal is being un-completed
+						if (
+							updatedCompletedDays[year] &&
+							updatedCompletedDays[year][month]
+						) {
+							delete updatedCompletedDays[year][month][day]; // Remove the completed day
+							if (
+								Object.keys(updatedCompletedDays[year][month])
+									.length === 0
+							) {
+								delete updatedCompletedDays[year][month]; // Clean up empty month
+								if (
+									Object.keys(updatedCompletedDays[year])
+										.length === 0
+								) {
+									delete updatedCompletedDays[year]; // Clean up empty year
+								}
+							}
+						}
+					}
+					console.log(goal);
+					return {
+						...goal,
+						...updatedGoal,
+						completedDays: updatedCompletedDays,
+					}; // Merge updates
+				} else {
+					return goal;
+				}
+			})
 		);
 	};
-
+	// ...
 	const onReSort = () => {
 		setGoals((prevGoals) =>
 			[...prevGoals].sort(

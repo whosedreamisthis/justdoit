@@ -1,5 +1,5 @@
 // minimizable-goal-card.jsx
-import { useState, useEffect, useRef, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect, useRef } from 'react';
 import ScrollOnExpand from '../hooks/scroll-on-expand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,16 +12,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
-import MyCalendar from './calendar'; // Import MyCalendar
 
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
 	isExpanded,
 	onExpand,
-	updateProgress, // This prop might not be needed if all updates go through onUpdateGoal
 	onDelete,
-	onUpdateGoal, // This is the main update function from page.js
+	onUpdateGoal,
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -32,8 +30,6 @@ export default function MinimizableGoalCard({
 
 	const titleInputRef = useRef(null);
 	const cardRef = ScrollOnExpand(isExpanded);
-
-	const prevProgressRef = useRef(goal.progress);
 
 	useEffect(() => {
 		setEditedTitle(goal.title);
@@ -49,196 +45,10 @@ export default function MinimizableGoalCard({
 		}
 	}, [isEditing]);
 
-	useEffect(() => {
-		if (goal.progress === 100 && prevProgressRef.current < 100) {
-			if (cardRef.current) {
-				cardRef.current.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				});
-			}
-		}
-		prevProgressRef.current = goal.progress;
-	}, [goal.progress, cardRef]);
-
 	const handleDelete = (e) => {
 		e.stopPropagation();
 		onDelete(goal.id);
 	};
-
-	const decreaseProgress = (e) => {
-		e.stopPropagation();
-
-		const validProgress =
-			typeof goal.progress === 'number' ? goal.progress : 0;
-		const newProgress = Math.max(validProgress - 100, 0);
-
-		// Get local date components instead of ISO string to avoid timezone issues
-		const now = new Date();
-		const year = now.getFullYear();
-		const month = now.getMonth() + 1; // getMonth() is 0-indexed, so add 1
-		const day = now.getDate();
-		const newCompletedDays = { ...goal.completedDays };
-
-		// When progress is decreased, the goal is no longer 100% complete (or was never 100%),
-		// so remove it from completedDays for today.
-		if (newCompletedDays[year]?.[month]?.[day]) {
-			delete newCompletedDays[year][month][day];
-			// Clean up empty month/year objects if no days are left
-			if (Object.keys(newCompletedDays[year][month]).length === 0) {
-				delete newCompletedDays[year][month];
-			}
-			if (Object.keys(newCompletedDays[year]).length === 0) {
-				delete newCompletedDays[year];
-			}
-		}
-
-		const updatedGoal = {
-			...goal,
-			progress: newProgress,
-			isCompleted: newProgress >= 100,
-			completedDays: newCompletedDays,
-		};
-		console.log(
-			'MinimizableGoalCard: Decreasing progress for',
-			goal.id,
-			'to',
-			newProgress
-		);
-		onUpdateGoal(goal.id, updatedGoal);
-	};
-
-	const increaseProgress = (e) => {
-		e.stopPropagation();
-
-		const validProgress =
-			typeof goal.progress === 'number' ? goal.progress : 0;
-		let newProgress = Math.min(validProgress + 100, 100);
-
-		if (goal.progress === 100) {
-			newProgress = 0; // Reset progress to 0 if already complete
-		}
-
-		// Get local date components instead of ISO string to avoid timezone issues
-		const now = new Date();
-		const year = now.getFullYear();
-		const month = now.getMonth() + 1; // getMonth() is 0-indexed, so add 1
-		const day = now.getDate();
-		const newCompletedDays = { ...goal.completedDays };
-
-		if (newProgress === 100) {
-			if (!newCompletedDays[year]) {
-				newCompletedDays[year] = {};
-			}
-			if (!newCompletedDays[year][month]) {
-				newCompletedDays[year][month] = {};
-			}
-			newCompletedDays[year][month][day] = true;
-		} else {
-			// If progress is not 100%, ensure it's not marked as completed for today
-			if (newCompletedDays[year]?.[month]?.[day]) {
-				delete newCompletedDays[year][month][day];
-				// Clean up empty month/year objects if no days are left
-				if (Object.keys(newCompletedDays[year][month]).length === 0) {
-					delete newCompletedDays[year][month];
-				}
-				if (Object.keys(newCompletedDays[year]).length === 0) {
-					delete newCompletedDays[year];
-				}
-			}
-		}
-
-		const updatedGoal = {
-			...goal,
-			progress: newProgress,
-			isCompleted: newProgress >= 100,
-			completedDays: newCompletedDays,
-		};
-
-		console.log(
-			'MinimizableGoalCard: Increasing progress for',
-			goal.id,
-			'to',
-			newProgress
-		);
-		onUpdateGoal(goal.id, updatedGoal);
-	};
-
-	// New function to handle date clicks from MyCalendar
-	const handleCalendarDateClick = useCallback(
-		(dateClicked) => {
-			const year = dateClicked.getFullYear();
-			const month = dateClicked.getMonth() + 1; // 0-indexed to 1-indexed
-			const day = dateClicked.getDate();
-
-			const newCompletedDays = { ...goal.completedDays };
-
-			let wasCompleted = false;
-			if (newCompletedDays[year]?.[month]?.[day]) {
-				wasCompleted = true;
-				delete newCompletedDays[year][month][day];
-				// Clean up empty month/year objects if no days are left
-				if (Object.keys(newCompletedDays[year][month]).length === 0) {
-					delete newCompletedDays[year][month];
-				}
-				if (Object.keys(newCompletedDays[year]).length === 0) {
-					delete newCompletedDays[year];
-				}
-			} else {
-				// Mark as completed
-				if (!newCompletedDays[year]) {
-					newCompletedDays[year] = {};
-				}
-				if (!newCompletedDays[year][month]) {
-					newCompletedDays[year][month] = {};
-				}
-				newCompletedDays[year][month][day] = true;
-			}
-
-			// Calculate new progress based on how many days are completed
-			// This is a simplified calculation: 100 if completed, 0 if not.
-			// You might want more sophisticated logic here if a goal requires multiple completions.
-			const newProgress =
-				Object.keys(newCompletedDays).length > 0 ? 100 : 0;
-			// The original logic for increase/decrease was tied to `progress` being 0 or 100.
-			// For calendar-based completion, if any day is marked, it's "in progress" or "complete"
-			// Let's make it simpler for now: if any day is marked, it's 100. If no days, it's 0.
-			// If you need more complex progress (e.g., "3 of 7 days this week"), that needs a different state.
-
-			// For simplicity for now: if user marks ANY day, progress is 100. If all un-marked, progress is 0.
-			// If you want more granular progress, you'll need to define it here.
-			// For a habit that is completed daily, marking a day implies 100% for that day.
-			// If the goal is "Complete 7 times a week", this logic would be more complex.
-			// For now, let's just base it on today's completion.
-			let finalProgress = goal.progress; // Start with current progress
-			if (newCompletedDays[year]?.[month]?.[day]) {
-				// If today is now marked complete
-				finalProgress = 100;
-			} else if (Object.keys(newCompletedDays).length === 0) {
-				// If no days are marked anymore
-				finalProgress = 0;
-			}
-
-			const updatedGoal = {
-				...goal,
-				completedDays: newCompletedDays,
-				progress: finalProgress, // Update progress based on completion of today's date
-				isCompleted: finalProgress >= 100, // Update isCompleted based on finalProgress
-			};
-			console.log(
-				'MinimizableGoalCard: Toggling day completion for goal',
-				goal.id,
-				'on date',
-				dateClicked.toLocaleDateString(),
-				'. New completedDays:',
-				newCompletedDays,
-				'New progress:',
-				finalProgress
-			);
-			onUpdateGoal(goal.id, updatedGoal);
-		},
-		[goal, onUpdateGoal]
-	); // Add goal and onUpdateGoal to useCallback dependencies
 
 	const handleSaveEdit = (e) => {
 		e.stopPropagation();
@@ -254,12 +64,6 @@ export default function MinimizableGoalCard({
 			description: editedDescription.trim(),
 			color: editedColor,
 		};
-		console.log(
-			'MinimizableGoalCard: Saving edit for goal',
-			goal.id,
-			'with updated data:',
-			updatedGoal
-		);
 		onUpdateGoal(goal.id, updatedGoal);
 		setIsEditing(false);
 	};
@@ -271,142 +75,50 @@ export default function MinimizableGoalCard({
 		setEditedColor(goal.color);
 		setIsEditing(false);
 	};
+
+	const toggleProgress = (e) => {
+		e.stopPropagation();
+		const newProgress = goal.progress === 100 ? 0 : 100;
+
+		const updatedGoal = {
+			...goal,
+			progress: newProgress,
+			isCompleted: newProgress >= 100,
+		};
+		onUpdateGoal(goal.id, updatedGoal);
+	};
+
 	return (
 		<div
 			ref={cardRef}
-			className={`
-				${goal.progress >= 100 ? 'completed-card' : 'card'}
-				relative rounded-lg p-4 transition-all
-
-				${
-					isExpanded
-						? 'max-h-[500px] overflow-auto z-10'
-						: 'max-h-32 overflow-hidden z-0 shadow-none'
-				}
-			`}
-			style={{
-				backgroundColor: isEditing ? editedColor : goal.color,
-			}}
+			className={`${
+				goal.color
+			} card rounded-lg p-4 transition-all relative ${
+				isExpanded
+					? 'max-h-[500px] overflow-auto z-10'
+					: 'max-h-32 overflow-hidden z-0 shadow-none'
+			}`}
 			onClick={() => {
 				if (!isEditing) {
 					onExpand();
 				}
 			}}
 		>
+			{/* Progress Bar */}
 			<div
-				className={`absolute inset-0 bg-blue-earth transition-all h-full w-full ${
-					goal.progress === 100 ? 'rounded-lg' : 'rounded-l-lg'
-				}`}
-				style={{ width: `${goal.progress}%` }}
-			>
-				{' '}
-			</div>
+				className="absolute inset-0 bg-blue-500 transition-all h-full"
+				style={{
+					width: `${goal.progress}%`,
+					borderRadius: 'inherit',
+					opacity: 0.3,
+				}}
+			></div>
 
-			<div className="relative flex justify-between items-start z-10">
-				<div className="flex-grow min-w-0">
-					{isExpanded && !isEditing && (
-						<>
-							<h2 className="title text-lg font-bold text-gray-800">
-								{goal.title}
-							</h2>
-
-							{goal.description && (
-								<p className="description text-sm text-gray-700 mt-1 mb-2 break-words">
-									{goal.description}
-								</p>
-							)}
-						</>
-					)}
-
-					{!isExpanded && (
-						<>
-							<div className="flex flex-col items-start">
-								<h2 className="text-lg font-bold text-gray-800 break-words truncate">
-									{goal.title.length > 25
-										? `${goal.title.slice(0, 22)}...`
-										: goal.title}
-								</h2>
-							</div>
-						</>
-					)}
-
-					{isExpanded && isEditing && (
-						<>
-							<div className="my-2">
-								<label
-									htmlFor="goal-title"
-									className="block text-base font-medium text-gray-700 font-bold"
-								>
-									Goal Title:
-								</label>
-								<input
-									id="goal-title"
-									type="text"
-									value={editedTitle}
-									onChange={(e) =>
-										setEditedTitle(e.target.value)
-									}
-									onClick={(e) => e.stopPropagation()}
-									ref={titleInputRef}
-									className="text-lg text-gray-500 p-1 rounded w-full"
-									style={{ backgroundColor: '#f0f0f0' }}
-									placeholder="Goal Title"
-								/>
-							</div>
-
-							<div className="my-4">
-								<label
-									htmlFor="goal-short-description"
-									className="block text-base font-medium text-gray-700 font-bold"
-								>
-									Description:
-								</label>
-								<textarea
-									id="goal-short-description"
-									value={editedDescription}
-									onChange={(e) =>
-										setEditedDescription(e.target.value)
-									}
-									onClick={(e) => e.stopPropagation()}
-									className="mt-1 p-1 w-full rounded text-gray-500"
-									style={{ backgroundColor: '#f0f0f0' }}
-									rows="3"
-									placeholder="Add a description for your goal (optional)"
-								></textarea>
-							</div>
-							{goal.progress < 100 && (
-								<div className="mb-4">
-									<label className="block font-medium text-gray-700">
-										Card Color:
-									</label>
-									<ColorSquares
-										setColor={setEditedColor}
-										selectedColor={editedColor}
-									/>
-								</div>
-							)}
-						</>
-					)}
-				</div>
-
-				{!isEditing && (
-					<div className="absolute top-0 right-0">
-						<FontAwesomeIcon
-							icon={
-								goal.progress === 100
-									? faSquareCheck
-									: faSquarePlus
-							}
-							className={`far goal-card-icon z-20 ${
-								goal.progress === 100
-									? 'progress-complete'
-									: 'progress-incomplete'
-							}`}
-							onClick={increaseProgress}
-						></FontAwesomeIcon>
-					</div>
-				)}
-			</div>
+			{/* Title & Description */}
+			<h2 className="relative text-lg font-bold text-gray-800">
+				{goal.title}
+			</h2>
+			<p className="relative text-gray-600 text-sm">{goal.description}</p>
 
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
@@ -418,13 +130,13 @@ export default function MinimizableGoalCard({
 									className="far goal-card-icon z-20 text-green-600 hover:text-green-800"
 									onClick={handleSaveEdit}
 									title="Save Changes"
-								></FontAwesomeIcon>
+								/>
 								<FontAwesomeIcon
 									icon={faXmarkCircle}
 									className="far goal-card-icon z-20 text-red-600 hover:text-red-800"
 									onClick={handleCancelEdit}
 									title="Cancel Edit"
-								></FontAwesomeIcon>
+								/>
 							</>
 						) : (
 							<FontAwesomeIcon
@@ -434,25 +146,34 @@ export default function MinimizableGoalCard({
 									e.stopPropagation();
 									setIsEditing(true);
 								}}
-							></FontAwesomeIcon>
+							/>
 						)}
 						<FontAwesomeIcon
 							icon={faTrashCan}
 							className="far goal-card-icon z-20"
 							onClick={handleDelete}
-						></FontAwesomeIcon>
-					</div>
-					{/* Add the calendar here */}
-					<div className="mt-4">
-						<h4 className="text-md font-semibold mb-2 text-gray-800">
-							Completion Calendar
-						</h4>
-						<MyCalendar
-							completedDays={goal.completedDays}
-							goalId={goal.id}
-							onUpdateGoal={handleCalendarDateClick} // Pass the new handler
 						/>
 					</div>
+				</div>
+			)}
+
+			{/* Progress Button - Positioned 10px Down and to the Left */}
+			{!isEditing && (
+				<div
+					className="absolute"
+					style={{ top: '10px', right: '10px' }}
+				>
+					<FontAwesomeIcon
+						icon={
+							goal.progress === 100 ? faSquareCheck : faSquarePlus
+						}
+						className={`far goal-card-icon z-20 ${
+							goal.progress === 100
+								? 'progress-complete'
+								: 'progress-incomplete'
+						}`}
+						onClick={toggleProgress}
+					/>
 				</div>
 			)}
 		</div>

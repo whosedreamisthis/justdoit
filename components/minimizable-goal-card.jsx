@@ -12,16 +12,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
+
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
 	isExpanded,
 	onExpand,
-	onComplete,
-	onProgressChange,
-	updateProgress,
+	// Removed: onComplete, // No longer needed for explicit re-sort trigger
+	// Removed: onProgressChange, // No longer needed for explicit re-sort trigger
+	updateProgress, // This prop is now less critical for the primary update flow
 	onDelete,
-	onUpdateGoal,
+	onUpdateGoal, // This is the key prop from page.js
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -31,9 +32,8 @@ export default function MinimizableGoalCard({
 	const [editedColor, setEditedColor] = useState(goal.color);
 
 	const titleInputRef = useRef(null);
-	const cardRef = ScrollOnExpand(isExpanded); // This hook handles scroll on expand
+	const cardRef = ScrollOnExpand(isExpanded);
 
-	// --- NEW: Ref to store previous progress for detecting completion ---
 	const prevProgressRef = useRef(goal.progress);
 
 	useEffect(() => {
@@ -50,23 +50,17 @@ export default function MinimizableGoalCard({
 		}
 	}, [isEditing]);
 
-	// --- NEW: Effect to scroll into view when goal is completed ---
 	useEffect(() => {
-		// Check if the goal *just* became 100% completed
 		if (goal.progress === 100 && prevProgressRef.current < 100) {
 			if (cardRef.current) {
-				// Scroll the card into view with smooth behavior
 				cardRef.current.scrollIntoView({
 					behavior: 'smooth',
 					block: 'center',
 				});
 			}
 		}
-		// Update the previous progress ref for the next render
 		prevProgressRef.current = goal.progress;
-	}, [goal.progress, cardRef]); // Dependencies: Re-run when goal.progress changes or cardRef changes
-
-	// -----------------------------------------------------------------
+	}, [goal.progress, cardRef]);
 
 	const handleDelete = (e) => {
 		e.stopPropagation();
@@ -79,14 +73,34 @@ export default function MinimizableGoalCard({
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
 		const newProgress = Math.max(
-			validProgress - 100 / goal.totalSegments,
+			validProgress - 100, // Changed from (goal.totalSegments ? 100 / goal.totalSegments : 25) to 100
 			0
 		);
 
-		updateProgress(goal.id, newProgress);
-		if (goal.progress === 100 && newProgress < 100) {
-			onProgressChange(goal.id);
+		const today = new Date().toISOString().split('T')[0];
+		const newCompletedDays = { ...goal.completedDays };
+		if (newProgress === 0) {
+			delete newCompletedDays[today]; // Remove if progress is reset to 0
 		}
+
+		const updatedGoal = {
+			...goal,
+			progress: newProgress,
+			isCompleted: newProgress >= 100,
+			completedDays: newCompletedDays,
+		};
+		console.log(
+			'MinimizableGoalCard: Decreasing progress for',
+			goal.id,
+			'to',
+			newProgress
+		);
+		onUpdateGoal(goal.id, updatedGoal);
+
+		// Removed redundant re-sort triggers:
+		// if (goal.progress === 100 && newProgress < 100) {
+		// 	onProgressChange(goal.id);
+		// }
 	};
 
 	const increaseProgress = (e) => {
@@ -95,20 +109,45 @@ export default function MinimizableGoalCard({
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
 		let newProgress = Math.min(
-			validProgress + 100 / goal.totalSegments,
+			validProgress + 100, // Changed from (goal.totalSegments ? 100 / goal.totalSegments : 25) to 100
 			100
 		);
 
-		// If the goal was 100% and now is being "un-completed" by pressing the button again
 		if (goal.progress === 100) {
-			newProgress = 0;
+			newProgress = 0; // Reset progress to 0 if already complete
 		}
 
-		updateProgress(goal.id, newProgress);
+		const today = new Date().toISOString().split('T')[0];
+		const newCompletedDays = { ...goal.completedDays };
 
-		if (newProgress === 100) {
-			onComplete(goal.id);
+		if (newProgress > 0 && newProgress < 100) {
+			newCompletedDays[today] = true;
+		} else if (newProgress === 100) {
+			newCompletedDays[today] = true;
+		} else if (newProgress === 0) {
+			delete newCompletedDays[today];
 		}
+
+		const updatedGoal = {
+			...goal,
+			progress: newProgress,
+			isCompleted: newProgress >= 100,
+			completedDays: newCompletedDays,
+		};
+
+		console.log(
+			'MinimizableGoalCard: Increasing progress for',
+			goal.id,
+			'to',
+			newProgress
+		);
+		onUpdateGoal(goal.id, updatedGoal);
+
+		// Removed redundant re-sort triggers:
+		// if (newProgress === 100) {
+		// 	onComplete(goal.id);
+		// }
+		toast.success(`${goal.title} progress updated!`);
 	};
 
 	const handleSaveEdit = (e) => {
@@ -125,7 +164,13 @@ export default function MinimizableGoalCard({
 			description: editedDescription.trim(),
 			color: editedColor,
 		};
-		onUpdateGoal(updatedGoal);
+		console.log(
+			'MinimizableGoalCard: Saving edit for goal',
+			goal.id,
+			'with updated data:',
+			updatedGoal
+		);
+		onUpdateGoal(goal.id, updatedGoal);
 		setIsEditing(false);
 		toast.success('Goal updated!');
 	};

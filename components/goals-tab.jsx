@@ -11,8 +11,8 @@ export default function GoalsTab({
 	onUpdateGoal,
 }) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
-	const [movingGoal, setMovingGoal] = useState(null);
-	const [transitioningGoals, setTransitioningGoals] = useState([]);
+	// Removed: const [movingGoal, setMovingGoal] = useState(null);
+	// Removed: const [transitioningGoals, setTransitioningGoals] = useState([]);
 
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
@@ -25,6 +25,7 @@ export default function GoalsTab({
 	}
 
 	// Create a sorted copy of `goals` using useMemo
+	// This useMemo is now purely for display in GoalsTab and not for triggering main state sort
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort(
 			(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
@@ -51,6 +52,10 @@ export default function GoalsTab({
 		return () => clearTimeout(dayUpdaterTimer);
 	}, []);
 
+	// The `updateProgress` function here is now redundant for general progress updates
+	// as MinimizableGoalCard now calls onUpdateGoal directly.
+	// It can be kept if other components/logic still rely on it, but for goals progress,
+	// onUpdateGoal is the primary path.
 	const updateProgress = (goalId, newProgress) => {
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
@@ -72,21 +77,22 @@ export default function GoalsTab({
 		});
 	};
 
-	const moveCompletedGoal = (goalId) => {
-		setTransitioningGoals((prev) => [...prev, goalId]);
-		setTimeout(() => {
-			onReSort(); // Trigger re-sort in parent
-			setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
-		}, 300);
-	};
+	// Removed: moveCompletedGoal and moveIncompleteGoal functions as they are no longer needed
+	// const moveCompletedGoal = (goalId) => {
+	// 	setTransitioningGoals((prev) => [...prev, goalId]);
+	// 	setTimeout(() => {
+	// 		onReSort(); // Trigger re-sort in parent
+	// 		setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
+	// 	}, 300);
+	// };
 
-	const moveIncompleteGoal = (goalId) => {
-		setTransitioningGoals((prev) => [...prev, goalId]);
-		setTimeout(() => {
-			onReSort(); // Trigger re-sort in parent
-			setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
-		}, 300);
-	};
+	// const moveIncompleteGoal = (goalId) => {
+	// 	setTransitioningGoals((prev) => [...prev, goalId]);
+	// 	setTimeout(() => {
+	// 		onReSort(); // Trigger re-sort in parent
+	// 		setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
+	// 	}, 300);
+	// };
 
 	const handleDelete = (goalId) => {
 		setGoals((prevGoals) => {
@@ -112,9 +118,8 @@ export default function GoalsTab({
 						key={goal.id}
 						data-goal-id={goal.id}
 						className={`rounded-xl shadow-md goal-item ${
-							transitioningGoals.includes(goal.id)
-								? 'moving-up'
-								: ''
+							// Removed: transitioningGoals.includes(goal.id) ? 'moving-up' : ''
+							''
 						}`}
 						style={{ backgroundColor: goal.color }}
 						ref={(el) => (goalRefs.current[goal.id] = el)}
@@ -123,8 +128,8 @@ export default function GoalsTab({
 							goal={goal}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
-							onComplete={() => moveCompletedGoal(goal.id)}
-							onProgressChange={() => moveIncompleteGoal(goal.id)}
+							// Removed: onComplete={() => moveCompletedGoal(goal.id)}
+							// Removed: onProgressChange={() => moveIncompleteGoal(goal.id)}
 							updateProgress={(id, newProgress) =>
 								updateProgress(id, newProgress)
 							}

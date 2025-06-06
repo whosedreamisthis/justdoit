@@ -1,5 +1,5 @@
 // minimizable-goal-card.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react'; // Added useCallback
 import ScrollOnExpand from '../hooks/scroll-on-expand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,15 +12,16 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
+import MyCalendar from './calendar'; // Import MyCalendar
 
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
 	isExpanded,
 	onExpand,
-	updateProgress,
+	updateProgress, // This prop might not be needed if all updates go through onUpdateGoal
 	onDelete,
-	onUpdateGoal,
+	onUpdateGoal, // This is the main update function from page.js
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -163,6 +164,82 @@ export default function MinimizableGoalCard({
 		onUpdateGoal(goal.id, updatedGoal);
 	};
 
+	// New function to handle date clicks from MyCalendar
+	const handleCalendarDateClick = useCallback(
+		(dateClicked) => {
+			const year = dateClicked.getFullYear();
+			const month = dateClicked.getMonth() + 1; // 0-indexed to 1-indexed
+			const day = dateClicked.getDate();
+
+			const newCompletedDays = { ...goal.completedDays };
+
+			let wasCompleted = false;
+			if (newCompletedDays[year]?.[month]?.[day]) {
+				wasCompleted = true;
+				delete newCompletedDays[year][month][day];
+				// Clean up empty month/year objects if no days are left
+				if (Object.keys(newCompletedDays[year][month]).length === 0) {
+					delete newCompletedDays[year][month];
+				}
+				if (Object.keys(newCompletedDays[year]).length === 0) {
+					delete newCompletedDays[year];
+				}
+			} else {
+				// Mark as completed
+				if (!newCompletedDays[year]) {
+					newCompletedDays[year] = {};
+				}
+				if (!newCompletedDays[year][month]) {
+					newCompletedDays[year][month] = {};
+				}
+				newCompletedDays[year][month][day] = true;
+			}
+
+			// Calculate new progress based on how many days are completed
+			// This is a simplified calculation: 100 if completed, 0 if not.
+			// You might want more sophisticated logic here if a goal requires multiple completions.
+			const newProgress =
+				Object.keys(newCompletedDays).length > 0 ? 100 : 0;
+			// The original logic for increase/decrease was tied to `progress` being 0 or 100.
+			// For calendar-based completion, if any day is marked, it's "in progress" or "complete"
+			// Let's make it simpler for now: if any day is marked, it's 100. If no days, it's 0.
+			// If you need more complex progress (e.g., "3 of 7 days this week"), that needs a different state.
+
+			// For simplicity for now: if user marks ANY day, progress is 100. If all un-marked, progress is 0.
+			// If you want more granular progress, you'll need to define it here.
+			// For a habit that is completed daily, marking a day implies 100% for that day.
+			// If the goal is "Complete 7 times a week", this logic would be more complex.
+			// For now, let's just base it on today's completion.
+			let finalProgress = goal.progress; // Start with current progress
+			if (newCompletedDays[year]?.[month]?.[day]) {
+				// If today is now marked complete
+				finalProgress = 100;
+			} else if (Object.keys(newCompletedDays).length === 0) {
+				// If no days are marked anymore
+				finalProgress = 0;
+			}
+
+			const updatedGoal = {
+				...goal,
+				completedDays: newCompletedDays,
+				progress: finalProgress, // Update progress based on completion of today's date
+				isCompleted: finalProgress >= 100, // Update isCompleted based on finalProgress
+			};
+			console.log(
+				'MinimizableGoalCard: Toggling day completion for goal',
+				goal.id,
+				'on date',
+				dateClicked.toLocaleDateString(),
+				'. New completedDays:',
+				newCompletedDays,
+				'New progress:',
+				finalProgress
+			);
+			onUpdateGoal(goal.id, updatedGoal);
+		},
+		[goal, onUpdateGoal]
+	); // Add goal and onUpdateGoal to useCallback dependencies
+
 	const handleSaveEdit = (e) => {
 		e.stopPropagation();
 
@@ -200,7 +277,7 @@ export default function MinimizableGoalCard({
 			className={`
 				${goal.progress >= 100 ? 'completed-card' : 'card'}
 				relative rounded-lg p-4 transition-all
-				
+
 				${
 					isExpanded
 						? 'max-h-[500px] overflow-auto z-10'
@@ -364,6 +441,17 @@ export default function MinimizableGoalCard({
 							className="far goal-card-icon z-20"
 							onClick={handleDelete}
 						></FontAwesomeIcon>
+					</div>
+					{/* Add the calendar here */}
+					<div className="mt-4">
+						<h4 className="text-md font-semibold mb-2 text-gray-800">
+							Completion Calendar
+						</h4>
+						<MyCalendar
+							completedDays={goal.completedDays}
+							goalId={goal.id}
+							onUpdateGoal={handleCalendarDateClick} // Pass the new handler
+						/>
 					</div>
 				</div>
 			)}

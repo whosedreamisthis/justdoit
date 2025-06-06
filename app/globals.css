@@ -416,11 +416,6 @@ body,
 	border: 1px solid black !important; /* Set border width & color in one property */
 }
 
-.react-calendar__tile--now:enabled:hover,
-.react-calendar__tile--now:enabled:focus {
-	background-color: #ffdd44 !important;
-	border-color: red !important;
-}
 .react-calendar__month-view__days__day--weekend {
 	color: black !important; /* Change text color */
 }

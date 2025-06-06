@@ -18,11 +18,9 @@ export default function MinimizableGoalCard({
 	onEdit,
 	isExpanded,
 	onExpand,
-	// Removed: onComplete, // No longer needed for explicit re-sort trigger
-	// Removed: onProgressChange, // No longer needed for explicit re-sort trigger
-	updateProgress, // This prop is now less critical for the primary update flow
+	updateProgress,
 	onDelete,
-	onUpdateGoal, // This is the key prop from page.js
+	onUpdateGoal,
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -72,15 +70,26 @@ export default function MinimizableGoalCard({
 
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
-		const newProgress = Math.max(
-			validProgress - 100, // Changed from (goal.totalSegments ? 100 / goal.totalSegments : 25) to 100
-			0
-		);
+		const newProgress = Math.max(validProgress - 100, 0);
 
-		const today = new Date().toISOString().split('T')[0];
+		// Get local date components instead of ISO string to avoid timezone issues
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth() + 1; // getMonth() is 0-indexed, so add 1
+		const day = now.getDate();
 		const newCompletedDays = { ...goal.completedDays };
-		if (newProgress === 0) {
-			delete newCompletedDays[today]; // Remove if progress is reset to 0
+
+		// When progress is decreased, the goal is no longer 100% complete (or was never 100%),
+		// so remove it from completedDays for today.
+		if (newCompletedDays[year]?.[month]?.[day]) {
+			delete newCompletedDays[year][month][day];
+			// Clean up empty month/year objects if no days are left
+			if (Object.keys(newCompletedDays[year][month]).length === 0) {
+				delete newCompletedDays[year][month];
+			}
+			if (Object.keys(newCompletedDays[year]).length === 0) {
+				delete newCompletedDays[year];
+			}
 		}
 
 		const updatedGoal = {
@@ -96,11 +105,6 @@ export default function MinimizableGoalCard({
 			newProgress
 		);
 		onUpdateGoal(goal.id, updatedGoal);
-
-		// Removed redundant re-sort triggers:
-		// if (goal.progress === 100 && newProgress < 100) {
-		// 	onProgressChange(goal.id);
-		// }
 	};
 
 	const increaseProgress = (e) => {
@@ -108,24 +112,39 @@ export default function MinimizableGoalCard({
 
 		const validProgress =
 			typeof goal.progress === 'number' ? goal.progress : 0;
-		let newProgress = Math.min(
-			validProgress + 100, // Changed from (goal.totalSegments ? 100 / goal.totalSegments : 25) to 100
-			100
-		);
+		let newProgress = Math.min(validProgress + 100, 100);
 
 		if (goal.progress === 100) {
 			newProgress = 0; // Reset progress to 0 if already complete
 		}
 
-		const today = new Date().toISOString().split('T')[0];
+		// Get local date components instead of ISO string to avoid timezone issues
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth() + 1; // getMonth() is 0-indexed, so add 1
+		const day = now.getDate();
 		const newCompletedDays = { ...goal.completedDays };
 
-		if (newProgress > 0 && newProgress < 100) {
-			newCompletedDays[today] = true;
-		} else if (newProgress === 100) {
-			newCompletedDays[today] = true;
-		} else if (newProgress === 0) {
-			delete newCompletedDays[today];
+		if (newProgress === 100) {
+			if (!newCompletedDays[year]) {
+				newCompletedDays[year] = {};
+			}
+			if (!newCompletedDays[year][month]) {
+				newCompletedDays[year][month] = {};
+			}
+			newCompletedDays[year][month][day] = true;
+		} else {
+			// If progress is not 100%, ensure it's not marked as completed for today
+			if (newCompletedDays[year]?.[month]?.[day]) {
+				delete newCompletedDays[year][month][day];
+				// Clean up empty month/year objects if no days are left
+				if (Object.keys(newCompletedDays[year][month]).length === 0) {
+					delete newCompletedDays[year][month];
+				}
+				if (Object.keys(newCompletedDays[year]).length === 0) {
+					delete newCompletedDays[year];
+				}
+			}
 		}
 
 		const updatedGoal = {
@@ -142,12 +161,6 @@ export default function MinimizableGoalCard({
 			newProgress
 		);
 		onUpdateGoal(goal.id, updatedGoal);
-
-		// Removed redundant re-sort triggers:
-		// if (newProgress === 100) {
-		// 	onComplete(goal.id);
-		// }
-		toast.success(`${goal.title} progress updated!`);
 	};
 
 	const handleSaveEdit = (e) => {
@@ -172,7 +185,6 @@ export default function MinimizableGoalCard({
 		);
 		onUpdateGoal(goal.id, updatedGoal);
 		setIsEditing(false);
-		toast.success('Goal updated!');
 	};
 
 	const handleCancelEdit = (e) => {

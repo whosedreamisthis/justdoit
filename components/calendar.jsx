@@ -10,6 +10,14 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 
 	// Function to check if a specific date is marked as completed
 	const isDayCompleted = (year, month, day) => {
+		console.log(
+			'isDayCompleted ',
+			year,
+			month,
+			day,
+			completedDays[year]?.[month + 1]?.[day] || false
+		);
+
 		// month from tileDate.getMonth() is 0-indexed, completedDays stores 1-indexed month
 		// We add 1 to `month` here to correctly match the 1-indexed month stored in `completedDays`.
 		return completedDays[year]?.[month + 1]?.[day] || false;
@@ -41,6 +49,7 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 
 						if (isDayCompleted(year, month, day)) {
 							// This will now correctly check completedDays[year][month + 1][day]
+							console.log('IS DDAY COMPLETED');
 							return 'completed-day';
 						}
 					}

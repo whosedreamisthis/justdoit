@@ -133,7 +133,6 @@ export default function MinimizableGoalCard({
 		};
 		onUpdateGoal(updatedGoal);
 		setIsEditing(false);
-		toast.success('Goal updated!');
 	};
 
 	const handleCancelEdit = (e) => {

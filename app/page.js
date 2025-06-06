@@ -1,6 +1,6 @@
 // app/page.js
 'use client';
-import { useState, useEffect, useRef } from 'react'; // Import useRef
+import { useState, useEffect, useRef } from 'react';
 import BottomTabs from '@/components/bottom-nav';
 import habitsByCategory from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
@@ -14,24 +14,52 @@ import StatsTab from '@/components/stats-tab';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 
+	const goalsTabRef = useRef(null); // Ref to the GoalsTab component
+
 	const [goals, setGoals] = useState(() => {
 		if (typeof window !== 'undefined') {
 			const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
 			if (storedGoals && storedGoals.length > 0) {
-				return storedGoals.map((goal) => ({
+				const loadedGoals = storedGoals.map((goal) => ({
 					...goal,
 					isCompleted:
 						typeof goal.isCompleted === 'boolean'
 							? goal.isCompleted
 							: goal.progress >= 100,
 					completedDays: goal.completedDays || {},
+					// Add createdAt for existing goals if missing (important for sorting)
+					createdAt: goal.createdAt || new Date().toISOString(),
 				}));
+
+				// Initial sort after loading to ensure consistency from the start
+				return loadedGoals.sort((a, b) => {
+					// Primary sort: Incomplete goals first (-1)
+					const completionA = a.isCompleted ? 1 : -1;
+					const completionB = b.isCompleted ? 1 : -1;
+					if (completionA !== completionB) {
+						return completionA - completionB;
+					}
+
+					// Secondary sort for incomplete goals: Newest (largest timestamp) first
+					if (!a.isCompleted && !b.isCompleted) {
+						return (
+							new Date(b.createdAt).getTime() -
+							new Date(a.createdAt).getTime()
+						);
+					}
+					// Secondary sort for completed goals: Oldest (smallest timestamp) first
+					// This keeps recently completed items at the very bottom of the completed section.
+					else {
+						return (
+							new Date(a.createdAt).getTime() -
+							new Date(b.createdAt).getTime()
+						);
+					}
+				});
 			}
 		}
 		return [];
 	});
-
-	const goalsTabRef = useRef(null); // Ref to the GoalsTab component
 
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(() => {
 		if (typeof window !== 'undefined') {
@@ -75,10 +103,24 @@ export default function App() {
 					isCompleted: false,
 				}));
 
-				const sortedGoals = updatedGoals.sort(
-					(a, b) =>
-						(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-				);
+				const sortedGoals = updatedGoals.sort((a, b) => {
+					const completionA = a.isCompleted ? 1 : -1;
+					const completionB = b.isCompleted ? 1 : -1;
+					if (completionA !== completionB) {
+						return completionA - completionB;
+					}
+					if (!a.isCompleted && !b.isCompleted) {
+						return (
+							new Date(b.createdAt).getTime() -
+							new Date(a.createdAt).getTime()
+						);
+					} else {
+						return (
+							new Date(a.createdAt).getTime() -
+							new Date(b.createdAt).getTime()
+						);
+					}
+				});
 
 				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
 				setLastDailyResetTime(todayMidnight);
@@ -101,10 +143,24 @@ export default function App() {
 					isCompleted: false,
 				}));
 
-				const sortedGoals = resetGoals.sort(
-					(a, b) =>
-						(a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-				);
+				const sortedGoals = resetGoals.sort((a, b) => {
+					const completionA = a.isCompleted ? 1 : -1;
+					const completionB = b.isCompleted ? 1 : -1;
+					if (completionA !== completionB) {
+						return completionA - completionB;
+					}
+					if (!a.isCompleted && !b.isCompleted) {
+						return (
+							new Date(b.createdAt).getTime() -
+							new Date(a.createdAt).getTime()
+						);
+					} else {
+						return (
+							new Date(a.createdAt).getTime() -
+							new Date(b.createdAt).getTime()
+						);
+					}
+				});
 
 				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
 				setLastDailyResetTime(new Date());
@@ -132,7 +188,11 @@ export default function App() {
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
 		// Step 1: Tell GoalsTab to snapshot current positions BEFORE we update state
-		if (goalsTabRef.current && goalsTabRef.current.snapshotPositions) {
+		if (
+			activeTab === 'goals' &&
+			goalsTabRef.current &&
+			goalsTabRef.current.snapshotPositions
+		) {
 			goalsTabRef.current.snapshotPositions();
 		}
 
@@ -141,10 +201,30 @@ export default function App() {
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
 
-			// Step 2: Perform the sort
-			const sortedGoals = updatedGoals.sort(
-				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-			);
+			// Step 2: Perform the sort with the new logic
+			const sortedGoals = updatedGoals.sort((a, b) => {
+				// Primary sort: Incomplete goals first
+				const completionA = a.isCompleted ? 1 : -1;
+				const completionB = b.isCompleted ? 1 : -1;
+				if (completionA !== completionB) {
+					return completionA - completionB;
+				}
+
+				// Secondary sort for incomplete goals: Newest (largest timestamp) first
+				if (!a.isCompleted && !b.isCompleted) {
+					return (
+						new Date(b.createdAt).getTime() -
+						new Date(a.createdAt).getTime()
+					);
+				}
+				// Secondary sort for completed goals: Oldest (smallest timestamp) first
+				else {
+					return (
+						new Date(a.createdAt).getTime() -
+						new Date(b.createdAt).getTime()
+					);
+				}
+			});
 			return sortedGoals;
 		});
 	};
@@ -158,10 +238,39 @@ export default function App() {
 			progress: 0,
 			isCompleted: false,
 			completedDays: {},
+			createdAt: new Date().toISOString(), // Assign a creation timestamp
 		};
 
-		setGoals((prevGoals) => [...prevGoals, newGoal]);
-		localStorage.setItem('userGoals', JSON.stringify([...goals, newGoal]));
+		setGoals((prevGoals) => {
+			const updatedGoals = [...prevGoals, newGoal];
+			// Sort immediately after adding the new goal
+			const sortedGoals = updatedGoals.sort((a, b) => {
+				// Primary sort: Incomplete goals first
+				const completionA = a.isCompleted ? 1 : -1;
+				const completionB = b.isCompleted ? 1 : -1;
+				if (completionA !== completionB) {
+					return completionA - completionB;
+				}
+
+				// Secondary sort for incomplete goals: Newest (largest timestamp) first
+				if (!a.isCompleted && !b.isCompleted) {
+					return (
+						new Date(b.createdAt).getTime() -
+						new Date(a.createdAt).getTime()
+					);
+				}
+				// Secondary sort for completed goals: Oldest (smallest timestamp) first
+				else {
+					return (
+						new Date(a.createdAt).getTime() -
+						new Date(b.createdAt).getTime()
+					);
+				}
+			});
+			localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
+			return sortedGoals;
+		});
+
 		toast.success(`${habit.title} added as a goal!`);
 	};
 
@@ -174,9 +283,9 @@ export default function App() {
 						<GoalsTab
 							ref={goalsTabRef} // Pass the ref to GoalsTab
 							goals={goals}
-							onReSort={() => {}} // This can be removed or left as no-op
+							onReSort={() => {}} // This prop is now redundant as sorting is in App.js
 							onUpdateGoal={handleUpdateGoal}
-							setGoals={setGoals}
+							setGoals={setGoals} // Still needed for handleDelete directly in GoalsTab
 						/>
 					)}
 					{activeTab === 'explore' && (

@@ -17,8 +17,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 	{
 		goals,
 		onEdit,
-		onReSort, // Can effectively be removed now
-		setGoals,
+		onReSort, // This prop is now largely redundant due to sorting in App.js
+		setGoals, // Still needed for handleDelete in GoalsTab
 		onUpdateGoal,
 	},
 	ref
@@ -37,10 +37,31 @@ const GoalsTab = forwardRef(function GoalsTab(
 	}
 
 	// Use useMemo to create a sorted copy of goals for display.
+	// Ensure this sort logic matches the one in app/page.js
 	const sortedGoals = useMemo(() => {
-		return [...goals].sort(
-			(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-		);
+		return [...goals].sort((a, b) => {
+			// Primary sort: Incomplete goals first
+			const completionA = a.isCompleted ? 1 : -1;
+			const completionB = b.isCompleted ? 1 : -1;
+			if (completionA !== completionB) {
+				return completionA - completionB;
+			}
+
+			// Secondary sort for incomplete goals: Newest (largest timestamp) first
+			if (!a.isCompleted && !b.isCompleted) {
+				return (
+					new Date(b.createdAt).getTime() -
+					new Date(a.createdAt).getTime()
+				);
+			}
+			// Secondary sort for completed goals: Oldest (smallest timestamp) first
+			else {
+				return (
+					new Date(a.createdAt).getTime() -
+					new Date(b.createdAt).getTime()
+				);
+			}
+		});
 	}, [goals]);
 
 	// Expose a method for the parent to call to snapshot positions
@@ -58,7 +79,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 		},
 	}));
 
-	// useLayoutEffect is synchronous and runs before paint, ideal for FLIP
+	// useLayoutEffect is synchronous and runs before paint, ideal for FLIP animations
 	useLayoutEffect(() => {
 		if (!pendingAnimation.current) {
 			return; // No animation pending
@@ -177,7 +198,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 				{sortedGoals.map((goal) => (
 					<div
 						id={`goal-${goal.id}`}
-						key={goal.id}
+						key={goal.id} // Ensure key is stable and unique
 						data-goal-id={goal.id}
 						className={`rounded-xl shadow-md goal-item`}
 						style={{ backgroundColor: goal.color }}

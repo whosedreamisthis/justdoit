@@ -1,6 +1,6 @@
 // app/page.js
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Import useRef
 import BottomTabs from '@/components/bottom-nav';
 import habitsByCategory from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
@@ -31,6 +31,8 @@ export default function App() {
 		return [];
 	});
 
+	const goalsTabRef = useRef(null); // Ref to the GoalsTab component
+
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(() => {
 		if (typeof window !== 'undefined') {
 			const storedTime = localStorage.getItem('lastDailyResetTime');
@@ -42,15 +44,6 @@ export default function App() {
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
-
-	// Function to sort goals after an update
-	const onReSort = () => {
-		setGoals((prevGoals) =>
-			[...prevGoals].sort(
-				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-			)
-		);
-	};
 
 	useEffect(() => {
 		const now = new Date();
@@ -138,17 +131,24 @@ export default function App() {
 	}, [goals, lastDailyResetTime]);
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
+		// Step 1: Tell GoalsTab to snapshot current positions BEFORE we update state
+		if (goalsTabRef.current && goalsTabRef.current.snapshotPositions) {
+			goalsTabRef.current.snapshotPositions();
+		}
+
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.map((goal) =>
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
 
+			// Step 2: Perform the sort
 			const sortedGoals = updatedGoals.sort(
 				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
 			);
 			return sortedGoals;
 		});
 	};
+
 	const handleHabitSelect = (habit) => {
 		const newGoal = {
 			id: habit.id,
@@ -172,8 +172,9 @@ export default function App() {
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab
+							ref={goalsTabRef} // Pass the ref to GoalsTab
 							goals={goals}
-							onReSort={onReSort}
+							onReSort={() => {}} // This can be removed or left as no-op
 							onUpdateGoal={handleUpdateGoal}
 							setGoals={setGoals}
 						/>

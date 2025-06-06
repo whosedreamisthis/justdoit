@@ -308,10 +308,33 @@ body,
 	text-overflow: ellipsis;
 	max-width: min(80%, 500px); /* Adjust based on screen size */
 }
+
 .goal-item {
-	transition: transform 0.5s ease-in-out, opacity 0.3s;
+	/* This ensures that when the transform is applied/removed, it animates smoothly */
+	transition: transform 0.5s ease-out; /* Keep this */
+	position: relative; /* Important for z-index during transition */
+	will-change: transform; /* Hint to the browser for performance */
 }
 
+/* Style for the container when animation is active */
+/* IMPORTANT: Change this selector to apply styles to children of the animating container */
+.is-animating-container .goal-item {
+	z-index: 10; /* Keep the animating goals above others */
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a subtle lift */
+}
+
+/* REMOVE THIS, as it's no longer used for the new animation approach */
+/* .goal-item.moving-up {
+    transform: translateY(-30px);
+    opacity: 0.8;
+} */
+
+/* ADD THIS: Style for the container when animation is active */
+.is-animating .goal-item {
+	z-index: 10; /* Ensures the moving item is above others */
+	/* You can add more styles here if you want visual feedback, e.g., box-shadow */
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 .goal-item.moving-up {
 	transform: translateY(-30px); /* Animates upward */
 	opacity: 0.8; /* Makes transition noticeable */

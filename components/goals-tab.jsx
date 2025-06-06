@@ -1,37 +1,133 @@
 // goals-tab.jsx
-import { useState, useEffect, useRef, useMemo } from 'react';
+'use client';
+import {
+	useState,
+	useEffect,
+	useRef,
+	useMemo,
+	useImperativeHandle,
+	forwardRef,
+	useLayoutEffect,
+} from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
 
-export default function GoalsTab({
-	goals,
-	onEdit,
-	onReSort,
-	setGoals,
-	onUpdateGoal,
-}) {
+// Use forwardRef to receive the ref from the parent (App.js)
+const GoalsTab = forwardRef(function GoalsTab(
+	{
+		goals,
+		onEdit,
+		onReSort, // Can effectively be removed now
+		setGoals,
+		onUpdateGoal,
+	},
+	ref
+) {
 	const [expandedGoal, setExpandedGoal] = useState(null);
-	// Removed: const [movingGoal, setMovingGoal] = useState(null);
-	// Removed: const [transitioningGoals, setTransitioningGoals] = useState([]);
-
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
 	);
-	const goalRefs = useRef({});
+	const goalRefs = useRef({}); // Stores references to goal DOM elements
+	const prevGoalPositions = useRef({}); // Stores positions BEFORE DOM update (the "First" position)
+	const pendingAnimation = useRef(false); // Flag to indicate an animation is queued
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
-		return day === 0 ? 6 : day - 1;
+		return day === 0 ? 6 : day - 1; // Adjust to make Monday=0, Sunday=6
 	}
 
-	// Create a sorted copy of `goals` using useMemo
-	// This useMemo is now purely for display in GoalsTab and not for triggering main state sort
+	// Use useMemo to create a sorted copy of goals for display.
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort(
 			(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
 		);
-	}, [goals]); // Re-sorts whenever `goals` changes
+	}, [goals]);
 
+	// Expose a method for the parent to call to snapshot positions
+	useImperativeHandle(ref, () => ({
+		snapshotPositions: () => {
+			for (const goal of sortedGoals) {
+				// Snapshot current positions of displayed goals
+				const node = goalRefs.current[goal.id];
+				if (node) {
+					prevGoalPositions.current[goal.id] =
+						node.getBoundingClientRect();
+				}
+			}
+			pendingAnimation.current = true; // Signal that an animation is about to happen
+		},
+	}));
+
+	// useLayoutEffect is synchronous and runs before paint, ideal for FLIP
+	useLayoutEffect(() => {
+		if (!pendingAnimation.current) {
+			return; // No animation pending
+		}
+
+		const cleanupFunctions = [];
+		let anyGoalMoved = false;
+
+		// Loop through the *newly sorted* goals to find their current ("Last") positions
+		for (const goal of sortedGoals) {
+			const node = goalRefs.current[goal.id];
+			const prevRect = prevGoalPositions.current[goal.id];
+
+			if (node && prevRect) {
+				const currentRect = node.getBoundingClientRect();
+
+				// Check if the goal's position actually changed
+				if (
+					prevRect.top !== currentRect.top ||
+					prevRect.left !== currentRect.left
+				) {
+					anyGoalMoved = true;
+
+					// INVERT: Calculate the delta and apply transform instantly
+					const deltaX = prevRect.left - currentRect.left;
+					const deltaY = prevRect.top - currentRect.top;
+
+					node.style.transition = 'none'; // Disable transition temporarily
+					node.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+					// FORCE REFLOW: Critical for making the "invert" visible before "play"
+					// Accessing any layout property forces a synchronous reflow.
+					node.offsetHeight;
+
+					// PLAY: Re-enable transition and animate to its new (final) position
+					node.style.transition = 'transform 0.5s ease-out'; // Match CSS duration
+					node.style.transform = 'translate(0, 0)'; // Animate to final identity transform
+
+					// Clean up inline styles after animation completes
+					const onTransitionEnd = () => {
+						node.style.transition = ''; // Remove inline transition
+						node.style.transform = ''; // Remove inline transform
+						node.removeEventListener(
+							'transitionend',
+							onTransitionEnd
+						);
+					};
+
+					node.addEventListener('transitionend', onTransitionEnd);
+					cleanupFunctions.push(() =>
+						node.removeEventListener(
+							'transitionend',
+							onTransitionEnd
+						)
+					);
+				}
+			}
+		}
+
+		// Clear previous positions and reset pending flag after processing
+		prevGoalPositions.current = {};
+		pendingAnimation.current = false; // Reset the flag once animation is initiated
+
+		return () => {
+			cleanupFunctions.forEach((fn) => fn());
+		};
+	}, [sortedGoals]); // Rerun when sortedGoals changes
+
+	// Effect for daily day index update (existing logic, no change needed)
 	useEffect(() => {
 		const now = new Date();
 		const midnightToday = new Date(
@@ -52,47 +148,13 @@ export default function GoalsTab({
 		return () => clearTimeout(dayUpdaterTimer);
 	}, []);
 
-	// The `updateProgress` function here is now redundant for general progress updates
-	// as MinimizableGoalCard now calls onUpdateGoal directly.
-	// It can be kept if other components/logic still rely on it, but for goals progress,
-	// onUpdateGoal is the primary path.
 	const updateProgress = (goalId, newProgress) => {
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
-				goal.id === goalId
-					? {
-							...goal,
-							progress: newProgress ?? 0,
-							isCompleted: newProgress >= 100,
-					  }
-					: goal
-			);
-
-			const sortedGoals = updatedGoals.sort(
-				(a, b) => (a.isCompleted ? 1 : -1) - (b.isCompleted ? 1 : -1)
-			);
-
-			localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
-			return sortedGoals;
-		});
+		const updatedGoalData = {
+			progress: newProgress ?? 0,
+			isCompleted: newProgress >= 100,
+		};
+		onUpdateGoal(goalId, updatedGoalData);
 	};
-
-	// Removed: moveCompletedGoal and moveIncompleteGoal functions as they are no longer needed
-	// const moveCompletedGoal = (goalId) => {
-	// 	setTransitioningGoals((prev) => [...prev, goalId]);
-	// 	setTimeout(() => {
-	// 		onReSort(); // Trigger re-sort in parent
-	// 		setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
-	// 	}, 300);
-	// };
-
-	// const moveIncompleteGoal = (goalId) => {
-	// 	setTransitioningGoals((prev) => [...prev, goalId]);
-	// 	setTimeout(() => {
-	// 		onReSort(); // Trigger re-sort in parent
-	// 		setTransitioningGoals((prev) => prev.filter((id) => id !== goalId));
-	// 	}, 300);
-	// };
 
 	const handleDelete = (goalId) => {
 		setGoals((prevGoals) => {
@@ -112,15 +174,12 @@ export default function GoalsTab({
 				Track Your Goals
 			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
-				{sortedGoals.map((goal, index) => (
+				{sortedGoals.map((goal) => (
 					<div
 						id={`goal-${goal.id}`}
 						key={goal.id}
 						data-goal-id={goal.id}
-						className={`rounded-xl shadow-md goal-item ${
-							// Removed: transitioningGoals.includes(goal.id) ? 'moving-up' : ''
-							''
-						}`}
+						className={`rounded-xl shadow-md goal-item`}
 						style={{ backgroundColor: goal.color }}
 						ref={(el) => (goalRefs.current[goal.id] = el)}
 					>
@@ -128,11 +187,7 @@ export default function GoalsTab({
 							goal={goal}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
-							// Removed: onComplete={() => moveCompletedGoal(goal.id)}
-							// Removed: onProgressChange={() => moveIncompleteGoal(goal.id)}
-							updateProgress={(id, newProgress) =>
-								updateProgress(id, newProgress)
-							}
+							updateProgress={updateProgress}
 							onDelete={handleDelete}
 							onUpdateGoal={onUpdateGoal}
 						/>
@@ -141,4 +196,6 @@ export default function GoalsTab({
 			</div>
 		</div>
 	);
-}
+}); // Don't forget to close forwardRef
+
+export default GoalsTab;

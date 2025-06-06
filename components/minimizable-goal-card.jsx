@@ -98,6 +98,7 @@ export default function MinimizableGoalCard({
 					? 'max-h-[500px] overflow-auto z-10'
 					: 'max-h-32 overflow-hidden z-0 shadow-none'
 			}`}
+			style={{ backgroundColor: isEditing ? editedColor : goal.color }}
 			onClick={() => {
 				if (!isEditing) {
 					onExpand();

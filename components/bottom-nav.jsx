@@ -23,7 +23,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 		<div className="tab-buttons fixed su shadow-lg flex justify-around">
 			{tabs.map((tab) => (
 				<button
-					key={tab.id}
+					key={tab.id + Date.now().toString()}
 					className={`flex-1 text-center py-3 font-semibold text-lg transition-all ${
 						activeTab === tab.id
 							? 'active-tab'

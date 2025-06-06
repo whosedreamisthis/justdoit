@@ -231,7 +231,7 @@ export default function App() {
 
 	const handleHabitSelect = (habit) => {
 		const newGoal = {
-			id: habit.id,
+			id: habit.id + Date.now().toString(),
 			title: habit.title,
 			color: habit.color,
 			description: habit.description,

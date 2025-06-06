@@ -104,7 +104,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 							<div className="mt-2 space-y-2 habits-container">
 								{habitsByCategory[category].map((habit) => (
 									<div
-										key={habit.id}
+										key={habit.id + Date.now().toString()}
 										ref={(el) =>
 											(cardRefs.current[habit.id] = el)
 										}

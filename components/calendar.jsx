@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '@/app/globals.css';
+import styles from '@/styles/calendar.module.css';
 
 // Accept completedDays, goalId, and onUpdateGoal as props
 function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
@@ -41,7 +42,7 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 
 						if (isDayCompleted(year, month, day)) {
 							// This will now correctly check completedDays[year][month + 1][day]
-							return 'completed-day';
+							return `${styles.completedDay}`; //'completed-day';
 						}
 					}
 					return null;

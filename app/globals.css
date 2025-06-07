@@ -238,18 +238,6 @@ body,
 	max-width: 250px;
 }
 
-.progress-complete {
-	color: green;
-}
-.progress-incomplete {
-	color: #779ecb;
-}
-
-.stats-item {
-	border-color: #3b3b3b;
-	border-width: 1px;
-}
-
 .react-calendar {
 	color: #333; /* Darker text */
 }
@@ -326,34 +314,4 @@ body,
 .highlighted-cell {
 	background-color: lightblue;
 	color: white;
-}
-
-/* You might want to adjust hover/active states for completed days too */
-.react-calendar__tile.completed-day:hover,
-.react-calendar__tile.completed-day:active {
-	background-color: #a8e6a0; /* Slightly darker green on hover/active */
-	color: white;
-}
-
-/* Override default react-calendar selected styles if needed (as discussed before) */
-.react-calendar__tile--active {
-	background-color: transparent !important;
-	color: inherit !important;
-}
-.react-calendar__tile:hover:not(.highlighted-cell):not(.completed-day):not(
-		.react-calendar__tile--active
-	) {
-	background-color: #f0f0f0; /* Default hover for non-highlighted/completed */
-}
-.react-calendar__tile--active.completed-day {
-	background-color: #a8e6a0 !important;
-}
-
-.react-calendar__tile--hasActive.completed-day {
-	background-color: #a8e6a0 !important;
-}
-
-.react-calendar__tile:enabled:hover.completed-day,
-.react-calendar__tile:enabled:focus.completed-day {
-	background-color: #a8e6a0 !important; /* A slightly different shade for hover/focus */
 }

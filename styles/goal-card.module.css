@@ -5,3 +5,10 @@
 	color: black;
 	width: '50px';
 }
+
+.progressComplete {
+	color: green;
+}
+.progressIncomplete {
+	color: #779ecb;
+}

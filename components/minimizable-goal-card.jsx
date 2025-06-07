@@ -261,8 +261,8 @@ export default function MinimizableGoalCard({
 						}
 						className={`far ${styles.goalCardIcon} z-20 ${
 							goal.progress === 100
-								? 'progress-complete'
-								: 'progress-incomplete'
+								? styles.progressComplete
+								: styles.progressIncomplete
 						}`}
 						onClick={toggleProgress}
 					/>

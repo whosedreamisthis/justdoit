@@ -126,9 +126,9 @@ export default function MinimizableCustomCard({
 
 					{/* Add Button */}
 					<div className="flex flex-col h-full rounded-lg">
-						<div className="add-button-container flex flex-row justify-end items-end gap-2">
+						<div className="flex flex-row justify-end items-end gap-2">
 							<button
-								className="add-button"
+								className={`styles.addButton`}
 								onClick={handleAddCustomHabit}
 							>
 								Add

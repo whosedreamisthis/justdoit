@@ -2,6 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- ADD THIS IMPORT
+import styles from '@/styles/explore-card.module.css';
 
 export default function MinimizableCard({
 	index,
@@ -31,9 +32,11 @@ export default function MinimizableCard({
 
 			{isExpanded && (
 				<div className="flex flex-col h-full rounded-lg">
-					<div className="add-button-container flex flex-row justify-end items-end gap-2">
+					<div
+						className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
+					>
 						<button
-							className="add-button"
+							className={`${styles.addButton}`}
 							onClick={(e) => {
 								e.stopPropagation(); // Prevent card collapse
 								onSelect(habit);

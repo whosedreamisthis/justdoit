@@ -1,6 +1,7 @@
 // profile-tab.jsx
 'use client';
 import '@/app/globals.css';
+import styles from '@/styles/profile-tab.module.css';
 import {
 	SignInButton,
 	SignUpButton,
@@ -13,7 +14,9 @@ import {
 export default function ProfileTab() {
 	return (
 		// The main container should have your background color if it's not inherited
-		<div className="profile-tab p-6 bg-subtle-background min-h-screen flex flex-col items-center justify-center">
+		<div
+			className={`${styles.profileTab} p-6 bg-subtle-background min-h-screen flex flex-col items-center justify-center`}
+		>
 			<h2 className="text-3xl font-bold text-primary mb-6">
 				Profile & Account
 			</h2>

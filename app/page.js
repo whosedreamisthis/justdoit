@@ -14,34 +14,86 @@ import Header from '@/components/header'; // Import the new Header component
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
-
-	const goalsTabRef = useRef(null); // Ref to the GoalsTab component
+	const goalsTabRef = useRef(null);
 
 	// --- Helper function for consistent goal sorting ---
 	const sortGoals = (goalsArray) => {
 		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
 		const completed = goalsArray.filter((goal) => goal.isCompleted);
 
-		// Sort incomplete goals: Newest first (descending createdAt)
 		incomplete.sort(
 			(a, b) =>
 				new Date(b.createdAt).getTime() -
 				new Date(a.createdAt).getTime()
 		);
-
-		// Sort completed goals: Oldest first (ascending createdAt)
 		completed.sort(
 			(a, b) =>
 				new Date(a.createdAt).getTime() -
 				new Date(b.createdAt).getTime()
 		);
 
-		// Concatenate to put incomplete goals first, then completed goals
 		return [...incomplete, ...completed];
 	};
 
+	// --- MODIFIED: Initialize with empty array/null, load from localStorage in useEffect ---
 	const [goals, setGoals] = useState([]);
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
+
+	// --- NEW: Function to handle daily goal reset logic ---
+	const checkAndResetDailyGoals = () => {
+		const now = new Date();
+		const todayMidnight = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			0,
+			0,
+			0
+		);
+
+		// Convert lastDailyResetTime to a "midnight" date for comparison, if it exists
+		const lastResetDate = lastDailyResetTime
+			? new Date(
+					lastDailyResetTime.getFullYear(),
+					lastDailyResetTime.getMonth(),
+					lastDailyResetTime.getDate(),
+					0,
+					0,
+					0
+			  )
+			: null;
+
+		// Condition for reset:
+		// 1. lastResetDate exists AND is from a day *before* today (i.e., less than todayMidnight)
+		// OR
+		// 2. lastResetDate does NOT exist (first time opening app or localStorage cleared)
+		const shouldReset =
+			!lastResetDate || lastResetDate.getTime() < todayMidnight.getTime();
+
+		if (shouldReset) {
+			console.log('Midnight Reset Triggered or First Time Reset!');
+
+			setGoals((prevGoals) => {
+				const updatedGoals = prevGoals.map((goal) =>
+					goal.isCompleted // Only reset goals that were completed yesterday or earlier
+						? { ...goal, progress: 0, isCompleted: false }
+						: goal
+				);
+
+				const sortedGoals = sortGoals(updatedGoals);
+				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
+
+				// Always set lastDailyResetTime to *today's* midnight after a reset
+				setLastDailyResetTime(todayMidnight);
+				localStorage.setItem(
+					'lastDailyResetTime',
+					todayMidnight.toISOString()
+				);
+
+				return sortedGoals;
+			});
+		}
+	};
 
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
@@ -62,56 +114,59 @@ export default function App() {
 		const storedTime = localStorage.getItem('lastDailyResetTime');
 		if (storedTime) {
 			setLastDailyResetTime(new Date(storedTime));
+		} else {
+			// If no lastDailyResetTime is found, initialize it to prevent skipping first reset
+			// This ensures checkAndResetDailyGoals runs on first app open
+			setLastDailyResetTime(
+				new Date(
+					new Date().getFullYear(),
+					new Date().getMonth(),
+					new Date().getDate(),
+					0,
+					0,
+					0
+				)
+			);
 		}
 	}, []); // Empty dependency array: runs once on client mount
+
+	// --- useEffect to run reset check whenever lastDailyResetTime changes ---
+	useEffect(() => {
+		// This effect will now trigger checkAndResetDailyGoals when lastDailyResetTime is set
+		// (either initially from localStorage, or after a reset)
+		if (lastDailyResetTime) {
+			// Only run if lastDailyResetTime has been initialized
+			checkAndResetDailyGoals();
+		}
+	}, [lastDailyResetTime]); // Dependency: lastDailyResetTime
+
+	// --- New: Listen for browser tab visibility changes (user returns to tab) ---
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === 'visible') {
+				console.log('Tab became visible. Checking for daily reset...');
+				checkAndResetDailyGoals();
+			}
+		};
+
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		return () => {
+			document.removeEventListener(
+				'visibilitychange',
+				handleVisibilityChange
+			);
+		};
+	}, []); // Empty dependency array: runs once on mount/unmount
 
 	// --- Existing useEffect for scrolling to top on tab change ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
 
-	// --- Existing useEffect for daily reset logic ---
-	useEffect(() => {
-		if (!lastDailyResetTime) return;
-
-		const now = new Date();
-		const midnight = new Date(
-			now.getFullYear(),
-			now.getMonth(),
-			now.getDate(),
-			0,
-			0,
-			0
-		);
-
-		if (
-			now.getTime() > midnight.getTime() &&
-			lastDailyResetTime.getTime() < midnight.getTime()
-		) {
-			console.log('Midnight Reset Triggered!');
-
-			setGoals((prevGoals) => {
-				const updatedGoals = prevGoals.map((goal) =>
-					goal.isCompleted
-						? { ...goal, progress: 0, isCompleted: false }
-						: goal
-				);
-
-				const sortedGoals = sortGoals(updatedGoals);
-				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
-				setLastDailyResetTime(midnight);
-				localStorage.setItem(
-					'lastDailyResetTime',
-					midnight.toISOString()
-				);
-
-				return sortedGoals;
-			});
-		}
-	}, [lastDailyResetTime]);
-
 	// --- Existing useEffect for saving goals and lastDailyResetTime to localStorage ---
 	useEffect(() => {
+		// This effect runs on *every* change to goals or lastDailyResetTime.
 		localStorage.setItem('userGoals', JSON.stringify(goals));
 		if (lastDailyResetTime) {
 			localStorage.setItem(
@@ -123,26 +178,19 @@ export default function App() {
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
 		// Step 1: Capture "First" positions immediately BEFORE the state update that causes reordering.
-		// This is the CRUCIAL step for FLIP. It must happen *before* setGoals is called with the new order.
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
 
 		// Step 2: Update the state with the goal's new properties AND the *new sorted order* simultaneously.
-		// This is the "Last" step for FLIP. React will then re-render, and the FLIP
-		// animation library (if correctly implemented in GoalsTab's useLayoutEffect)
-		// should animate the movement from the "First" position to this "Last" position.
 		setGoals((prevGoals) => {
 			const updatedList = prevGoals.map((goal) =>
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
-			return sortGoals(updatedList); // Apply the consistent sort here
+			return sortGoals(updatedList);
 		});
 
-		// Step 3: Trigger scrollIntoView after the FLIP animation has had time to complete.
-		// This delay should be at least as long as your FLIP animation duration.
-		// A typical CSS transition for FLIP is 300ms, so 350ms gives a small buffer.
-		// Adjust this delay based on your actual animation duration
+		// Removed the setTimeout block for scrollIntoView
 	};
 
 	const handleHabitSelect = (habit) => {

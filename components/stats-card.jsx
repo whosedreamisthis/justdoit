@@ -24,17 +24,3 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 		</div>
 	);
 }
-{
-	/* <h2 className="text-lg font-bold text-gray-800">{goal.title}</h2>
-			<div className="grid grid-cols-7 gap-1 w-fit">
-				{daysArray.map((day, index) => (
-					<div
-						key={index}
-						className={`w-4 h-4 rounded-sm stats-item ${
-							day ? 'bg-green-500' : 'bg-red-500'
-						}`}
-					></div>
-				))}
-			</div> */
-}
-// </div>

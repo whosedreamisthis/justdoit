@@ -120,10 +120,7 @@ body::-webkit-scrollbar {
 	height: 30px;
 	text-align: center;
 }
-.active-tab {
-	background-color: #3b3b3b; /* Sandstone */
-	color: #f3dac4; /* Text stays readable */
-}
+
 .scroll-container {
 	overflow-y: auto;
 	scrollbar-width: none; /* Firefox */
@@ -141,24 +138,6 @@ body::-webkit-scrollbar {
 	/* bottom: 0; */
 	width: 100%;
 	z-index: 1000; /* ✅ Ensures it's above overlapping content */
-}
-
-.tab-buttons {
-	position: fixed;
-	border-width: 2px;
-	border-color: #b1907f;
-	border-bottom: 0px;
-	border-left: 0px;
-	border-right: 0px;
-
-	bottom: 0;
-	width: 100%;
-	display: flex;
-	justify-content: space-around; /* ✅ Even spacing for buttons */
-	/* padding: 10px 0; */
-	z-index: 1000; /* ✅ Ensures tab buttons stay on top */
-	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
-	background-color: #f3dac4;
 }
 
 .expand-arrow {

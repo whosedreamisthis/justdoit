@@ -28,29 +28,22 @@ export default function App() {
 							? goal.isCompleted
 							: goal.progress >= 100,
 					completedDays: goal.completedDays || {},
-					// Add createdAt for existing goals if missing (important for sorting)
 					createdAt: goal.createdAt || new Date().toISOString(),
 				}));
 
-				// Initial sort after loading to ensure consistency from the start
 				return loadedGoals.sort((a, b) => {
-					// Primary sort: Incomplete goals first (-1)
 					const completionA = a.isCompleted ? 1 : -1;
 					const completionB = b.isCompleted ? 1 : -1;
 					if (completionA !== completionB) {
 						return completionA - completionB;
 					}
 
-					// Secondary sort for incomplete goals: Newest (largest timestamp) first
 					if (!a.isCompleted && !b.isCompleted) {
 						return (
 							new Date(b.createdAt).getTime() -
 							new Date(a.createdAt).getTime()
 						);
-					}
-					// Secondary sort for completed goals: Oldest (smallest timestamp) first
-					// This keeps recently completed items at the very bottom of the completed section.
-					else {
+					} else {
 						return (
 							new Date(a.createdAt).getTime() -
 							new Date(b.createdAt).getTime()
@@ -76,101 +69,40 @@ export default function App() {
 
 	useEffect(() => {
 		const now = new Date();
-		const getMidnightForDate = (date) =>
-			new Date(
-				date.getFullYear(),
-				date.getMonth(),
-				date.getDate(),
-				0,
-				0,
-				0
-			);
-		const todayMidnight = getMidnightForDate(now);
-		let shouldPerformDailyReset = false;
+		const midnight = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			0,
+			0,
+			0
+		);
 
-		if (lastDailyResetTime) {
-			const lastResetMidnight = getMidnightForDate(lastDailyResetTime);
-			if (todayMidnight.getTime() > lastResetMidnight.getTime()) {
-				shouldPerformDailyReset = true;
-			}
-		}
+		// Only reset completed goals exactly at midnight
+		if (
+			lastDailyResetTime &&
+			now.getTime() > midnight.getTime() &&
+			lastDailyResetTime.getTime() < midnight.getTime()
+		) {
+			console.log('Midnight Reset Triggered!');
 
-		if (shouldPerformDailyReset) {
-			console.log('Missed Daily Reset Detected! Applying now.');
 			setGoals((prevGoals) => {
-				const updatedGoals = prevGoals.map((goal) => ({
-					...goal,
-					progress: 0,
-					isCompleted: false,
-				}));
-
-				const sortedGoals = updatedGoals.sort((a, b) => {
-					const completionA = a.isCompleted ? 1 : -1;
-					const completionB = b.isCompleted ? 1 : -1;
-					if (completionA !== completionB) {
-						return completionA - completionB;
-					}
-					if (!a.isCompleted && !b.isCompleted) {
-						return (
-							new Date(b.createdAt).getTime() -
-							new Date(a.createdAt).getTime()
-						);
-					} else {
-						return (
-							new Date(a.createdAt).getTime() -
-							new Date(b.createdAt).getTime()
-						);
-					}
-				});
-
-				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
-				setLastDailyResetTime(todayMidnight);
-				localStorage.setItem(
-					'lastDailyResetTime',
-					todayMidnight.toISOString()
+				const updatedGoals = prevGoals.map((goal) =>
+					goal.isCompleted
+						? { ...goal, progress: 0, isCompleted: false }
+						: goal
 				);
 
-				return sortedGoals;
+				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				setLastDailyResetTime(midnight);
+				localStorage.setItem(
+					'lastDailyResetTime',
+					midnight.toISOString()
+				);
+
+				return updatedGoals;
 			});
 		}
-
-		const timeUntilDailyReset =
-			todayMidnight.getTime() + 24 * 60 * 60 * 1000 - now.getTime();
-		const dailyTimerId = setTimeout(() => {
-			setGoals((prevGoals) => {
-				const resetGoals = prevGoals.map((goal) => ({
-					...goal,
-					progress: 0,
-					isCompleted: false,
-				}));
-
-				const sortedGoals = resetGoals.sort((a, b) => {
-					const completionA = a.isCompleted ? 1 : -1;
-					const completionB = b.isCompleted ? 1 : -1;
-					if (completionA !== completionB) {
-						return completionA - completionB;
-					}
-					if (!a.isCompleted && !b.isCompleted) {
-						return (
-							new Date(b.createdAt).getTime() -
-							new Date(a.createdAt).getTime()
-						);
-					} else {
-						return (
-							new Date(a.createdAt).getTime() -
-							new Date(b.createdAt).getTime()
-						);
-					}
-				});
-
-				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
-				setLastDailyResetTime(new Date());
-				console.log('Daily Reset Triggered!');
-				return sortedGoals;
-			});
-		}, timeUntilDailyReset);
-
-		return () => clearTimeout(dailyTimerId);
 	}, [lastDailyResetTime]);
 
 	useEffect(() => {
@@ -188,7 +120,6 @@ export default function App() {
 	}, [goals, lastDailyResetTime]);
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
-		// Step 1: Tell GoalsTab to snapshot current positions BEFORE we update state
 		if (
 			activeTab === 'goals' &&
 			goalsTabRef.current &&
@@ -202,24 +133,19 @@ export default function App() {
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
 
-			// Step 2: Perform the sort with the new logic
 			const sortedGoals = updatedGoals.sort((a, b) => {
-				// Primary sort: Incomplete goals first
 				const completionA = a.isCompleted ? 1 : -1;
 				const completionB = b.isCompleted ? 1 : -1;
 				if (completionA !== completionB) {
 					return completionA - completionB;
 				}
 
-				// Secondary sort for incomplete goals: Newest (largest timestamp) first
 				if (!a.isCompleted && !b.isCompleted) {
 					return (
 						new Date(b.createdAt).getTime() -
 						new Date(a.createdAt).getTime()
 					);
-				}
-				// Secondary sort for completed goals: Oldest (smallest timestamp) first
-				else {
+				} else {
 					return (
 						new Date(a.createdAt).getTime() -
 						new Date(b.createdAt).getTime()
@@ -239,29 +165,24 @@ export default function App() {
 			progress: 0,
 			isCompleted: false,
 			completedDays: {},
-			createdAt: new Date().toISOString(), // Assign a creation timestamp
+			createdAt: new Date().toISOString(),
 		};
 
 		setGoals((prevGoals) => {
 			const updatedGoals = [...prevGoals, newGoal];
-			// Sort immediately after adding the new goal
 			const sortedGoals = updatedGoals.sort((a, b) => {
-				// Primary sort: Incomplete goals first
 				const completionA = a.isCompleted ? 1 : -1;
 				const completionB = b.isCompleted ? 1 : -1;
 				if (completionA !== completionB) {
 					return completionA - completionB;
 				}
 
-				// Secondary sort for incomplete goals: Newest (largest timestamp) first
 				if (!a.isCompleted && !b.isCompleted) {
 					return (
 						new Date(b.createdAt).getTime() -
 						new Date(a.createdAt).getTime()
 					);
-				}
-				// Secondary sort for completed goals: Oldest (smallest timestamp) first
-				else {
+				} else {
 					return (
 						new Date(a.createdAt).getTime() -
 						new Date(b.createdAt).getTime()
@@ -284,11 +205,11 @@ export default function App() {
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab
-							ref={goalsTabRef} // Pass the ref to GoalsTab
+							ref={goalsTabRef}
 							goals={goals}
-							onReSort={() => {}} // This prop is now redundant as sorting is in App.js
+							onReSort={() => {}}
 							onUpdateGoal={handleUpdateGoal}
-							setGoals={setGoals} // Still needed for handleDelete directly in GoalsTab
+							setGoals={setGoals}
 						/>
 					)}
 					{activeTab === 'explore' && (

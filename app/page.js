@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
+import Header from '@/components/header'; // Import the new Header component
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
@@ -277,6 +278,8 @@ export default function App() {
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
+			<Header />
+
 			<div className="min-h-screen flex flex-col">
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (

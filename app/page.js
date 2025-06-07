@@ -142,17 +142,7 @@ export default function App() {
 		// Step 3: Trigger scrollIntoView after the FLIP animation has had time to complete.
 		// This delay should be at least as long as your FLIP animation duration.
 		// A typical CSS transition for FLIP is 300ms, so 350ms gives a small buffer.
-		setTimeout(() => {
-			const updatedGoalElement = document.getElementById(
-				`goal-${goalId}`
-			);
-			if (updatedGoalElement) {
-				updatedGoalElement.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				});
-			}
-		}, 600); // Adjust this delay based on your actual animation duration
+		// Adjust this delay based on your actual animation duration
 	};
 
 	const handleHabitSelect = (habit) => {

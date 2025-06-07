@@ -30,17 +30,8 @@ body::-webkit-scrollbar {
 	display: none; /* Chrome, Safari */
 }
 
-.goal-container {
-	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-	background-color: #e07a5f; /* Terracotta */
-}
-
 .bg-primary {
 	background-color: #9caf88; /* Sage Green */
-}
-
-.progress-bar {
-	background-color: #d9b44a; /* Ochre Yellow */
 }
 
 .text-primary {
@@ -110,15 +101,6 @@ body::-webkit-scrollbar {
 	color: #f3dac4;
 }
 
-.day-square {
-	background-color: #3b3b3b;
-	height: 40px;
-	width: 40px;
-	z-index: 1000;
-	color: #f3dac4;
-	border-width: 1px;
-	border-radius: 5px;
-}
 html,
 body,
 #root {
@@ -127,25 +109,7 @@ body,
 	margin: 0;
 	padding: 0;
 }
-.day-squares-container {
-	display: flex; /* Makes the container a flex container */
-	flex-direction: row; /* Arranges items in a row (this is the default, but good to be explicit) */
-	/* Optional: How to align items vertically in the row if the parent has height */
-	align-items: center; /* Aligns items to the center vertically */
-	/* Optional: How to distribute space horizontally if there's extra space */
-	justify-content: flex-start; /* Aligns items to the start (left) of the row */
-	/* Or justify-content: center; for horizontally centering the row of squares */
-	/* Or justify-content: space-between; to space them out evenly */
 
-	/* Add any other container styling, e.g., padding */
-	padding-left: 0px;
-	padding-top: 15px;
-	padding-bottom: 15px;
-
-	gap: 12px;
-	/* Optional: If you want the container to wrap to the next line if squares overflow */
-	flex-wrap: wrap;
-}
 .bg-deep-olive {
 	/* Previous: background-color: #4f4a41; (Darker) */
 	background-color: #a48f72; /* ✅ Lighter earthy gray/brown (matches expand-arrow color) */
@@ -161,81 +125,6 @@ body,
 
 .button-secondary-light {
 	background-color: #b08e77;
-}
-
-.day-square-filled-green {
-	background-color: #77dd77; /* Or your preferred deep pastel green hex code */
-}
-.title {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: min(80%, 500px); /* Adjust based on screen size */
-}
-
-/* Style for the container when animation is active */
-/* IMPORTANT: Change this selector to apply styles to children of the animating container */
-.is-animating-container .goal-item {
-	z-index: 10; /* Keep the animating goals above others */
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a subtle lift */
-}
-
-/* REMOVE THIS, as it's no longer used for the new animation approach */
-/* .goal-item.moving-up {
-    transform: translateY(-30px);
-    opacity: 0.8;
-} */
-
-/* ADD THIS: Style for the container when animation is active */
-.is-animating .goal-item {
-	z-index: 10; /* Ensures the moving item is above others */
-	/* You can add more styles here if you want visual feedback, e.g., box-shadow */
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-.goal-item.moving-up {
-	transform: translateY(-30px); /* Animates upward */
-	opacity: 0.8; /* Makes transition noticeable */
-}
-
-.day-square {
-	/* Current or previous size */
-	width: 16px; /* Example: adjust as needed */
-	height: 16px; /* Example: adjust as needed */
-	border: 1px solid #fff; /* Example: your border style */
-	background-color: #f0f0f0; /* Example: default background */
-	/* Add other styles like border-radius, etc. if you have them */
-
-	/* To make them slightly larger, increase width and height */
-	width: 20px; /* Increased from 16px */
-	height: 20px; /* Increased from 16px */
-}
-
-/* Make sure this class is defined as well for completed squares */
-.day-square-filled-green {
-	background-color: #4caf50; /* Example green color */
-}
-
-/* The container holding the squares might also need adjustments for spacing */
-.day-squares-container {
-	display: flex;
-
-	gap: 5px; /* Adjust gap as needed if squares become too close */
-	/* original was gap-10, which might be too large for larger squares */
-	/* Consider changing gap: 10px; to something smaller like gap: 5px; if they are too spread out */
-}
-.profile-tab,
-.explore-container {
-	overflow: hidden;
-	scrollbar-width: none; /* Firefox */
-}
-
-.profile-tab::-webkit-scrollbar,
-.explore-container::-webkit-scrollbar {
-	display: none; /* Chrome, Safari */
-}
-
-.description {
-	max-width: 250px;
 }
 
 .react-calendar {
@@ -260,58 +149,4 @@ body,
 
 .react-calendar__month-view__days__day--weekend {
 	color: black !important; /* Change text color */
-}
-
-.highlighted-cell {
-	background-color: #77dd77 !important;
-	/* max-width: 40px !important; */
-	/* max-height: 40px !important; */
-	display: flex;
-	align-items: center;
-	/* border: 1px solid black !important; */
-	border-radius: 3px;
-	justify-content: center;
-	font-weight: bold;
-	color: black;
-}
-/* MyCalendar.css */
-
-/* Override the active/selected tile background color */
-.react-calendar__tile--active {
-	background-color: transparent !important; /* Prevents the selected tile from changing background */
-	/* You might also want to ensure its text color doesn't change on selection */
-	color: inherit !important; /* Keep the number color the same as unselected tiles */
-}
-
-/* You might also want to remove hover effects if you don't want any visual change on hover */
-.react-calendar__tile:hover:not(.highlighted-cell):not(
-		.react-calendar__tile--active
-	) {
-	background-color: transparent !important;
-}
-
-/* Your existing highlighted cell style */
-
-/* Optional: If you had any previous disabled styles, you can remove or comment them out now */
-/*
-.react-calendar__tile--disabled {
-  background-color: transparent !important;
-  color: inherit !important;
-  cursor: default !important;
-}
-*/
-.completed-day {
-	background-color: #a8e6a0 !important; /* Example: Green background for completed days */
-	color: white !important; /* Example: White text for completed days */
-	border-radius: 5px;
-	/* background-color: black !important; */
-	border-color: #3b3b3b !important;
-	border-width: 5px !important;
-	border: 2px solid black !important;
-}
-
-/* Ensure the highlighted-cell is still distinct, if you keep it */
-.highlighted-cell {
-	background-color: lightblue;
-	color: white;
 }

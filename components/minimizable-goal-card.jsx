@@ -110,7 +110,7 @@ export default function MinimizableGoalCard({
 				className="absolute inset-0 transition-all h-full"
 				style={{
 					width: `${goal.progress}%`,
-					backgroundColor: 'red' /*#A7C7E7'*/,
+					backgroundColor: '#A7C7E7',
 					borderRadius: 'inherit',
 				}}
 			></div>

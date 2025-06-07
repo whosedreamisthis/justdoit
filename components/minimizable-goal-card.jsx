@@ -30,7 +30,6 @@ export default function MinimizableGoalCard({
 
 	const titleInputRef = useRef(null);
 	const cardRef = ScrollOnExpand(isExpanded);
-
 	useEffect(() => {
 		setEditedTitle(goal.title);
 		setEditedDescription(goal.description || '');
@@ -78,13 +77,42 @@ export default function MinimizableGoalCard({
 
 	const toggleProgress = (e) => {
 		e.stopPropagation();
-		const newProgress = goal.progress === 100 ? 0 : 100;
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth() + 1; // getMonth() is zero-based, so add 1
+		const day = now.getDate();
+
+		let newProgress = goal.progress === 100 ? 0 : 100;
+		let newCompletedDays = { ...goal.completedDays };
+
+		if (newProgress === 100) {
+			// Mark today's date as completed
+			if (!newCompletedDays[year]) newCompletedDays[year] = {};
+			if (!newCompletedDays[year][month])
+				newCompletedDays[year][month] = {};
+			newCompletedDays[year][month][day] = true;
+		} else {
+			// Remove today's date if toggled off
+			if (newCompletedDays[year]?.[month]?.[day]) {
+				delete newCompletedDays[year][month][day];
+
+				// Cleanup empty month/year objects
+				if (Object.keys(newCompletedDays[year][month]).length === 0) {
+					delete newCompletedDays[year][month];
+				}
+				if (Object.keys(newCompletedDays[year]).length === 0) {
+					delete newCompletedDays[year];
+				}
+			}
+		}
 
 		const updatedGoal = {
 			...goal,
 			progress: newProgress,
 			isCompleted: newProgress >= 100,
+			completedDays: newCompletedDays,
 		};
+
 		onUpdateGoal(goal.id, updatedGoal);
 	};
 
@@ -161,15 +189,17 @@ export default function MinimizableGoalCard({
 					</div>
 
 					{/* Color Selection */}
-					<div className="mb-4">
-						<label className="block text-sm font-medium text-gray-700">
-							Card Color:
-						</label>
-						<ColorSquares
-							setColor={setEditedColor}
-							selectedColor={editedColor}
-						/>
-					</div>
+					{!goal.isCompleted && (
+						<div className="mb-4">
+							<label className="block text-sm font-medium text-gray-700">
+								Card Color:
+							</label>
+							<ColorSquares
+								setColor={setEditedColor}
+								selectedColor={editedColor}
+							/>
+						</div>
+					)}
 				</div>
 			) : (
 				<>

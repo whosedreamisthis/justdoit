@@ -41,7 +41,6 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 
 						if (isDayCompleted(year, month, day)) {
 							// This will now correctly check completedDays[year][month + 1][day]
-							console.log('IS DDAY COMPLETED');
 							return 'completed-day';
 						}
 					}

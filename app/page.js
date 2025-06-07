@@ -17,57 +17,63 @@ export default function App() {
 
 	const goalsTabRef = useRef(null); // Ref to the GoalsTab component
 
-	const [goals, setGoals] = useState(() => {
-		if (typeof window !== 'undefined') {
-			const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
-			if (storedGoals && storedGoals.length > 0) {
-				const loadedGoals = storedGoals.map((goal) => ({
-					...goal,
-					isCompleted:
-						typeof goal.isCompleted === 'boolean'
-							? goal.isCompleted
-							: goal.progress >= 100,
-					completedDays: goal.completedDays || {},
-					createdAt: goal.createdAt || new Date().toISOString(),
-				}));
+	// --- Helper function for consistent goal sorting ---
+	const sortGoals = (goalsArray) => {
+		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
+		const completed = goalsArray.filter((goal) => goal.isCompleted);
 
-				return loadedGoals.sort((a, b) => {
-					const completionA = a.isCompleted ? 1 : -1;
-					const completionB = b.isCompleted ? 1 : -1;
-					if (completionA !== completionB) {
-						return completionA - completionB;
-					}
+		// Sort incomplete goals: Newest first (descending createdAt)
+		incomplete.sort(
+			(a, b) =>
+				new Date(b.createdAt).getTime() -
+				new Date(a.createdAt).getTime()
+		);
 
-					if (!a.isCompleted && !b.isCompleted) {
-						return (
-							new Date(b.createdAt).getTime() -
-							new Date(a.createdAt).getTime()
-						);
-					} else {
-						return (
-							new Date(a.createdAt).getTime() -
-							new Date(b.createdAt).getTime()
-						);
-					}
-				});
-			}
+		// Sort completed goals: Oldest first (ascending createdAt)
+		completed.sort(
+			(a, b) =>
+				new Date(a.createdAt).getTime() -
+				new Date(b.createdAt).getTime()
+		);
+
+		// Concatenate to put incomplete goals first, then completed goals
+		return [...incomplete, ...completed];
+	};
+
+	const [goals, setGoals] = useState([]);
+	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
+
+	// --- useEffect for loading initial state from localStorage (client-side only) ---
+	useEffect(() => {
+		const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
+		if (storedGoals && storedGoals.length > 0) {
+			const loadedGoals = storedGoals.map((goal) => ({
+				...goal,
+				isCompleted:
+					typeof goal.isCompleted === 'boolean'
+						? goal.isCompleted
+						: goal.progress >= 100,
+				completedDays: goal.completedDays || {},
+				createdAt: goal.createdAt || new Date().toISOString(),
+			}));
+			setGoals(sortGoals(loadedGoals));
 		}
-		return [];
-	});
 
-	const [lastDailyResetTime, setLastDailyResetTime] = useState(() => {
-		if (typeof window !== 'undefined') {
-			const storedTime = localStorage.getItem('lastDailyResetTime');
-			return storedTime ? new Date(storedTime) : null;
+		const storedTime = localStorage.getItem('lastDailyResetTime');
+		if (storedTime) {
+			setLastDailyResetTime(new Date(storedTime));
 		}
-		return null;
-	});
+	}, []); // Empty dependency array: runs once on client mount
 
+	// --- Existing useEffect for scrolling to top on tab change ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
 
+	// --- Existing useEffect for daily reset logic ---
 	useEffect(() => {
+		if (!lastDailyResetTime) return;
+
 		const now = new Date();
 		const midnight = new Date(
 			now.getFullYear(),
@@ -78,9 +84,7 @@ export default function App() {
 			0
 		);
 
-		// Only reset completed goals exactly at midnight
 		if (
-			lastDailyResetTime &&
 			now.getTime() > midnight.getTime() &&
 			lastDailyResetTime.getTime() < midnight.getTime()
 		) {
@@ -93,24 +97,22 @@ export default function App() {
 						: goal
 				);
 
-				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				const sortedGoals = sortGoals(updatedGoals);
+				localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
 				setLastDailyResetTime(midnight);
 				localStorage.setItem(
 					'lastDailyResetTime',
 					midnight.toISOString()
 				);
 
-				return updatedGoals;
+				return sortedGoals;
 			});
 		}
 	}, [lastDailyResetTime]);
 
+	// --- Existing useEffect for saving goals and lastDailyResetTime to localStorage ---
 	useEffect(() => {
-		if (goals.length > 0) {
-			localStorage.setItem('userGoals', JSON.stringify(goals));
-		} else {
-			localStorage.removeItem('userGoals');
-		}
+		localStorage.setItem('userGoals', JSON.stringify(goals));
 		if (lastDailyResetTime) {
 			localStorage.setItem(
 				'lastDailyResetTime',
@@ -120,40 +122,37 @@ export default function App() {
 	}, [goals, lastDailyResetTime]);
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
-		if (
-			activeTab === 'goals' &&
-			goalsTabRef.current &&
-			goalsTabRef.current.snapshotPositions
-		) {
+		// Step 1: Capture "First" positions immediately BEFORE the state update that causes reordering.
+		// This is the CRUCIAL step for FLIP. It must happen *before* setGoals is called with the new order.
+		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
 
+		// Step 2: Update the state with the goal's new properties AND the *new sorted order* simultaneously.
+		// This is the "Last" step for FLIP. React will then re-render, and the FLIP
+		// animation library (if correctly implemented in GoalsTab's useLayoutEffect)
+		// should animate the movement from the "First" position to this "Last" position.
 		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.map((goal) =>
+			const updatedList = prevGoals.map((goal) =>
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
-
-			const sortedGoals = updatedGoals.sort((a, b) => {
-				const completionA = a.isCompleted ? 1 : -1;
-				const completionB = b.isCompleted ? 1 : -1;
-				if (completionA !== completionB) {
-					return completionA - completionB;
-				}
-
-				if (!a.isCompleted && !b.isCompleted) {
-					return (
-						new Date(b.createdAt).getTime() -
-						new Date(a.createdAt).getTime()
-					);
-				} else {
-					return (
-						new Date(a.createdAt).getTime() -
-						new Date(b.createdAt).getTime()
-					);
-				}
-			});
-			return sortedGoals;
+			return sortGoals(updatedList); // Apply the consistent sort here
 		});
+
+		// Step 3: Trigger scrollIntoView after the FLIP animation has had time to complete.
+		// This delay should be at least as long as your FLIP animation duration.
+		// A typical CSS transition for FLIP is 300ms, so 350ms gives a small buffer.
+		setTimeout(() => {
+			const updatedGoalElement = document.getElementById(
+				`goal-${goalId}`
+			);
+			if (updatedGoalElement) {
+				updatedGoalElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center',
+				});
+			}
+		}, 350); // Adjust this delay based on your actual animation duration
 	};
 
 	const handleHabitSelect = (habit) => {
@@ -170,27 +169,7 @@ export default function App() {
 
 		setGoals((prevGoals) => {
 			const updatedGoals = [...prevGoals, newGoal];
-			const sortedGoals = updatedGoals.sort((a, b) => {
-				const completionA = a.isCompleted ? 1 : -1;
-				const completionB = b.isCompleted ? 1 : -1;
-				if (completionA !== completionB) {
-					return completionA - completionB;
-				}
-
-				if (!a.isCompleted && !b.isCompleted) {
-					return (
-						new Date(b.createdAt).getTime() -
-						new Date(a.createdAt).getTime()
-					);
-				} else {
-					return (
-						new Date(a.createdAt).getTime() -
-						new Date(b.createdAt).getTime()
-					);
-				}
-			});
-			localStorage.setItem('userGoals', JSON.stringify(sortedGoals));
-			return sortedGoals;
+			return sortGoals(updatedGoals);
 		});
 
 		toast.success(`${habit.title} added as a goal!`);

@@ -1,16 +1,27 @@
 // components/header.jsx
-'use client';
+'use client'; // Ensure this is a client component
+
 import { SignedIn, UserButton } from '@clerk/nextjs';
-import '@/app/globals.css'; // Ensure global styles are available for Tailwind classes
+import React, { useEffect, useState } from 'react';
 
 export default function Header() {
+	const [isClient, setIsClient] = useState(false);
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
 	return (
-		<header className="w-full p-4 flex justify-end items-center fixed top-0 left-0 z-50">
-			{/* The title "Goal Tracker" has been removed */}
-			<SignedIn>
-				{/* The UserButton is now the only element inside the header, positioned to the top right */}
-				<UserButton />
-			</SignedIn>
+		// Removed background, border, shadow, and justify-between.
+		// Using flex-row and justify-end to push UserButton to the right.
+		<header className="w-full p-4 flex flex-row justify-end items-center">
+			{/* Removed the <h1> title here */}
+			{isClient && (
+				<SignedIn>
+					{/* UserButton will have default styling unless overridden by Clerk's theming */}
+					<UserButton afterSignOutUrl="/" />
+				</SignedIn>
+			)}
 		</header>
 	);
 }

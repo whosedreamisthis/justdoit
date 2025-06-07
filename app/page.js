@@ -152,7 +152,7 @@ export default function App() {
 					block: 'center',
 				});
 			}
-		}, 350); // Adjust this delay based on your actual animation duration
+		}, 600); // Adjust this delay based on your actual animation duration
 	};
 
 	const handleHabitSelect = (habit) => {

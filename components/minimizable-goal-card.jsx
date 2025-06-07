@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
-
+import styles from '@/styles/goal-card.module.css';
 export default function MinimizableGoalCard({
 	goal,
 	onEdit,
@@ -219,13 +219,13 @@ export default function MinimizableGoalCard({
 							<>
 								<FontAwesomeIcon
 									icon={faFloppyDisk}
-									className="far goal-card-icon z-20 text-green-600 hover:text-green-800"
+									className={`far ${styles.goalCardIcon} z-20 text-green-600 hover:text-green-80`}
 									onClick={handleSaveEdit}
 									title="Save Changes"
 								/>
 								<FontAwesomeIcon
 									icon={faXmarkCircle}
-									className="far goal-card-icon z-20 text-red-600 hover:text-red-800"
+									className={`far ${styles.goalCardIcon} z-20 text-red-600 hover:text-red-800`}
 									onClick={handleCancelEdit}
 									title="Cancel Edit"
 								/>
@@ -233,7 +233,7 @@ export default function MinimizableGoalCard({
 						) : (
 							<FontAwesomeIcon
 								icon={faPencil}
-								className="far goal-card-icon z-20"
+								className={`far ${styles.goalCardIcon} z-20`}
 								onClick={(e) => {
 									e.stopPropagation();
 									setIsEditing(true);
@@ -242,7 +242,7 @@ export default function MinimizableGoalCard({
 						)}
 						<FontAwesomeIcon
 							icon={faTrashCan}
-							className="far goal-card-icon z-20"
+							className={`far ${styles.goalCardIcon} z-20`}
 							onClick={handleDelete}
 						/>
 					</div>
@@ -259,7 +259,7 @@ export default function MinimizableGoalCard({
 						icon={
 							goal.progress === 100 ? faSquareCheck : faSquarePlus
 						}
-						className={`far goal-card-icon z-20 ${
+						className={`far ${styles.goalCardIcon} z-20 ${
 							goal.progress === 100
 								? 'progress-complete'
 								: 'progress-incomplete'

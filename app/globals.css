@@ -34,9 +34,6 @@ body::-webkit-scrollbar {
 	transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 	background-color: #e07a5f; /* Terracotta */
 }
-/* .goals-container {
-	height: 100px; /* ✅ Creates space so goals don’t block the tab buttons 
-} */
 
 .bg-primary {
 	background-color: #9caf88; /* Sage Green */
@@ -111,73 +108,6 @@ body::-webkit-scrollbar {
 } /* ✅ Deep Olive */
 .text-subtle {
 	color: #f3dac4;
-}
-.progress-button {
-	display: flex;
-	align-items: center; /* ✅ Centers vertically */
-	justify-content: center; /* ✅ Centers horizontally */
-	width: 30px;
-	height: 30px;
-	text-align: center;
-}
-
-.scroll-container {
-	overflow-y: auto;
-	scrollbar-width: none; /* Firefox */
-}
-
-.scroll-container::-webkit-scrollbar {
-	display: none; /* Chrome, Safari */
-}
-.habits-container {
-	max-height: none;
-	overflow: clip; /* ✅ Stronger than hidden, fully removes scroll functionality */
-}
-.bottom-nav {
-	position: fixed;
-	/* bottom: 0; */
-	width: 100%;
-	z-index: 1000; /* ✅ Ensures it's above overlapping content */
-}
-
-.expand-arrow {
-	color: #a48f72; /* ✅ Softer earthy tone */
-	font-size: 24px; /* ✅ Slightly bigger for better visibility */
-	transition: color 0.3s ease-in-out; /* ✅ Smooth transition when toggling */
-}
-.category-container {
-	border: 2px solid #a48f72; /* ✅ Earthy tone */
-	border-radius: 8px; /* ✅ Slightly rounded edges for a softer feel */
-	padding: 12px; /* ✅ Adds breathing room inside the category */
-	margin-bottom: 10px; /* ✅ Creates separation between categories */
-}
-.card-container {
-	border-radius: 0px; /* ✅ Removes all rounded corners */
-}
-.minimized-card,
-.minimized-goal-card {
-	height: 100px; /* ✅ Match both components */
-}
-.card-container {
-	display: flex;
-	/* flex-direction: column; */
-	justify-content: space-between; /* ✅ Push content to top, buttons to bottom */
-	position: relative;
-	padding-bottom: 40px; /* ✅ Creates space for buttons */
-}
-
-.card-buttons {
-	display: flex;
-	justify-content: flex-start; /* ✅ Align buttons to the right */
-	/* gap: 2px; /* ✅ Space between + and - buttons  */
-}
-
-.goal-card-icon {
-	font-size: 25px; /* ✅ Adjust to your preferred size */
-	bottom: 5px;
-	right: 5px;
-	color: black;
-	width: '50px';
 }
 
 .progress-icon {
@@ -286,13 +216,6 @@ body,
 	overflow: hidden;
 	text-overflow: ellipsis;
 	max-width: min(80%, 500px); /* Adjust based on screen size */
-}
-
-.goal-item {
-	/* This ensures that when the transform is applied/removed, it animates smoothly */
-	transition: transform 0.5s ease-out; /* Keep this */
-	position: relative; /* Important for z-index during transition */
-	will-change: transform; /* Hint to the browser for performance */
 }
 
 /* Style for the container when animation is active */

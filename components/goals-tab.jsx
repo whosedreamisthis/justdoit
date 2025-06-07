@@ -11,7 +11,7 @@ import {
 } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
-
+import styles from '@/styles/goals-tab.module.css';
 // Use forwardRef to receive the ref from the parent (App.js)
 const GoalsTab = forwardRef(function GoalsTab(
 	{
@@ -190,7 +190,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 	};
 
 	return (
-		<div className="goals-container p-3 bg-subtle-background">
+		<div className="p-3 bg-subtle-background">
 			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">
 				Goals
 			</h2>
@@ -200,7 +200,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 						id={`goal-${goal.id}`}
 						key={goal.id} // Ensure key is stable and unique
 						data-goal-id={goal.id}
-						className={`rounded-xl shadow-md goal-item`}
+						className={`rounded-xl shadow-md ${styles.goalItem}`}
 						style={{ backgroundColor: goal.color }}
 						ref={(el) => (goalRefs.current[goal.id] = el)}
 					>

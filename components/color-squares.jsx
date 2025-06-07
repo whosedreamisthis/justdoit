@@ -11,7 +11,7 @@ export default function ColorSquares({ setColor, selectedColor }) {
 		'#D3D3D3', // Light Gray
 		'#EBF6D9', // Light Terracotta
 		'#FFA07A', // Light Salmon
-		'#A2CFFE', // Soft Sky Blue
+		'#C8F5B8', // Soft Sky Blue
 		'#C3B1E1', // Pastel Purple
 		'#FFDEAD', // Navajo White
 		'#C8A2C8', // Lilac

@@ -1,0 +1,6 @@
+.goalItem {
+	/* This ensures that when the transform is applied/removed, it animates smoothly */
+	transition: transform 0.5s ease-out; /* Keep this */
+	position: relative; /* Important for z-index during transition */
+	will-change: transform; /* Hint to the browser for performance */
+}

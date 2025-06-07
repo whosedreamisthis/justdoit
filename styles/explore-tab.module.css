@@ -1,0 +1,9 @@
+.expandArrow {
+	color: #a48f72; /* ✅ Softer earthy tone */
+	font-size: 24px; /* ✅ Slightly bigger for better visibility */
+	transition: color 0.3s ease-in-out; /* ✅ Smooth transition when toggling */
+}
+.habitsContainer {
+	max-height: none;
+	overflow: clip; /* ✅ Stronger than hidden, fully removes scroll functionality */
+}

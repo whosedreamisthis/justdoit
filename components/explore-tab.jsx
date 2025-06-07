@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
+import styles from '@/styles/explore-tab.module.css';
 import MinimizableCustomCard from './minimizable-custom-card'; // Import the new custom card
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
@@ -72,7 +73,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	};
 
 	return (
-		<div className="explore-container p-3 bg-subtle-background">
+		<div className={`${styles.exploreCcontainer} p-3 bg-subtle-background`}>
 			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">
 				Explore Habits
 			</h2>
@@ -84,7 +85,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				{Object.keys(habitsByCategory).map((category) => (
 					<div
 						key={category}
-						className="p-3 rounded-lg bg-warm-sand category-container"
+						className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
 					>
 						<div
 							className="flex justify-between items-center"
@@ -94,14 +95,17 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 								{category}
 							</h3>
 
-							<span className="text-xl expand-arrow">
+							<span className={`text-xl ${styles.expandArrow}`}>
 								{/* Check if the category is in the Set */}
 								{expandedCategory.has(category) ? '▼' : '►'}
 							</span>
 						</div>
 						{/* Render content if the category is in the Set */}
 						{expandedCategory.has(category) && (
-							<div className="mt-2 space-y-2 habits-container">
+							<div
+								className={`mt-2 space-y-2 ${styles.habitsContainer}`}
+							>
+								{' '}
 								{habitsByCategory[category].map((habit) => (
 									<div
 										key={habit.id + Date.now().toString()}

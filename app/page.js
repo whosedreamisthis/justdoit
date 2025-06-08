@@ -44,25 +44,22 @@ export default function App() {
 	// --- NEW: Centralized function to update goals, sort, and save ---
 	// This function now correctly handles both direct array updates and functional updates.
 	const preSetGoals = (update) => {
-		console.log('Inside preSetGoals - Received update:', update);
+		console.log('preSetGoals called with:', update);
 
-		let finalGoalsArray;
+		let finalGoalsArray =
+			typeof update === 'function' ? update(goals) : update;
+		console.log('Current goals before update:', goals);
+		console.log('Final goals array before sorting:', finalGoalsArray);
 
-		// If 'update' is a function (e.g., (prevGoals) => [...prevGoals, newGoal]),
-		// call it with the current goals state to get the new array.
-		if (typeof update === 'function') {
-			finalGoalsArray = update(goals); // Pass the current 'goals' state to the updater function
-		} else {
-			// Otherwise, 'update' is already the new goals array.
-			finalGoalsArray = update;
+		const sortedGoals = sortGoals(finalGoalsArray);
+		console.log('Sorted goals before setting state:', sortedGoals);
+
+		if (!sortedGoals || sortedGoals.length === 0) {
+			console.warn('Skipping update: Preventing accidental wipe.');
+			return;
 		}
 
-		// Sort the final array before setting the state.
-		const sortedGoals = sortGoals(finalGoalsArray);
-		console.log('preSetGoals is updating goals (sorted):', sortedGoals);
 		setGoals(sortedGoals);
-		// The useEffect for saving to localStorage will automatically handle persistence
-		// because `setGoals` was called.
 	};
 
 	// --- NEW: Function to handle daily goal reset logic ---
@@ -97,19 +94,27 @@ export default function App() {
 			// Use preSetGoals here to ensure sorting and eventual saving
 			// preSetGoals receives the functional update and handles the rest.
 			preSetGoals((prevGoals) => {
+				if (!prevGoals || prevGoals.length === 0) {
+					console.warn('Skipping reset: No goals to update.');
+					return prevGoals; // Prevent accidental wipe
+				}
+
 				const updatedGoals = prevGoals.map((goal) =>
 					goal.isCompleted
 						? { ...goal, progress: 0, isCompleted: false }
 						: goal
 				);
-				console.log('PRESETGOALS', updatedGoals);
-				return updatedGoals; // preSetGoals will then sort these
+
+				return updatedGoals;
 			});
 
 			// Always set lastDailyResetTime to *today's* midnight after a reset
 			setLastDailyResetTime(todayMidnight); // This will trigger the save useEffect for lastDailyResetTime
 		}
 	};
+	useEffect(() => {
+		console.log('App component mounted!');
+	}, []);
 
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
@@ -159,6 +164,8 @@ export default function App() {
 				const storedGoals = JSON.parse(
 					localStorage.getItem('userGoals')
 				);
+				console.log('Stored goals in localStorage:', storedGoals);
+
 				if (
 					goals.length === 0 &&
 					storedGoals &&

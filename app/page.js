@@ -14,55 +14,18 @@ import Header from '@/components/header';
 import { saveQuery } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
-
+import PageHelper, { sortGoals, preSetGoals } from '@/app/page-helper';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
+	const [goals, setGoals] = useState([]);
+	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
 	const email = user?.primaryEmailAddress?.emailAddress;
 	// --- Helper function for consistent goal sorting ---
-	const sortGoals = (goalsArray) => {
-		console.log('SORT GOALS', goalsArray);
-		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
-		const completed = goalsArray.filter((goal) => goal.isCompleted);
-
-		incomplete.sort(
-			(a, b) =>
-				new Date(b.createdAt).getTime() -
-				new Date(a.createdAt).getTime()
-		);
-		completed.sort(
-			(a, b) =>
-				new Date(a.createdAt).getTime() -
-				new Date(b.createdAt).getTime()
-		);
-
-		return [...incomplete, ...completed];
-	};
-
-	const [goals, setGoals] = useState([]);
-	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 
 	// --- NEW: Centralized function to update goals, sort, and save ---
 	// This function now correctly handles both direct array updates and functional updates.
-	const preSetGoals = (update) => {
-		console.log('preSetGoals called with:', update);
-
-		let finalGoalsArray =
-			typeof update === 'function' ? update(goals) : update;
-		console.log('Current goals before update:', goals);
-		console.log('Final goals array before sorting:', finalGoalsArray);
-
-		const sortedGoals = sortGoals(finalGoalsArray);
-		console.log('Sorted goals before setting state:', sortedGoals);
-
-		if (!sortedGoals || sortedGoals.length === 0) {
-			console.warn('Skipping update: Preventing accidental wipe.');
-			return;
-		}
-
-		setGoals(sortedGoals);
-	};
 
 	// --- NEW: Function to handle daily goal reset logic ---
 	const checkAndResetDailyGoals = () => {
@@ -95,20 +58,24 @@ export default function App() {
 
 			// Use preSetGoals here to ensure sorting and eventual saving
 			// preSetGoals receives the functional update and handles the rest.
-			preSetGoals((prevGoals) => {
-				if (!prevGoals || prevGoals.length === 0) {
-					console.warn('Skipping reset: No goals to update.');
-					return prevGoals; // Prevent accidental wipe
-				}
+			preSetGoals(
+				(prevGoals) => {
+					if (!prevGoals || prevGoals.length === 0) {
+						console.warn('Skipping reset: No goals to update.');
+						return prevGoals; // Prevent accidental wipe
+					}
 
-				const updatedGoals = prevGoals.map((goal) =>
-					goal.isCompleted
-						? { ...goal, progress: 0, isCompleted: false }
-						: goal
-				);
+					const updatedGoals = prevGoals.map((goal) =>
+						goal.isCompleted
+							? { ...goal, progress: 0, isCompleted: false }
+							: goal
+					);
 
-				return updatedGoals;
-			});
+					return updatedGoals;
+				},
+				goals,
+				setGoals
+			);
 
 			// Always set lastDailyResetTime to *today's* midnight after a reset
 			setLastDailyResetTime(todayMidnight); // This will trigger the save useEffect for lastDailyResetTime
@@ -139,7 +106,7 @@ export default function App() {
 				loadedGoals
 			);
 
-			preSetGoals(loadedGoals);
+			preSetGoals(loadedGoals, goals, setGoals);
 		}
 
 		const storedTime = localStorage.getItem('lastDailyResetTime');
@@ -302,13 +269,17 @@ export default function App() {
 		}
 		console.log('handleUpdateGoal');
 		// --- MODIFIED: Use preSetGoals for all goal updates ---
-		preSetGoals((prevGoals) => {
-			const updatedList = prevGoals.map((goal) =>
-				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
-			);
-			console.log('calling preSetGoals 1', updatedList);
-			return updatedList; // preSetGoals will handle sorting
-		});
+		preSetGoals(
+			(prevGoals) => {
+				const updatedList = prevGoals.map((goal) =>
+					goal.id === goalId ? { ...goal, ...updatedGoal } : goal
+				);
+				console.log('calling preSetGoals 1', updatedList);
+				return updatedList; // preSetGoals will handle sorting
+			},
+			goals,
+			setGoals
+		);
 	};
 
 	const handleHabitSelect = async (habit) => {
@@ -323,7 +294,7 @@ export default function App() {
 			createdAt: new Date().toISOString(),
 		};
 
-		preSetGoals((prevGoals) => [...prevGoals, newGoal]);
+		preSetGoals((prevGoals) => [...prevGoals, newGoal], goals, setGoals);
 
 		// if (user) {
 		// 	const email = user.primaryEmailAddress?.emailAddress;

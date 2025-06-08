@@ -13,6 +13,8 @@ import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
 import { saveQuery } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
+import { v4 as uuidv4 } from 'uuid';
+
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const goalsTabRef = useRef(null);
@@ -311,7 +313,7 @@ export default function App() {
 
 	const handleHabitSelect = async (habit) => {
 		const newGoal = {
-			id: habit.id + Date.now().toString(),
+			id: uuidv4(),
 			title: habit.title,
 			color: habit.color,
 			description: habit.description,

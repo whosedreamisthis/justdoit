@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
 import styles from '@/styles/explore-card.module.css';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function MinimizableCustomCard({
 	onSelect,
@@ -23,7 +24,7 @@ export default function MinimizableCustomCard({
 		}
 
 		// Create new custom habit
-		const uniqueId = `custom-${Date.now()}`;
+		const uniqueId = uuidv4();
 		const newCustomHabit = {
 			id: uniqueId,
 			title: customTitle.trim(),

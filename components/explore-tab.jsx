@@ -3,6 +3,7 @@ import MinimizableCard from './minimizable-card';
 import '@/app/globals.css';
 import styles from '@/styles/explore-tab.module.css';
 import MinimizableCustomCard from './minimizable-custom-card'; // Import the new custom card
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
 	// Change expandedCategory to a Set to allow multiple categories to be expanded
@@ -108,7 +109,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 								{' '}
 								{habitsByCategory[category].map((habit) => (
 									<div
-										key={habit.id + Date.now().toString()}
+										key={uuidv4()}
 										ref={(el) =>
 											(cardRefs.current[habit.id] = el)
 										}

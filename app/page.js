@@ -152,34 +152,6 @@ export default function App() {
 		}
 	}, []);
 
-	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === 'visible') {
-				console.log('App resumed—checking goals.');
-				const storedGoals = JSON.parse(
-					localStorage.getItem('userGoals')
-				);
-				if (
-					goals.length === 0 &&
-					storedGoals &&
-					storedGoals.length > 0
-				) {
-					console.warn(
-						'Goals disappeared—restoring from localStorage.'
-					);
-					setGoals(storedGoals);
-				}
-			}
-		};
-
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		return () => {
-			document.removeEventListener(
-				'visibilitychange',
-				handleVisibilityChange
-			);
-		};
-	}, [goals]);
 	// --- useEffect to run reset check whenever lastDailyResetTime changes ---
 	useEffect(() => {
 		if (lastDailyResetTime) {

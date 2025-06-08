@@ -39,6 +39,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 	// Use useMemo to create a sorted copy of goals for display.
 	// Ensure this sort logic matches the one in app/page.js
 	const sortedGoals = useMemo(() => {
+		console.log('in usememo');
 		return [...goals].sort((a, b) => {
 			// Primary sort: Incomplete goals first
 			const completionA = a.isCompleted ? 1 : -1;
@@ -63,6 +64,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		});
 	}, [goals]);
+	console.log('sortedGoals', sortedGoals);
 
 	// Expose a method for the parent to call to snapshot positions
 	useImperativeHandle(ref, () => ({
@@ -178,9 +180,13 @@ const GoalsTab = forwardRef(function GoalsTab(
 	};
 
 	const handleDelete = (goalId) => {
+		console.log('handleDelete', goalId);
+
 		setGoals((prevGoals) => {
 			const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
 			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+			console.log('handleDelete localStorage.setItem:', updatedGoals);
+
 			return updatedGoals;
 		});
 	};

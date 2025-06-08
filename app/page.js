@@ -20,6 +20,7 @@ export default function App() {
 	const email = user?.primaryEmailAddress?.emailAddress;
 	// --- Helper function for consistent goal sorting ---
 	const sortGoals = (goalsArray) => {
+		console.log('SORT GOALS', goalsArray);
 		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
 		const completed = goalsArray.filter((goal) => goal.isCompleted);
 
@@ -43,6 +44,8 @@ export default function App() {
 	// --- NEW: Centralized function to update goals, sort, and save ---
 	// This function now correctly handles both direct array updates and functional updates.
 	const preSetGoals = (update) => {
+		console.log('Inside preSetGoals - Received update:', update);
+
 		let finalGoalsArray;
 
 		// If 'update' is a function (e.g., (prevGoals) => [...prevGoals, newGoal]),
@@ -56,6 +59,7 @@ export default function App() {
 
 		// Sort the final array before setting the state.
 		const sortedGoals = sortGoals(finalGoalsArray);
+		console.log('Updating goals state:', sortedGoals);
 		setGoals(sortedGoals);
 		// The useEffect for saving to localStorage will automatically handle persistence
 		// because `setGoals` was called.
@@ -98,6 +102,7 @@ export default function App() {
 						? { ...goal, progress: 0, isCompleted: false }
 						: goal
 				);
+				console.log('PRESETGOALS', updatedGoals);
 				return updatedGoals; // preSetGoals will then sort these
 			});
 
@@ -109,6 +114,7 @@ export default function App() {
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
 		const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
+		console.log('Loaded goals from localStorage:', storedGoals);
 		if (storedGoals && storedGoals.length > 0) {
 			const loadedGoals = storedGoals.map((goal) => ({
 				...goal,
@@ -176,12 +182,10 @@ export default function App() {
 	// This effect runs on *every* change to goals or lastDailyResetTime
 	// and serves as the single point of persistence to localStorage.
 	useEffect(() => {
-		localStorage.setItem('userGoals', JSON.stringify(goals));
-		if (lastDailyResetTime) {
-			localStorage.setItem(
-				'lastDailyResetTime',
-				lastDailyResetTime.toISOString()
-			);
+		if (goals.length > 0) {
+			// Ensure we never store an empty array
+			console.log('Saving goals to local storage:', goals);
+			localStorage.setItem('userGoals', JSON.stringify(goals));
 		}
 
 		const saveToDatabase = async () => {
@@ -190,6 +194,7 @@ export default function App() {
 			if (!email) return;
 
 			try {
+				console.log('Saving goals to database:', goals);
 				const result = await saveQuery(
 					email,
 					JSON.stringify(goals),
@@ -203,10 +208,47 @@ export default function App() {
 			}
 		};
 
-		if (user && goals.length > 0) {
-			saveToDatabase();
+		// if (user && goals.length > 0) {
+		// 	saveToDatabase();
+		// }
+	}, [goals]);
+
+	useEffect(() => {
+		if (lastDailyResetTime) {
+			console.log(
+				'Saving lastDailyResetTime  to local storage:',
+				lastDailyResetTime
+			);
+			localStorage.setItem(
+				'lastDailyResetTime',
+				lastDailyResetTime.toISOString()
+			);
 		}
-	}, [goals, lastDailyResetTime]);
+
+		const saveToDatabase = async () => {
+			if (!user) return; // Wait until Clerk loads
+			const email = user.primaryEmailAddress?.emailAddress;
+			if (!email) return;
+
+			try {
+				console.log('Saving lastDailyResetTime to database:', goals);
+				const result = await saveQuery(
+					email,
+					JSON.stringify(goals),
+					lastDailyResetTime
+				);
+				if (!result.ok) {
+					console.error('Failed to save goals:', result.error);
+				}
+			} catch (err) {
+				console.error('Error calling saveQuery:', err);
+			}
+		};
+
+		// if (user && goals.length > 0) {
+		// 	saveToDatabase();
+		// }
+	}, [lastDailyResetTime]);
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
 		// Step 1: Capture "First" positions immediately BEFORE the state update that causes reordering.

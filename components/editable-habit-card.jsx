@@ -73,9 +73,20 @@ export default function EditableHabitCard({
 		setColor(habit.color);
 	};
 
-	const handleAddToGoals = (e) => {
-		e.stopPropagation();
-		onSelect?.(habit);
+	const handleAddToGoals = (e, habit) => {
+		if (!e || !habit) {
+			console.error('Missing parameters in handleAddToGoals:', {
+				e,
+				habit,
+			});
+			return;
+		}
+
+		e.stopPropagation(); // Ensure event object exists before calling this
+
+		console.log('Adding habit:', habit);
+		onSelect?.(habit); // Pass the valid habit object
+		return habit;
 	};
 
 	return (
@@ -167,7 +178,16 @@ export default function EditableHabitCard({
 									className={`${styles.addButton}`}
 									onClick={(e) => {
 										e.stopPropagation(); // Prevent card collapse
-										onSelect(handleAddToGoals);
+										const habitData = handleAddToGoals(
+											e,
+											habit
+										); // Call the function
+										console.log(
+											'Habit being added:',
+											habitData
+										); // Debugging log
+										console.log('Habit itself:', habit);
+										// Pass the actual data
 									}}
 								>
 									Add

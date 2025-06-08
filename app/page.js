@@ -281,26 +281,24 @@ export default function App() {
 	};
 
 	const handleHabitSelect = async (habit) => {
+		console.log('Received habit:', habit); // Debugging log
+		if (!habit) {
+			console.error('Habit is undefined when selecting!');
+			return;
+		}
+
 		const newGoal = {
 			id: uuidv4(),
-			title: habit.title,
-			color: habit.color,
-			description: habit.description,
+			title: habit.title, // This is where the error happens
+			description: habit.description || '', // Ensure it's defined
+			color: habit.color || '#FFFFFF', // Default color if missing
 			progress: 0,
 			isCompleted: false,
 			completedDays: {},
 			createdAt: new Date().toISOString(),
 		};
-		console.log('handlehabitslect', goals);
+
 		preSetGoals((prevGoals) => [...prevGoals, newGoal], goals, setGoals);
-
-		// if (user) {
-		// 	const email = user.primaryEmailAddress?.emailAddress;
-		// 	if (email) {
-		// 		await saveQuery(email, JSON.stringify([...goals, newGoal]));
-		// 	}
-		// }
-
 		toast.success(`${habit.title} added as a goal!`);
 	};
 

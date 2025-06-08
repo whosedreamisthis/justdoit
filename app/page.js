@@ -11,7 +11,7 @@ import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header'; // Import the new Header component
-
+import { saveQuery } from '@/actions/ai';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const goalsTabRef = useRef(null);

@@ -75,13 +75,13 @@ export default function EditableHabitCard({
 				<div className="relative z-10">
 					<input
 						ref={titleRef}
-						className="w-full p-1 rounded mb-2 bg-gray-100"
+						className="w-full p-1 rounded mb-2 bg-gray-100 text-black"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						onClick={(e) => e.stopPropagation()}
 					/>
 					<textarea
-						className="w-full p-1 rounded mb-2 bg-gray-100"
+						className="w-full p-1 rounded mb-2 bg-gray-100 text-black"
 						rows={3}
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}

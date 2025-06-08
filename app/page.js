@@ -12,11 +12,12 @@ import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
 import { saveQuery } from '@/actions/ai';
-
+import { useUser } from '@clerk/nextjs';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const goalsTabRef = useRef(null);
-
+	const { user } = useUser();
+	const email = user?.primaryEmailAddress?.emailAddress;
 	// --- Helper function for consistent goal sorting ---
 	const sortGoals = (goalsArray) => {
 		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
@@ -182,6 +183,29 @@ export default function App() {
 				lastDailyResetTime.toISOString()
 			);
 		}
+
+		const saveToDatabase = async () => {
+			if (!user) return; // Wait until Clerk loads
+			const email = user.primaryEmailAddress?.emailAddress;
+			if (!email) return;
+
+			try {
+				const result = await saveQuery(
+					email,
+					JSON.stringify(goals),
+					lastDailyResetTime
+				);
+				if (!result.ok) {
+					console.error('Failed to save goals:', result.error);
+				}
+			} catch (err) {
+				console.error('Error calling saveQuery:', err);
+			}
+		};
+
+		if (user && goals.length > 0) {
+			saveToDatabase();
+		}
 	}, [goals, lastDailyResetTime]);
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
@@ -199,7 +223,7 @@ export default function App() {
 		});
 	};
 
-	const handleHabitSelect = (habit) => {
+	const handleHabitSelect = async (habit) => {
 		const newGoal = {
 			id: habit.id + Date.now().toString(),
 			title: habit.title,
@@ -213,6 +237,13 @@ export default function App() {
 
 		// --- MODIFIED: Use preSetGoals for all goal additions ---
 		preSetGoals((prevGoals) => [...prevGoals, newGoal]);
+
+		if (user) {
+			const email = user.primaryEmailAddress?.emailAddress;
+			if (email) {
+				await saveQuery(email, JSON.stringify([...goals, newGoal]));
+			}
+		}
 
 		toast.success(`${habit.title} added as a goal!`);
 	};

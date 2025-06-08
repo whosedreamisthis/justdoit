@@ -1,3 +1,4 @@
+'use server';
 import db from '@/utils/db';
 import Query from '@/models/query';
 export async function saveQuery(email, goals) {
@@ -8,6 +9,7 @@ export async function saveQuery(email, goals) {
 			email,
 			goals,
 		});
+		console.log('new query', newQuery);
 		await newQuery.save();
 		return {
 			ok: true,

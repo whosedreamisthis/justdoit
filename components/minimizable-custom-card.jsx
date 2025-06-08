@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
+import styles from '@/styles/explore-card.module.css';
 
 export default function MinimizableCustomCard({
 	onSelect,
@@ -128,7 +129,7 @@ export default function MinimizableCustomCard({
 					<div className="flex flex-col h-full rounded-lg">
 						<div className="flex flex-row justify-end items-end gap-2">
 							<button
-								className={`styles.addButton`}
+								className={styles.addButton}
 								onClick={handleAddCustomHabit}
 							>
 								Add

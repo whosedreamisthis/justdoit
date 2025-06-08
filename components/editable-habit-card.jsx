@@ -4,18 +4,26 @@
 import { useState, useEffect, useRef } from 'react';
 import ScrollOnExpand from '../hooks/scroll-on-expand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import styles from '@/styles/goal-card.module.css';
 import {
 	faTrashCan,
 	faPencil,
 	faFloppyDisk,
 	faXmarkCircle,
+	faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
-import styles from '@/styles/goal-card.module.css';
 
+/**
+ * EditableHabitCard component for user-created habits.
+ * Shows title and description when expanded,
+ * supports editing (title, description, color),
+ * deleting, and adding to goals list.
+ */
 export default function EditableHabitCard({
 	habit,
+	onSelect,
 	onDelete,
 	onUpdateHabit,
 	isExpanded,
@@ -29,6 +37,7 @@ export default function EditableHabitCard({
 	const cardRef = ScrollOnExpand(isExpanded);
 	const titleRef = useRef(null);
 
+	// Reset state when habit or expanded changes
 	useEffect(() => {
 		setTitle(habit.title);
 		setDescription(habit.description);
@@ -36,13 +45,17 @@ export default function EditableHabitCard({
 		setIsEditing(false);
 	}, [habit, isExpanded]);
 
+	// Focus input on edit
 	useEffect(() => {
 		if (isEditing && titleRef.current) titleRef.current.focus();
 	}, [isEditing]);
 
-	const save = (e) => {
+	const handleSave = (e) => {
 		e.stopPropagation();
-		if (!title.trim()) return toast.error('Title cannot be empty');
+		if (!title.trim()) {
+			toast.error('Title cannot be empty');
+			return;
+		}
 		onUpdateHabit(habit.id, {
 			...habit,
 			title: title.trim(),
@@ -52,12 +65,17 @@ export default function EditableHabitCard({
 		setIsEditing(false);
 	};
 
-	const cancel = (e) => {
+	const handleCancel = (e) => {
 		e.stopPropagation();
 		setIsEditing(false);
 		setTitle(habit.title);
 		setDescription(habit.description);
 		setColor(habit.color);
+	};
+
+	const handleAddToGoals = (e) => {
+		e.stopPropagation();
+		onSelect?.(habit);
 	};
 
 	return (
@@ -75,13 +93,13 @@ export default function EditableHabitCard({
 				<div className="relative z-10">
 					<input
 						ref={titleRef}
-						className="w-full p-1 rounded mb-2 bg-gray-100 text-black"
+						className="w-full p-1 mb-2 rounded bg-gray-100 text-black"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 						onClick={(e) => e.stopPropagation()}
 					/>
 					<textarea
-						className="w-full p-1 rounded mb-2 bg-gray-100 text-black"
+						className="w-full p-1 mb-2 rounded bg-gray-100 text-black"
 						rows={3}
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
@@ -109,12 +127,14 @@ export default function EditableHabitCard({
 							<FontAwesomeIcon
 								icon={faFloppyDisk}
 								className={styles.goalCardIcon}
-								onClick={save}
+								onClick={handleSave}
+								title="Save"
 							/>
 							<FontAwesomeIcon
 								icon={faXmarkCircle}
 								className={styles.goalCardIcon}
-								onClick={cancel}
+								onClick={handleCancel}
+								title="Cancel"
 							/>
 						</>
 					) : (
@@ -125,6 +145,7 @@ export default function EditableHabitCard({
 								e.stopPropagation();
 								setIsEditing(true);
 							}}
+							title="Edit"
 						/>
 					)}
 					<FontAwesomeIcon
@@ -134,7 +155,26 @@ export default function EditableHabitCard({
 							e.stopPropagation();
 							onDelete(habit.id);
 						}}
+						title="Delete"
 					/>
+
+					{isExpanded && (
+						<div className="flex flex-col h-full rounded-lg">
+							<div
+								className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
+							>
+								<button
+									className={`${styles.addButton}`}
+									onClick={(e) => {
+										e.stopPropagation(); // Prevent card collapse
+										onSelect(handleAddToGoals);
+									}}
+								>
+									Add
+								</button>
+							</div>
+						</div>
+					)}
 				</div>
 			)}
 		</div>

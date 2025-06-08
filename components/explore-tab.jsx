@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import MinimizableCard from './minimizable-card';
 import MinimizableCustomCard from './minimizable-custom-card';
+import MinimizableCard from './minimizable-card';
 import EditableHabitCard from './editable-habit-card';
 import styles from '@/styles/explore-tab.module.css';
 import '@/app/globals.css';
@@ -28,45 +28,36 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			} catch {}
 		}
 	}, []);
-
 	useEffect(() => {
 		localStorage.setItem(
 			'expandedCategory',
 			JSON.stringify(Array.from(expandedCategory))
 		);
 	}, [expandedCategory]);
-
 	useEffect(() => {
 		localStorage.setItem('customHabits', JSON.stringify(customHabits));
 	}, [customHabits]);
 
 	const handleAddCustomHabit = (habit) => {
 		setCustomHabits((prev) => [...prev, habit]);
-		if (typeof onSelect === 'function') onSelect(habit);
+		onSelect?.(habit);
 		setExpandedCategory((prev) => new Set(prev).add('Custom Habits'));
 	};
-
-	const handleUpdateCustomHabit = (id, updated) => {
+	const handleUpdateCustomHabit = (id, updated) =>
 		setCustomHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
-	};
-
-	const handleDeleteCustomHabit = (id) => {
+	const handleDeleteCustomHabit = (id) =>
 		setCustomHabits((prev) => prev.filter((h) => h.id !== id));
-	};
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
 			const next = new Set(prev);
-			if (next.has(key)) next.delete(key);
-			else next.add(key);
+			next.has(key) ? next.delete(key) : next.add(key);
 			return next;
 		});
 		setExpandedCard(null);
 	};
-
-	const handleExpandCard = (id) => {
+	const handleExpandCard = (id) =>
 		setExpandedCard((prev) => (prev === id ? null : id));
-	};
 
 	return (
 		<div className={`${styles.exploreContainer} p-3 bg-subtle-background`}>
@@ -74,7 +65,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				Explore Habits
 			</h2>
 			<div className="space-y-4">
-				{/* Add Custom Habit Card always at top */}
 				<div className="rounded-xl shadow-md overflow-hidden">
 					<MinimizableCustomCard
 						onSelect={handleAddCustomHabit}
@@ -82,48 +72,44 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 						onExpand={() => handleExpandCard('custom-add')}
 					/>
 				</div>
-
-				{/* Preset categories */}
-				{Object.entries(habitsByCategory).map(([category, habits]) => (
+				{Object.entries(habitsByCategory).map(([cat, habits]) => (
 					<div
-						key={category}
+						key={cat}
 						className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
 					>
 						<div
 							role="button"
 							tabIndex={0}
 							className="flex justify-between items-center cursor-pointer"
-							onClick={() => toggleCategory(category)}
-							aria-expanded={expandedCategory.has(category)}
+							onClick={() => toggleCategory(cat)}
+							aria-expanded={expandedCategory.has(cat)}
 						>
 							<h3 className="text-lg font-semibold text-charcoal">
-								{category}
+								{cat}
 							</h3>
 							<span className={`text-xl ${styles.expandArrow}`}>
-								{expandedCategory.has(category) ? '▼' : '►'}
+								{expandedCategory.has(cat) ? '▼' : '►'}
 							</span>
 						</div>
-						{expandedCategory.has(category) && (
+						{expandedCategory.has(cat) && (
 							<div
 								className={`mt-2 space-y-2 ${styles.habitsContainer}`}
 							>
-								{habits.map((habit) => (
+								{habits.map((h) => (
 									<div
-										key={habit.id}
+										key={h.id}
 										ref={(el) =>
-											(cardRefs.current[habit.id] = el)
+											(cardRefs.current[h.id] = el)
 										}
 										className="rounded-xl shadow-md overflow-hidden"
-										style={{ backgroundColor: habit.color }}
+										style={{ backgroundColor: h.color }}
 									>
 										<MinimizableCard
-											habit={habit}
+											habit={h}
 											onSelect={onSelect}
-											isExpanded={
-												expandedCard === habit.id
-											}
+											isExpanded={expandedCard === h.id}
 											onExpand={() =>
-												handleExpandCard(habit.id)
+												handleExpandCard(h.id)
 											}
 										/>
 									</div>
@@ -132,8 +118,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 						)}
 					</div>
 				))}
-
-				{/* Custom Habits category at bottom */}
 				<div
 					className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
 				>
@@ -161,26 +145,25 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 									you add them.
 								</p>
 							) : (
-								customHabits.map((habit) => (
+								customHabits.map((h) => (
 									<div
-										key={habit.id}
+										key={h.id}
 										ref={(el) =>
-											(cardRefs.current[habit.id] = el)
+											(cardRefs.current[h.id] = el)
 										}
 										className="rounded-xl shadow-md overflow-hidden"
-										style={{ backgroundColor: habit.color }}
+										style={{ backgroundColor: h.color }}
 									>
 										<EditableHabitCard
-											habit={habit}
-											onDelete={handleDeleteCustomHabit}
+											habit={h}
+											onSelect={onSelect}
 											onUpdateHabit={
 												handleUpdateCustomHabit
 											}
-											isExpanded={
-												expandedCard === habit.id
-											}
+											onDelete={handleDeleteCustomHabit}
+											isExpanded={expandedCard === h.id}
 											onExpand={() =>
-												handleExpandCard(habit.id)
+												handleExpandCard(h.id)
 											}
 										/>
 									</div>

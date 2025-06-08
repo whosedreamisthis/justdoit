@@ -131,6 +131,7 @@ export default function MinimizableCustomCard({
 						<div className="flex flex-row justify-end items-end gap-2">
 							<button
 								className={styles.addButton}
+								disabled={!customTitle.trim()}
 								onClick={handleAddCustomHabit}
 							>
 								Add

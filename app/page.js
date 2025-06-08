@@ -265,7 +265,7 @@ export default function App() {
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
-		console.log('handleUpdateGoal');
+		console.log('handleUpdateGoal ', goals);
 		// --- MODIFIED: Use preSetGoals for all goal updates ---
 		preSetGoals(
 			(prevGoals) => {
@@ -291,7 +291,7 @@ export default function App() {
 			completedDays: {},
 			createdAt: new Date().toISOString(),
 		};
-
+		console.log('handlehabitslect', goals);
 		preSetGoals((prevGoals) => [...prevGoals, newGoal], goals, setGoals);
 
 		// if (user) {
@@ -317,7 +317,8 @@ export default function App() {
 							goals={goals}
 							onReSort={() => {}} // Can likely be removed as preSetGoals handles sorting
 							onUpdateGoal={handleUpdateGoal}
-							setGoals={preSetGoals} // Pass preSetGoals down for direct updates if needed (e.g., deletions)
+							setGoals={setGoals} // Pass preSetGoals down for direct updates if needed (e.g., deletions)
+							preSetGoals={preSetGoals} // Pass preSetGoals down for direct updates if needed (e.g., deletions)
 						/>
 					)}
 					{activeTab === 'explore' && (

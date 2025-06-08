@@ -18,7 +18,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 		goals,
 		onEdit,
 		onReSort, // This prop is now largely redundant due to sorting in App.js
-		setGoals, // Still needed for handleDelete in GoalsTab
+		setGoals,
+		preSetGoals, // Still needed for handleDelete in GoalsTab
 		onUpdateGoal,
 	},
 	ref
@@ -182,13 +183,19 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const handleDelete = (goalId) => {
 		console.log('handleDelete', goalId);
 
-		setGoals((prevGoals) => {
-			const updatedGoals = prevGoals.filter((goal) => goal.id !== goalId);
-			localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-			console.log('handleDelete localStorage.setItem:', updatedGoals);
+		preSetGoals(
+			(prevGoals) => {
+				const updatedGoals = prevGoals.filter(
+					(goal) => goal.id !== goalId
+				);
+				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				console.log('handleDelete localStorage.setItem:', updatedGoals);
 
-			return updatedGoals;
-		});
+				return updatedGoals;
+			},
+			goals,
+			setGoals
+		);
 	};
 
 	const handleExpand = (goalId) => {

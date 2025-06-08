@@ -26,27 +26,31 @@ export const sortGoals = (goalsArray) => {
 	// Return combined sorted array: incomplete first, then completed
 	return [...incomplete, ...completed];
 };
-
-// Wrapper for setting goals with sorting and safety check to prevent wiping out goals accidentally
 export const preSetGoals = (update, goals, setGoals) => {
-	console.log('preSetGoals called with:', update);
+	console.log('preSetGoals called with update:', update);
+	console.log('preSetGoals called with goals:', goals);
 
-	// Determine final goals array after applying update (function or direct array)
+	if (!Array.isArray(goals)) {
+		console.error('goals is undefined or not an array:', goals);
+		return;
+	}
+
 	let finalGoalsArray = typeof update === 'function' ? update(goals) : update;
 
-	console.log('Current goals before update:', goals);
-	console.log('Final goals array before sorting:', finalGoalsArray);
+	if (!Array.isArray(finalGoalsArray)) {
+		console.error(
+			'finalGoalsArray is undefined or not an array:',
+			finalGoalsArray
+		);
+		return;
+	}
 
-	// Sort goals before setting state
 	const sortedGoals = sortGoals(finalGoalsArray);
-	console.log('Sorted goals before setting state:', sortedGoals);
 
-	// Safety check: prevent wiping out all goals unintentionally
-	if (!sortedGoals || sortedGoals.length === 0) {
+	if (!sortedGoals.length) {
 		console.warn('Skipping update: Preventing accidental wipe.');
 		return;
 	}
 
-	// Set the sorted goals in state
 	setGoals(sortedGoals);
 };

@@ -13,57 +13,19 @@ import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
 import { saveQuery } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
+import { v4 as uuidv4 } from 'uuid';
+import PageHelper, { sortGoals, preSetGoals } from '@/app/page-helper';
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
+	const [goals, setGoals] = useState([]);
+	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
 	const email = user?.primaryEmailAddress?.emailAddress;
 	// --- Helper function for consistent goal sorting ---
-	const sortGoals = (goalsArray) => {
-		console.log('SORT GOALS', goalsArray);
-		const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
-		const completed = goalsArray.filter((goal) => goal.isCompleted);
-
-		incomplete.sort(
-			(a, b) =>
-				new Date(b.createdAt).getTime() -
-				new Date(a.createdAt).getTime()
-		);
-		completed.sort(
-			(a, b) =>
-				new Date(a.createdAt).getTime() -
-				new Date(b.createdAt).getTime()
-		);
-
-		return [...incomplete, ...completed];
-	};
-
-	const [goals, setGoals] = useState([]);
-	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 
 	// --- NEW: Centralized function to update goals, sort, and save ---
 	// This function now correctly handles both direct array updates and functional updates.
-	const preSetGoals = (update) => {
-		console.log('Inside preSetGoals - Received update:', update);
-
-		let finalGoalsArray;
-
-		// If 'update' is a function (e.g., (prevGoals) => [...prevGoals, newGoal]),
-		// call it with the current goals state to get the new array.
-		if (typeof update === 'function') {
-			finalGoalsArray = update(goals); // Pass the current 'goals' state to the updater function
-		} else {
-			// Otherwise, 'update' is already the new goals array.
-			finalGoalsArray = update;
-		}
-
-		// Sort the final array before setting the state.
-		const sortedGoals = sortGoals(finalGoalsArray);
-		console.log('preSetGoals is updating goals (sorted):', sortedGoals);
-		setGoals(sortedGoals);
-		// The useEffect for saving to localStorage will automatically handle persistence
-		// because `setGoals` was called.
-	};
 
 	// --- NEW: Function to handle daily goal reset logic ---
 	const checkAndResetDailyGoals = () => {
@@ -96,20 +58,32 @@ export default function App() {
 
 			// Use preSetGoals here to ensure sorting and eventual saving
 			// preSetGoals receives the functional update and handles the rest.
-			preSetGoals((prevGoals) => {
-				const updatedGoals = prevGoals.map((goal) =>
-					goal.isCompleted
-						? { ...goal, progress: 0, isCompleted: false }
-						: goal
-				);
-				console.log('PRESETGOALS', updatedGoals);
-				return updatedGoals; // preSetGoals will then sort these
-			});
+			preSetGoals(
+				(prevGoals) => {
+					if (!prevGoals || prevGoals.length === 0) {
+						console.warn('Skipping reset: No goals to update.');
+						return prevGoals; // Prevent accidental wipe
+					}
+
+					const updatedGoals = prevGoals.map((goal) =>
+						goal.isCompleted
+							? { ...goal, progress: 0, isCompleted: false }
+							: goal
+					);
+
+					return updatedGoals;
+				},
+				goals,
+				setGoals
+			);
 
 			// Always set lastDailyResetTime to *today's* midnight after a reset
 			setLastDailyResetTime(todayMidnight); // This will trigger the save useEffect for lastDailyResetTime
 		}
 	};
+	useEffect(() => {
+		console.log('App component mounted!');
+	}, []);
 
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
@@ -132,7 +106,7 @@ export default function App() {
 				loadedGoals
 			);
 
-			preSetGoals(loadedGoals);
+			preSetGoals(loadedGoals, goals, setGoals);
 		}
 
 		const storedTime = localStorage.getItem('lastDailyResetTime');
@@ -152,6 +126,34 @@ export default function App() {
 		}
 	}, []);
 
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === 'visible') {
+				console.log('App resumed—checking goals.');
+				const storedGoals = JSON.parse(
+					localStorage.getItem('userGoals')
+				);
+				if (
+					goals.length === 0 &&
+					storedGoals &&
+					storedGoals.length > 0
+				) {
+					console.warn(
+						'Goals disappeared—restoring from localStorage.'
+					);
+					setGoals(storedGoals);
+				}
+			}
+		};
+
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => {
+			document.removeEventListener(
+				'visibilitychange',
+				handleVisibilityChange
+			);
+		};
+	}, [goals]);
 	// --- useEffect to run reset check whenever lastDailyResetTime changes ---
 	useEffect(() => {
 		if (lastDailyResetTime) {
@@ -265,18 +267,22 @@ export default function App() {
 		}
 		console.log('handleUpdateGoal');
 		// --- MODIFIED: Use preSetGoals for all goal updates ---
-		preSetGoals((prevGoals) => {
-			const updatedList = prevGoals.map((goal) =>
-				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
-			);
-			console.log('calling preSetGoals 1', updatedList);
-			return updatedList; // preSetGoals will handle sorting
-		});
+		preSetGoals(
+			(prevGoals) => {
+				const updatedList = prevGoals.map((goal) =>
+					goal.id === goalId ? { ...goal, ...updatedGoal } : goal
+				);
+				console.log('calling preSetGoals 1', updatedList);
+				return updatedList; // preSetGoals will handle sorting
+			},
+			goals,
+			setGoals
+		);
 	};
 
 	const handleHabitSelect = async (habit) => {
 		const newGoal = {
-			id: habit.id + Date.now().toString(),
+			id: uuidv4(),
 			title: habit.title,
 			color: habit.color,
 			description: habit.description,
@@ -285,9 +291,8 @@ export default function App() {
 			completedDays: {},
 			createdAt: new Date().toISOString(),
 		};
-		preSetGoals([...prevGoals, newGoal]);
-		// --- MODIFIED: Use preSetGoals for all goal additions ---
-		// preSetGoals((prevGoals) => [...prevGoals, newGoal]);
+
+		preSetGoals((prevGoals) => [...prevGoals, newGoal], goals, setGoals);
 
 		// if (user) {
 		// 	const email = user.primaryEmailAddress?.emailAddress;

@@ -59,7 +59,7 @@ export default function App() {
 
 		// Sort the final array before setting the state.
 		const sortedGoals = sortGoals(finalGoalsArray);
-		console.log('Updating goals state:', sortedGoals);
+		console.log('preSetGoals is updating goals (sorted):', sortedGoals);
 		setGoals(sortedGoals);
 		// The useEffect for saving to localStorage will automatically handle persistence
 		// because `setGoals` was called.
@@ -127,6 +127,11 @@ export default function App() {
 			}));
 			// Use preSetGoals for initial load as well.
 			// It will sort and then call setGoals, which triggers the saving useEffect.
+			console.log(
+				'preSetGoals(loadedGoals) X is updating goals:',
+				loadedGoals
+			);
+
 			preSetGoals(loadedGoals);
 		}
 
@@ -177,6 +182,9 @@ export default function App() {
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
+	useEffect(() => {
+		console.log('Goals state changed:', goals);
+	}, [goals]);
 
 	// --- Existing useEffect for saving goals and lastDailyResetTime to localStorage ---
 	// This effect runs on *every* change to goals or lastDailyResetTime
@@ -255,12 +263,13 @@ export default function App() {
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
-
+		console.log('handleUpdateGoal');
 		// --- MODIFIED: Use preSetGoals for all goal updates ---
 		preSetGoals((prevGoals) => {
 			const updatedList = prevGoals.map((goal) =>
 				goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 			);
+			console.log('calling preSetGoals 1', updatedList);
 			return updatedList; // preSetGoals will handle sorting
 		});
 	};
@@ -276,16 +285,16 @@ export default function App() {
 			completedDays: {},
 			createdAt: new Date().toISOString(),
 		};
-
+		preSetGoals([...prevGoals, newGoal]);
 		// --- MODIFIED: Use preSetGoals for all goal additions ---
-		preSetGoals((prevGoals) => [...prevGoals, newGoal]);
+		// preSetGoals((prevGoals) => [...prevGoals, newGoal]);
 
-		if (user) {
-			const email = user.primaryEmailAddress?.emailAddress;
-			if (email) {
-				await saveQuery(email, JSON.stringify([...goals, newGoal]));
-			}
-		}
+		// if (user) {
+		// 	const email = user.primaryEmailAddress?.emailAddress;
+		// 	if (email) {
+		// 		await saveQuery(email, JSON.stringify([...goals, newGoal]));
+		// 	}
+		// }
 
 		toast.success(`${habit.title} added as a goal!`);
 	};

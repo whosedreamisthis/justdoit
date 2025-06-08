@@ -320,9 +320,8 @@ export default function App() {
 			completedDays: {},
 			createdAt: new Date().toISOString(),
 		};
-		preSetGoals([...prevGoals, newGoal]);
-		// --- MODIFIED: Use preSetGoals for all goal additions ---
-		// preSetGoals((prevGoals) => [...prevGoals, newGoal]);
+
+		preSetGoals((prevGoals) => [...prevGoals, newGoal]);
 
 		// if (user) {
 		// 	const email = user.primaryEmailAddress?.emailAddress;

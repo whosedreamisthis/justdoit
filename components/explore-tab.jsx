@@ -3,13 +3,13 @@
 import { useState, useEffect, useRef } from 'react';
 import MinimizableCard from './minimizable-card';
 import MinimizableCustomCard from './minimizable-custom-card';
+import EditableHabitCard from './editable-habit-card';
 import styles from '@/styles/explore-tab.module.css';
 import '@/app/globals.css';
 
 export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
-	// Initialize customHabits from localStorage so it persists across mounts
 	const [customHabits, setCustomHabits] = useState(() => {
 		try {
 			const stored = localStorage.getItem('customHabits');
@@ -18,10 +18,8 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			return [];
 		}
 	});
-
 	const cardRefs = useRef({});
 
-	// Persist expanded categories
 	useEffect(() => {
 		const saved = localStorage.getItem('expandedCategory');
 		if (saved) {
@@ -38,7 +36,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 		);
 	}, [expandedCategory]);
 
-	// Persist custom habits whenever they change
 	useEffect(() => {
 		localStorage.setItem('customHabits', JSON.stringify(customHabits));
 	}, [customHabits]);
@@ -46,12 +43,15 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const handleAddCustomHabit = (habit) => {
 		setCustomHabits((prev) => [...prev, habit]);
 		if (typeof onSelect === 'function') onSelect(habit);
-		// auto-expand custom category so user sees it
-		setExpandedCategory((prev) => {
-			const next = new Set(prev);
-			next.add('Custom Habits');
-			return next;
-		});
+		setExpandedCategory((prev) => new Set(prev).add('Custom Habits'));
+	};
+
+	const handleUpdateCustomHabit = (id, updated) => {
+		setCustomHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
+	};
+
+	const handleDeleteCustomHabit = (id) => {
+		setCustomHabits((prev) => prev.filter((h) => h.id !== id));
 	};
 
 	const toggleCategory = (key) => {
@@ -73,9 +73,8 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			<h2 className="text-3xl font-bold mb-4 text-primary text-center">
 				Explore Habits
 			</h2>
-
 			<div className="space-y-4">
-				{/* Always show Add-Custom-Habit card at top */}
+				{/* Add Custom Habit Card always at top */}
 				<div className="rounded-xl shadow-md overflow-hidden">
 					<MinimizableCustomCard
 						onSelect={handleAddCustomHabit}
@@ -84,7 +83,7 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 					/>
 				</div>
 
-				{/* Render preset categories */}
+				{/* Preset categories */}
 				{Object.entries(habitsByCategory).map(([category, habits]) => (
 					<div
 						key={category}
@@ -95,10 +94,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 							tabIndex={0}
 							className="flex justify-between items-center cursor-pointer"
 							onClick={() => toggleCategory(category)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' || e.key === ' ')
-									toggleCategory(category);
-							}}
 							aria-expanded={expandedCategory.has(category)}
 						>
 							<h3 className="text-lg font-semibold text-charcoal">
@@ -108,7 +103,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 								{expandedCategory.has(category) ? '▼' : '►'}
 							</span>
 						</div>
-
 						{expandedCategory.has(category) && (
 							<div
 								className={`mt-2 space-y-2 ${styles.habitsContainer}`}
@@ -148,10 +142,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 						tabIndex={0}
 						className="flex justify-between items-center cursor-pointer"
 						onClick={() => toggleCategory('Custom Habits')}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ')
-								toggleCategory('Custom Habits');
-						}}
 						aria-expanded={expandedCategory.has('Custom Habits')}
 					>
 						<h3 className="text-lg font-semibold text-charcoal">
@@ -161,7 +151,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 							{expandedCategory.has('Custom Habits') ? '▼' : '►'}
 						</span>
 					</div>
-
 					{expandedCategory.has('Custom Habits') && (
 						<div
 							className={`mt-2 space-y-2 ${styles.habitsContainer}`}
@@ -181,9 +170,12 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 										className="rounded-xl shadow-md overflow-hidden"
 										style={{ backgroundColor: habit.color }}
 									>
-										<MinimizableCard
+										<EditableHabitCard
 											habit={habit}
-											onSelect={onSelect}
+											onDelete={handleDeleteCustomHabit}
+											onUpdateHabit={
+												handleUpdateCustomHabit
+											}
 											isExpanded={
 												expandedCard === habit.id
 											}
@@ -198,8 +190,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 					)}
 				</div>
 			</div>
-
-			{/* Placeholder when nothing expanded */}
 			<div className="flex justify-center items-center min-h-[200px]">
 				{!expandedCategory.size && expandedCard === null && (
 					<p className="text-gray-600">

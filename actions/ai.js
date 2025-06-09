@@ -17,8 +17,6 @@ export async function saveQuery(email, goals) {
 			}
 		).lean(); // <--- Add .lean() here to get a plain JS object from Mongoose
 
-		console.log('Query saved/updated for email:', email, result);
-
 		// Manually convert _id and Dates for client-side serialization
 		// This is crucial for MongoDB ObjectId and Date objects
 		if (result) {
@@ -56,13 +54,7 @@ export async function saveQuery(email, goals) {
  * and either an array of queries or an error object.
  */
 export async function loadQueriesByEmail(email) {
-	console.log(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-	console.log(process.env.CLERK_SECRET_KEY);
-	console.log(process.env.DATABASE);
-
-	console.log(`4444444444444444441 loadQueriesByEmail`);
 	try {
-		console.log(`1 loadQueriesByEmail`);
 		await db(); // Connect to the database
 
 		const queries = await Query.find({ email }).lean(); // .lean() returns plain JavaScript objects
@@ -79,9 +71,6 @@ export async function loadQueriesByEmail(email) {
 			// Final safeguard: deep clone and strip non-serializable properties
 			return JSON.parse(JSON.stringify(query));
 		});
-
-		console.log('Formatted Queries:', JSON.stringify(safeQueries, null, 2));
-		console.log('Safe queries ready for client:', safeQueries);
 
 		return {
 			ok: true,
@@ -124,8 +113,6 @@ export async function loadQueryById(queryId) {
 
 		// Final safeguard for the single query object
 		const safeQuery = JSON.parse(JSON.stringify(query));
-
-		console.log(`Loaded query by ID ${queryId}:`, safeQuery);
 
 		return {
 			ok: true,
@@ -171,8 +158,6 @@ export async function loadLatestQueryByEmail(email) {
 
 		// Final safeguard for the single query object
 		const safeLatestQuery = JSON.parse(JSON.stringify(latestQuery));
-
-		console.log(`Loaded latest query for ${email}:`, safeLatestQuery);
 
 		return {
 			ok: true,

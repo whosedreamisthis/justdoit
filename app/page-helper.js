@@ -5,8 +5,6 @@ export default function PageHelper() {}
 
 // Sort goals: incomplete goals sorted newest-first, completed goals sorted oldest-first
 export const sortGoals = (goalsArray) => {
-	console.log('SORT GOALS', goalsArray);
-
 	// Separate incomplete and completed goals
 	const incomplete = goalsArray.filter((goal) => !goal.isCompleted);
 	const completed = goalsArray.filter((goal) => goal.isCompleted);
@@ -39,26 +37,17 @@ export const archiveGoal = (goal) => {
 	}
 	let archivedGoals = JSON.parse(localStorage.getItem('archivedGoals')) || {};
 	archivedGoals[goal.title] = goal.completedDays; // Save completedDays
-	console.log('archiving goals', archivedGoals);
 	localStorage.setItem('archivedGoals', JSON.stringify(archivedGoals));
-	console.log('Archived completedDays for:', goal.title, goal.completedDays);
 };
 
 // Retrieve completedDays when re-adding a goal
 export const restoreGoal = (goalTitle) => {
 	let archivedGoals = JSON.parse(localStorage.getItem('archivedGoals')) || {};
-	console.log(
-		'Restoring completedDays for:',
-		goalTitle,
-		archivedGoals[goalTitle]
-	);
+
 	return archivedGoals[goalTitle] || {}; // Retrieve past stats
 };
 
 export const preSetGoals = (update, goals, setGoals) => {
-	console.log('preSetGoals called with update:', update);
-	console.log('preSetGoals called with goals:', goals);
-
 	if (!Array.isArray(goals)) {
 		console.error('goals is undefined or not an array:', goals);
 		return;

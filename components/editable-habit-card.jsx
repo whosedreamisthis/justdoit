@@ -84,7 +84,6 @@ export default function EditableHabitCard({
 
 		e.stopPropagation(); // Ensure event object exists before calling this
 
-		console.log('Adding habit:', habit);
 		onSelect?.(habit); // Pass the valid habit object
 		return habit;
 	};
@@ -182,11 +181,6 @@ export default function EditableHabitCard({
 											e,
 											habit
 										); // Call the function
-										console.log(
-											'Habit being added:',
-											habitData
-										); // Debugging log
-										console.log('Habit itself:', habit);
 										// Pass the actual data
 									}}
 								>

@@ -184,8 +184,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 	};
 
 	const handleDelete = (goalId) => {
-		console.log('handleDelete', goalId);
-
 		// Find the goal to be deleted to archive its completedDays
 		const goalToDelete = goals.find((goal) => goal.id === goalId);
 		if (goalToDelete) {
@@ -198,7 +196,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 					(goal) => goal.id !== goalId
 				);
 				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
-				console.log('handleDelete localStorage.setItem:', updatedGoals);
 
 				return updatedGoals;
 			},

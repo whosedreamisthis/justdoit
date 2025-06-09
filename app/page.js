@@ -102,12 +102,9 @@ export default function App() {
 			return;
 		}
 
-		console.log('Attempting to fetch goals for email:', userEmail);
-
 		const fetchData = async () => {
 			try {
 				const response = await loadQueriesByEmail(userEmail); // Use userEmail here
-				console.log('Full response from loadQueriesByEmail:', response);
 
 				if (
 					response.ok &&
@@ -119,10 +116,6 @@ export default function App() {
 					// IMPORTANT: Check if firstQuery exists and has a 'goals' property
 					if (firstQuery && Array.isArray(firstQuery.goals)) {
 						setGoals(firstQuery.goals); // Set the goals array
-						console.log(
-							'Goals loaded and set successfully:',
-							firstQuery.goals
-						);
 					} else {
 						// Handle case where 'goals' property is missing or not an array
 						console.warn(
@@ -133,10 +126,7 @@ export default function App() {
 					}
 				} else {
 					// No queries found or API error
-					console.log(
-						'No queries found for this email or API error:',
-						response.error
-					);
+
 					setGoals([]); // Ensure goals are an empty array
 					if (response.error) {
 						toast.error(`Error loading goals: ${response.error}`);
@@ -263,20 +253,12 @@ export default function App() {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
 
-	useEffect(() => {
-		console.log('Goals state changed:', goals);
-	}, [goals]);
-
 	// --- Existing useEffect for saving goals to localStorage and database ---
 	useEffect(() => {
 		// Save to localStorage
 		if (goals.length > 0) {
-			console.log('Saving goals to local storage:', goals);
 			localStorage.setItem('userGoals', JSON.stringify(goals));
 		} else {
-			console.log(
-				'Goals array is empty, removing userGoals from localStorage.'
-			);
 			localStorage.removeItem('userGoals');
 		}
 
@@ -287,7 +269,6 @@ export default function App() {
 			if (!currentEmail) return;
 
 			try {
-				console.log('Saving goals to database:', goals);
 				// Ensure the 'goals' array is sent as an array, not a JSON string,
 				// to your saveQuery action. `saveQuery` expects `email` and `goals` (as an array).
 				const result = await saveQuery(
@@ -315,18 +296,11 @@ export default function App() {
 	// --- Existing useEffect for saving lastDailyResetTime to localStorage (database saving handled in goals useEffect if tied together) ---
 	useEffect(() => {
 		if (lastDailyResetTime) {
-			console.log(
-				'Saving lastDailyResetTime to local storage:',
-				lastDailyResetTime
-			);
 			localStorage.setItem(
 				'lastDailyResetTime',
 				lastDailyResetTime.toISOString()
 			);
 		} else {
-			console.log(
-				'lastDailyResetTime is null, removing from localStorage.'
-			);
 			localStorage.removeItem('lastDailyResetTime');
 		}
 	}, [lastDailyResetTime]);
@@ -335,13 +309,11 @@ export default function App() {
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
-		console.log('handleUpdateGoal ', goals);
 		preSetGoals(
 			(prevGoals) => {
 				const updatedList = prevGoals.map((goal) =>
 					goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 				);
-				console.log('calling preSetGoals 1', updatedList);
 				return updatedList;
 			},
 			goals,
@@ -350,7 +322,6 @@ export default function App() {
 	};
 
 	const handleHabitSelect = async (habit) => {
-		console.log('Received habit:', habit);
 		if (!habit) {
 			console.error('Habit is undefined when selecting!');
 			return;

@@ -40,8 +40,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 	}, [customHabits]);
 
 	const handleAddCustomHabit = (habit) => {
-		console.log('Adding custom habit:', habit);
-
 		setCustomHabits((prev) => [...prev, habit]);
 		onSelect?.(habit);
 		setExpandedCategory((prev) => new Set(prev).add('Custom Habits'));

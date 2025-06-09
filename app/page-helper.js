@@ -47,8 +47,12 @@ export const preSetGoals = (update, goals, setGoals) => {
 
 	const sortedGoals = sortGoals(finalGoalsArray);
 
-	if (!sortedGoals.length) {
-		console.warn('Skipping update: Preventing accidental wipe.');
+	// FINAL FIX: Always allow empty array update if there are no goals remaining
+	if (sortedGoals.length === 0) {
+		console.warn(
+			'No goals remaining: Allowing state update to empty array.'
+		);
+		setGoals([]);
 		return;
 	}
 

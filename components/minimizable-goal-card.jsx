@@ -9,6 +9,7 @@ import {
 	faSquareCheck,
 	faFloppyDisk,
 	faXmarkCircle,
+	faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
@@ -17,9 +18,9 @@ export default function MinimizableGoalCard({
 	goal,
 	onEdit,
 	isExpanded,
-	onExpand,
+	onExpand, // This is the function to expand/collapse the card
 	onDelete,
-	onUpdateGoal,
+	onUpdateGoal, // This is the function to update the goal object (e.g., progress)
 }) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedTitle, setEditedTitle] = useState(goal.title);
@@ -75,8 +76,8 @@ export default function MinimizableGoalCard({
 		setIsEditing(false);
 	};
 
-	const toggleProgress = (e) => {
-		e.stopPropagation();
+	const toggleProgress = () => {
+		// Removed 'e' from arguments as stopPropagation is handled by the FontAwesomeIcon
 		const now = new Date();
 		const year = now.getFullYear();
 		const month = now.getMonth() + 1; // getMonth() is zero-based, so add 1
@@ -128,8 +129,9 @@ export default function MinimizableGoalCard({
 			}`}
 			style={{ backgroundColor: isEditing ? editedColor : goal.color }}
 			onClick={() => {
+				// Card click now toggles progress
 				if (!isEditing) {
-					onExpand();
+					toggleProgress();
 				}
 			}}
 		>
@@ -249,22 +251,24 @@ export default function MinimizableGoalCard({
 				</div>
 			)}
 
-			{/* Progress Button - Positioned 10px Down and to the Left */}
+			{/* Expand/Collapse Button - Positioned 10px Down and to the Left */}
 			{!isEditing && (
 				<div
 					className="absolute"
 					style={{ top: '10px', right: '10px' }}
 				>
 					<FontAwesomeIcon
-						icon={
-							goal.progress === 100 ? faSquareCheck : faSquarePlus
-						}
+						icon={faEllipsis}
 						className={`far ${styles.goalCardIcon} z-20 ${
-							goal.progress === 100
-								? styles.progressComplete
-								: styles.progressIncomplete
+							isExpanded
+								? styles.progressComplete // You might want a different style for expanded state
+								: styles.progressIncomplete // You might want a different style for collapsed state
 						}`}
-						onClick={toggleProgress}
+						onClick={(e) => {
+							// Button click now expands/collapses the card
+							e.stopPropagation(); // Prevent card click from also toggling progress
+							onExpand();
+						}}
 					/>
 				</div>
 			)}

@@ -11,7 +11,7 @@ import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
-import { saveQuery } from '@/actions/ai';
+import { saveQuery, loadQueriesByEmail } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
 import PageHelper, {
@@ -86,7 +86,7 @@ export default function App() {
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
 		//localStorage.setItem('userGoals', JSON.stringify([]));
-
+		loadQueriesByEmail(email);
 		const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
 		console.log('Loaded goals from localStorage:', storedGoals);
 		if (storedGoals && storedGoals.length > 0) {

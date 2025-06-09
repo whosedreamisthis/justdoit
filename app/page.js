@@ -348,6 +348,10 @@ export default function App() {
 		toast.success(`${habit.title} added as a goal!`);
 	};
 
+	const onSignOut = () => {
+		setGoals([]);
+		setUserEmail(null);
+	};
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
@@ -382,7 +386,9 @@ export default function App() {
 							}
 						/>
 					)}
-					{activeTab === 'profile' && <ProfileTab />}
+					{activeTab === 'profile' && (
+						<ProfileTab onSignOut={onSignOut} />
+					)}
 				</div>
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 			</div>

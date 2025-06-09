@@ -11,7 +11,7 @@ import {
 	SignOutButton,
 } from '@clerk/nextjs';
 
-export default function ProfileTab() {
+export default function ProfileTab({ onSignOut }) {
 	return (
 		// The main container now properly centers content horizontally and
 		// allows vertical flow from the top
@@ -34,6 +34,7 @@ export default function ProfileTab() {
                                     hover:bg-button-primary-dark transition-colors duration-200
                                     shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-primary-light
                                 "
+							onClick={onSignOut}
 						>
 							Sign Out
 						</button>

@@ -1,23 +1,46 @@
 'use server';
 import db from '@/utils/db';
 import Query from '@/models/query';
+
 export async function saveQuery(email, goals) {
 	try {
 		await db();
 
-		const newQuery = new Query({
-			email,
-			goals,
-		});
-		console.log('new query', newQuery);
-		await newQuery.save();
+		const result = await Query.findOneAndUpdate(
+			{ email: email },
+			{ goals: goals },
+			{
+				upsert: true,
+				new: true,
+				setDefaultsOnInsert: true,
+			}
+		).lean(); // <--- Add .lean() here too for save/update operations!
+
+		console.log('Query saved/updated for email:', email, result);
+
+		// Manually convert _id and Dates for client-side serialization if .lean() isn't enough
+		// This is crucial for MongoDB ObjectId and Date objects
+		if (result) {
+			result._id = result._id.toString();
+			if (result.createdAt)
+				result.createdAt = result.createdAt.toISOString();
+			if (result.updatedAt)
+				result.updatedAt = result.updatedAt.toISOString();
+		}
+
+		// Ensure the object is a plain JavaScript object before returning to client
+		const serializableResult = JSON.parse(JSON.stringify(result));
+
 		return {
 			ok: true,
+			data: serializableResult,
 		};
 	} catch (error) {
-		console.log(error);
+		console.error('Error saving/updating query:', error);
 		return {
-			error: error,
+			error:
+				error.message ||
+				'An unexpected error occurred during save/update',
 			ok: false,
 		};
 	}
@@ -31,14 +54,31 @@ export async function saveQuery(email, goals) {
  * and either an array of queries or an error object.
  */
 export async function loadQueriesByEmail(email) {
+	console.log(`4444444444444444441 loadQueriesByEmail`);
 	try {
+		console.log(`1 loadQueriesByEmail`);
 		await db(); // Connect to the database
-
-		// Find all queries where the email matches
+		// 	console.log(`2 loadQueriesByEmail`);
+		// 	// Find all queries where the email matches
 		const queries = await Query.find({ email }).lean(); // .lean() returns plain JavaScript objects, which is often more efficient for read operations
+		queries.forEach((query) => (query._id = query._id.toString()));
+		queries.forEach((query) => {
+			query.createdAt = query.createdAt.toISOString();
+			query.updatedAt = query.updatedAt.toISOString();
+		});
 
-		console.log(`Loaded queries for ${email}:`, queries);
+		console.log('Formatted Queries:', JSON.stringify(queries, null, 2));
+		const safeQueries = JSON.parse(JSON.stringify(queries));
+		console.log('Safe queries ready for client:', safeQueries);
 
+		// 	console.log(`Loaded queries for ${email}:`, queries);
+		// throw new Error(
+		// 	`FORCED ERRI TO CHECK THIS BLICK ${JSON.stringify(
+		// 		queries,
+		// 		null,
+		// 		2
+		// 	)}`
+		// );
 		return {
 			ok: true,
 			queries,

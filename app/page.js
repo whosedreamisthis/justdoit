@@ -26,6 +26,8 @@ export default function App() {
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
+	const [userEmail, setUserEmail] = useState(null);
+
 	const email = user?.primaryEmailAddress?.emailAddress;
 
 	const checkAndResetDailyGoals = useCallback(() => {
@@ -82,11 +84,56 @@ export default function App() {
 	useEffect(() => {
 		console.log('App component mounted!');
 	}, []);
-
+	console.log('Current email value:', email);
+	useEffect(() => {
+		if (email && email !== userEmail) {
+			setUserEmail(email);
+		}
+	}, [email]);
+	useEffect(() => {
+		console.log(
+			'userEmail dependency changed. Current userEmail:',
+			userEmail
+		);
+		console.log('Current email value:', userEmail); // ADD THIS LINE
+		if (!userEmail) {
+			console.log('email is falsy, returning early from useEffect.'); // ADD THIS LINE
+			return;
+		}
+		console.log('HOW MANY TIMES AM I BEING CALLED');
+		// ... rest of your code
+	}, [userEmail]);
+	useEffect(() => {
+		if (!email) return;
+		console.log('HOW MANY TIMES AM I BEING CALLED');
+		const fetchData = async () => {
+			console.log('2 Loaded goals from database:', email);
+			try {
+				// Add a log right before calling loadQueriesByEmail
+				console.log(
+					'Attempting to call loadQueriesByEmail with email:',
+					email
+				);
+				const response = await loadQueriesByEmail(email);
+				console.log(
+					'3 Loaded goals from database: Response received:',
+					response
+				);
+			} catch (error) {
+				console.log(
+					'Entering catch block for loadQueriesByEmail error...'
+				);
+				console.error('Error loading queries:', error);
+			}
+		};
+		// console.log('1 Loaded goals from database:');
+		// //localStorage.setItem('userGoals', JSON.stringify([]));
+		fetchData().catch((error) =>
+			console.log('Caught error from fetchData:', error)
+		);
+	}, [userEmail, email]);
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
-		//localStorage.setItem('userGoals', JSON.stringify([]));
-		loadQueriesByEmail(email);
 		const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
 		console.log('Loaded goals from localStorage:', storedGoals);
 		if (storedGoals && storedGoals.length > 0) {

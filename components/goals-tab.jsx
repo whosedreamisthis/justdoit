@@ -45,7 +45,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 	// Use useMemo to create a sorted copy of goals for display.
 	// Ensure this sort logic matches the one in app/page.js
 	const sortedGoals = useMemo(() => {
-		console.log('in usememo');
 		return [...goals].sort((a, b) => {
 			// Primary sort: Incomplete goals first
 			const completionA = a.isCompleted ? 1 : -1;

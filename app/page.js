@@ -355,6 +355,10 @@ export default function App() {
 			console.error('Habit is undefined when selecting!');
 			return;
 		}
+		if (!userEmail) {
+			toast.success('Sign in to add goals.');
+			return;
+		}
 
 		const restoredCompletedDays = restoreGoal(habit.title);
 

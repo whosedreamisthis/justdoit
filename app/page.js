@@ -85,7 +85,7 @@ export default function App() {
 
 	// --- useEffect for loading initial state from localStorage (client-side only) ---
 	useEffect(() => {
-		localStorage.setItem('userGoals', JSON.stringify([]));
+		//localStorage.setItem('userGoals', JSON.stringify([]));
 
 		const storedGoals = JSON.parse(localStorage.getItem('userGoals'));
 		console.log('Loaded goals from localStorage:', storedGoals);

@@ -158,7 +158,7 @@ export default function App() {
 	// However, if you want database to always override, then its placement here is fine.
 	// Ensure that if storedGoals is null/undefined, it defaults to an empty array before map.
 	useEffect(() => {
-		const storedGoalsString = localStorage.getItem('userGoals');
+		/*const storedGoalsString = localStorage.getItem('userGoals');
 		const storedGoals = storedGoalsString
 			? JSON.parse(storedGoalsString)
 			: []; // Default to empty array if null
@@ -186,7 +186,7 @@ export default function App() {
 				'No goals in localStorage or not an array. Starting with empty goals.'
 			);
 			// No need to setGoals([]) here as it's initialized to [] and the database fetch will handle it.
-		}
+		}*/
 
 		const storedTime = localStorage.getItem('lastDailyResetTime');
 		if (storedTime) {
@@ -207,55 +207,50 @@ export default function App() {
 
 	// --- New: Listen for browser tab visibility changes (user returns to tab) ---
 	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === 'visible') {
-				console.log(
-					'Tab became visible. Checking for daily reset and restoring goals...'
-				);
-
-				const storedGoalsString = localStorage.getItem('userGoals');
-				const storedGoals = storedGoalsString
-					? JSON.parse(storedGoalsString)
-					: [];
-
-				if (Array.isArray(storedGoals) && storedGoals.length > 0) {
-					console.log(
-						'Restoring goals from localStorage on visibility change.'
-					);
-					const loadedGoals = storedGoals.map((goal) => ({
-						...goal,
-						isCompleted:
-							typeof goal.isCompleted === 'boolean'
-								? goal.isCompleted
-								: goal.progress >= 100,
-						completedDays: goal.completedDays || {},
-						createdAt: goal.createdAt || new Date().toISOString(),
-					}));
-					preSetGoals(loadedGoals, goals, setGoals);
-				} else if (
-					!Array.isArray(storedGoals) ||
-					storedGoals.length === 0
-				) {
-					if (goals.length > 0) {
-						console.log(
-							'Clearing goals as localStorage is empty or malformed.'
-						);
-						setGoals([]);
-					}
-				}
-
-				checkAndResetDailyGoals();
-			}
-		};
-
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-
-		return () => {
-			document.removeEventListener(
-				'visibilitychange',
-				handleVisibilityChange
-			);
-		};
+		// const handleVisibilityChange = () => {
+		// 	if (document.visibilityState === 'visible') {
+		// 		console.log(
+		// 			'Tab became visible. Checking for daily reset and restoring goals...'
+		// 		);
+		// 		const storedGoalsString = localStorage.getItem('userGoals');
+		// 		const storedGoals = storedGoalsString
+		// 			? JSON.parse(storedGoalsString)
+		// 			: [];
+		// 		if (Array.isArray(storedGoals) && storedGoals.length > 0) {
+		// 			console.log(
+		// 				'Restoring goals from localStorage on visibility change.'
+		// 			);
+		// 			const loadedGoals = storedGoals.map((goal) => ({
+		// 				...goal,
+		// 				isCompleted:
+		// 					typeof goal.isCompleted === 'boolean'
+		// 						? goal.isCompleted
+		// 						: goal.progress >= 100,
+		// 				completedDays: goal.completedDays || {},
+		// 				createdAt: goal.createdAt || new Date().toISOString(),
+		// 			}));
+		// 			preSetGoals(loadedGoals, goals, setGoals);
+		// 		} else if (
+		// 			!Array.isArray(storedGoals) ||
+		// 			storedGoals.length === 0
+		// 		) {
+		// 			if (goals.length > 0) {
+		// 				console.log(
+		// 					'Clearing goals as localStorage is empty or malformed.'
+		// 				);
+		// 				setGoals([]);
+		// 			}
+		// 		}
+		// 		checkAndResetDailyGoals();
+		// 	}
+		// };
+		// document.addEventListener('visibilitychange', handleVisibilityChange);
+		// return () => {
+		// 	document.removeEventListener(
+		// 		'visibilitychange',
+		// 		handleVisibilityChange
+		// 	);
+		// };
 	}, [goals, checkAndResetDailyGoals]);
 
 	useEffect(() => {
@@ -302,9 +297,10 @@ export default function App() {
 				if (!result.ok) {
 					console.error('Failed to save goals:', result.error);
 					toast.error('Failed to save goals to cloud!');
-				} else {
-					toast.success('Goals saved to cloud!');
 				}
+				// else {
+				// 	toast.success('Goals saved to cloud!');
+				// }
 			} catch (err) {
 				console.error('Error calling saveQuery for goals:', err);
 				toast.error('Error saving goals to cloud!');

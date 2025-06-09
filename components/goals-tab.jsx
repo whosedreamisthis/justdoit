@@ -8,11 +8,13 @@ import {
 	useImperativeHandle,
 	forwardRef,
 	useLayoutEffect,
+	isSignedIn,
 } from 'react';
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
 import styles from '@/styles/goals-tab.module.css';
 import { archiveGoal } from '@/app/page-helper'; // Import archiveGoal
+import { SignedIn } from '@clerk/nextjs';
 
 // Use forwardRef to receive the ref from the parent (App.js)
 const GoalsTab = forwardRef(function GoalsTab(
@@ -23,6 +25,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setGoals,
 		preSetGoals, // Still needed for handleDelete in GoalsTab
 		onUpdateGoal,
+		isSignedIn,
 	},
 	ref
 ) {
@@ -209,6 +212,11 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setExpandedGoal(expandedGoal === goalId ? null : goalId);
 	};
 
+	if (!isSignedIn) {
+		return (
+			<h2 className={`${styles.signInMessage}`}>Sign in to add goals.</h2>
+		);
+	}
 	return (
 		<div className="p-3 bg-subtle-background">
 			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">

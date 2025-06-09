@@ -388,6 +388,9 @@ export default function App() {
 							onUpdateGoal={handleUpdateGoal}
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
+							isSignedIn={
+								userEmail != undefined && userEmail != null
+							}
 						/>
 					)}
 					{activeTab === 'explore' && (

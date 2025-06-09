@@ -4,24 +4,25 @@ import Query from '@/models/query';
 
 export async function saveQuery(email, goals) {
 	try {
-		await db();
+		await db(); // Ensure database connection is established
 
+		// Use findOneAndUpdate with upsert: true to update if exists, insert if not
 		const result = await Query.findOneAndUpdate(
-			{ email: email },
-			{ goals: goals },
+			{ email: email }, // Filter: Find a document where the 'email' field matches the provided email
+			{ goals: goals }, // Update: Set the 'goals' field to the new goals array
 			{
-				upsert: true,
-				new: true,
-				setDefaultsOnInsert: true,
+				upsert: true, // <--- Crucial: If no document matches, create a new one
+				new: true, // <--- Important: Return the modified document rather than the original
+				setDefaultsOnInsert: true, // Applies schema defaults when upserting a new document
 			}
-		).lean(); // <--- Add .lean() here too for save/update operations!
+		).lean(); // <--- Add .lean() here to get a plain JS object from Mongoose
 
 		console.log('Query saved/updated for email:', email, result);
 
-		// Manually convert _id and Dates for client-side serialization if .lean() isn't enough
+		// Manually convert _id and Dates for client-side serialization
 		// This is crucial for MongoDB ObjectId and Date objects
 		if (result) {
-			result._id = result._id.toString();
+			if (result._id) result._id = result._id.toString();
 			if (result.createdAt)
 				result.createdAt = result.createdAt.toISOString();
 			if (result.updatedAt)
@@ -29,6 +30,7 @@ export async function saveQuery(email, goals) {
 		}
 
 		// Ensure the object is a plain JavaScript object before returning to client
+		// This is the final safeguard for any nested structures or types that might still be problematic
 		const serializableResult = JSON.parse(JSON.stringify(result));
 
 		return {
@@ -58,30 +60,28 @@ export async function loadQueriesByEmail(email) {
 	try {
 		console.log(`1 loadQueriesByEmail`);
 		await db(); // Connect to the database
-		// 	console.log(`2 loadQueriesByEmail`);
-		// 	// Find all queries where the email matches
-		const queries = await Query.find({ email }).lean(); // .lean() returns plain JavaScript objects, which is often more efficient for read operations
-		queries.forEach((query) => (query._id = query._id.toString()));
-		queries.forEach((query) => {
-			query.createdAt = query.createdAt.toISOString();
-			query.updatedAt = query.updatedAt.toISOString();
+
+		const queries = await Query.find({ email }).lean(); // .lean() returns plain JavaScript objects
+
+		// IMPORTANT: Map over the queries to ensure each object is fully serializable
+		const safeQueries = queries.map((query) => {
+			// Convert _id to string
+			if (query._id) query._id = query._id.toString();
+			// Convert Date objects to ISO strings
+			if (query.createdAt)
+				query.createdAt = query.createdAt.toISOString();
+			if (query.updatedAt)
+				query.updatedAt = query.updatedAt.toISOString();
+			// Final safeguard: deep clone and strip non-serializable properties
+			return JSON.parse(JSON.stringify(query));
 		});
 
-		console.log('Formatted Queries:', JSON.stringify(queries, null, 2));
-		const safeQueries = JSON.parse(JSON.stringify(queries));
+		console.log('Formatted Queries:', JSON.stringify(safeQueries, null, 2));
 		console.log('Safe queries ready for client:', safeQueries);
 
-		// 	console.log(`Loaded queries for ${email}:`, queries);
-		// throw new Error(
-		// 	`FORCED ERRI TO CHECK THIS BLICK ${JSON.stringify(
-		// 		queries,
-		// 		null,
-		// 		2
-		// 	)}`
-		// );
 		return {
 			ok: true,
-			queries,
+			queries: safeQueries, // Return the fully serialized array
 		};
 	} catch (error) {
 		console.error('Error loading queries:', error);
@@ -104,7 +104,6 @@ export async function loadQueryById(queryId) {
 	try {
 		await db(); // Connect to the database
 
-		// Find a single query by its ID
 		const query = await Query.findById(queryId).lean();
 
 		if (!query) {
@@ -114,11 +113,19 @@ export async function loadQueryById(queryId) {
 			};
 		}
 
-		console.log(`Loaded query by ID ${queryId}:`, query);
+		// Convert _id and Dates
+		if (query._id) query._id = query._id.toString();
+		if (query.createdAt) query.createdAt = query.createdAt.toISOString();
+		if (query.updatedAt) query.updatedAt = query.updatedAt.toISOString();
+
+		// Final safeguard for the single query object
+		const safeQuery = JSON.parse(JSON.stringify(query));
+
+		console.log(`Loaded query by ID ${queryId}:`, safeQuery);
 
 		return {
 			ok: true,
-			query,
+			query: safeQuery, // Return the fully serialized object
 		};
 	} catch (error) {
 		console.error('Error loading query by ID:', error);
@@ -140,9 +147,8 @@ export async function loadLatestQueryByEmail(email) {
 	try {
 		await db(); // Connect to the database
 
-		// Find one query, sort by createdAt in descending order (latest first)
 		const latestQuery = await Query.findOne({ email })
-			.sort({ createdAt: -1 }) // Assuming you have a `createdAt` timestamp in your schema
+			.sort({ createdAt: -1 })
 			.lean();
 
 		if (!latestQuery) {
@@ -152,11 +158,21 @@ export async function loadLatestQueryByEmail(email) {
 			};
 		}
 
-		console.log(`Loaded latest query for ${email}:`, latestQuery);
+		// Convert _id and Dates
+		if (latestQuery._id) latestQuery._id = latestQuery._id.toString();
+		if (latestQuery.createdAt)
+			latestQuery.createdAt = latestQuery.createdAt.toISOString();
+		if (latestQuery.updatedAt)
+			latestQuery.updatedAt = latestQuery.updatedAt.toISOString();
+
+		// Final safeguard for the single query object
+		const safeLatestQuery = JSON.parse(JSON.stringify(latestQuery));
+
+		console.log(`Loaded latest query for ${email}:`, safeLatestQuery);
 
 		return {
 			ok: true,
-			query: latestQuery,
+			query: safeLatestQuery, // Return the fully serialized object
 		};
 	} catch (error) {
 		console.error('Error loading latest query:', error);

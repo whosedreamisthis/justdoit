@@ -27,8 +27,16 @@ export const sortGoals = (goalsArray) => {
 	return [...incomplete, ...completed];
 };
 
-// Store completedDays when deleting a goal
+// Store completedDays when deleting a goal with minimal validation
 export const archiveGoal = (goal) => {
+	if (
+		!goal ||
+		typeof goal.title !== 'string' ||
+		typeof goal.completedDays !== 'object'
+	) {
+		console.warn('archiveGoal received invalid goal:', goal);
+		return;
+	}
 	let archivedGoals = JSON.parse(localStorage.getItem('archivedGoals')) || {};
 	archivedGoals[goal.title] = goal.completedDays; // Save completedDays
 	console.log('archiving goals', archivedGoals);
@@ -46,6 +54,7 @@ export const restoreGoal = (goalTitle) => {
 	);
 	return archivedGoals[goalTitle] || {}; // Retrieve past stats
 };
+
 export const preSetGoals = (update, goals, setGoals) => {
 	console.log('preSetGoals called with update:', update);
 	console.log('preSetGoals called with goals:', goals);

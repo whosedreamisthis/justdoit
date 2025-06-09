@@ -1,6 +1,6 @@
 // app/page.js
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import BottomTabs from '@/components/bottom-nav';
 import habitsByCategory from '@/data/habits.json';
 import ExploreTab from '@/components/explore-tab';
@@ -18,7 +18,7 @@ import PageHelper, {
 	sortGoals,
 	preSetGoals,
 	restoreGoal,
-} from '@/app/page-helper'; // Import restoreGoal
+} from '@/app/page-helper';
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
@@ -27,13 +27,8 @@ export default function App() {
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
 	const email = user?.primaryEmailAddress?.emailAddress;
-	// --- Helper function for consistent goal sorting ---
 
-	// --- NEW: Centralized function to update goals, sort, and save ---
-	// This function now correctly handles both direct array updates and functional updates.
-
-	// --- NEW: Function to handle daily goal reset logic ---
-	const checkAndResetDailyGoals = () => {
+	const checkAndResetDailyGoals = useCallback(() => {
 		const now = new Date();
 		const todayMidnight = new Date(
 			now.getFullYear(),
@@ -48,7 +43,7 @@ export default function App() {
 			? new Date(
 					lastDailyResetTime.getFullYear(),
 					lastDailyResetTime.getMonth(),
-					lastDailyResetTime.getDate(), // Corrected to use lastDailyResetTime
+					lastDailyResetTime.getDate(),
 					0,
 					0,
 					0
@@ -61,13 +56,11 @@ export default function App() {
 		if (shouldReset) {
 			console.log('Midnight Reset Triggered or First Time Reset!');
 
-			// Use preSetGoals here to ensure sorting and eventual saving
-			// preSetGoals receives the functional update and handles the rest.
 			preSetGoals(
 				(prevGoals) => {
 					if (!prevGoals || prevGoals.length === 0) {
 						console.warn('Skipping reset: No goals to update.');
-						return prevGoals; // Prevent accidental wipe
+						return prevGoals;
 					}
 
 					const updatedGoals = prevGoals.map((goal) =>
@@ -82,10 +75,10 @@ export default function App() {
 				setGoals
 			);
 
-			// Always set lastDailyResetTime to *today's* midnight after a reset
-			setLastDailyResetTime(todayMidnight); // This will trigger the save useEffect for lastDailyResetTime
+			setLastDailyResetTime(todayMidnight);
 		}
-	};
+	}, [lastDailyResetTime, goals]);
+
 	useEffect(() => {
 		console.log('App component mounted!');
 	}, []);
@@ -104,13 +97,10 @@ export default function App() {
 				completedDays: goal.completedDays || {},
 				createdAt: goal.createdAt || new Date().toISOString(),
 			}));
-			// Use preSetGoals for initial load as well.
-			// It will sort and then call setGoals, which triggers the saving useEffect.
 			console.log(
-				'preSetGoals(loadedGoals) X is updating goals:',
+				'preSetGoals(loadedGoals) is updating goals:',
 				loadedGoals
 			);
-
 			preSetGoals(loadedGoals, goals, setGoals);
 		}
 
@@ -131,46 +121,41 @@ export default function App() {
 		}
 	}, []);
 
-	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === 'visible') {
-				console.log('App resumed—checking goals.');
-				const storedGoals = JSON.parse(
-					localStorage.getItem('userGoals')
-				);
-				if (
-					goals.length === 0 &&
-					storedGoals &&
-					storedGoals.length > 0
-				) {
-					console.warn(
-						'Goals disappeared—restoring from localStorage.'
-					);
-					setGoals(storedGoals);
-				}
-			}
-		};
-
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		return () => {
-			document.removeEventListener(
-				'visibilitychange',
-				handleVisibilityChange
-			);
-		};
-	}, [goals]);
-	// --- useEffect to run reset check whenever lastDailyResetTime changes ---
-	useEffect(() => {
-		if (lastDailyResetTime) {
-			checkAndResetDailyGoals();
-		}
-	}, [lastDailyResetTime]);
-
 	// --- New: Listen for browser tab visibility changes (user returns to tab) ---
 	useEffect(() => {
 		const handleVisibilityChange = () => {
 			if (document.visibilityState === 'visible') {
-				console.log('Tab became visible. Checking for daily reset...');
+				console.log(
+					'Tab became visible. Checking for daily reset and restoring goals...'
+				);
+
+				// Restore goals from localStorage regardless of current in-memory state
+				const storedGoals = JSON.parse(
+					localStorage.getItem('userGoals')
+				);
+				if (storedGoals && storedGoals.length > 0) {
+					console.log(
+						'Restoring goals from localStorage on visibility change.'
+					);
+					const loadedGoals = storedGoals.map((goal) => ({
+						...goal,
+						isCompleted:
+							typeof goal.isCompleted === 'boolean'
+								? goal.isCompleted
+								: goal.progress >= 100,
+						completedDays: goal.completedDays || {},
+						createdAt: goal.createdAt || new Date().toISOString(),
+					}));
+					preSetGoals(loadedGoals, goals, setGoals);
+				} else if (!storedGoals || storedGoals.length === 0) {
+					// If localStorage is empty, ensure the in-memory goals are also empty
+					if (goals.length > 0) {
+						console.log('Clearing goals as localStorage is empty.');
+						setGoals([]);
+					}
+				}
+
+				// Also re-check and reset daily goals
 				checkAndResetDailyGoals();
 			}
 		};
@@ -183,102 +168,127 @@ export default function App() {
 				handleVisibilityChange
 			);
 		};
-	}, []);
+	}, [goals, checkAndResetDailyGoals]); // Added goals to dependencies here to ensure latest state for restoration check
+
+	// --- useEffect to run reset check whenever lastDailyResetTime changes ---
+	useEffect(() => {
+		if (lastDailyResetTime) {
+			checkAndResetDailyGoals();
+		}
+	}, [lastDailyResetTime, checkAndResetDailyGoals]); // Added checkAndResetDailyGoals to dependencies
 
 	// --- Existing useEffect for scrolling to top on tab change ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
+
 	useEffect(() => {
 		console.log('Goals state changed:', goals);
 	}, [goals]);
 
-	// --- Existing useEffect for saving goals and lastDailyResetTime to localStorage ---
-	// This effect runs on *every* change to goals or lastDailyResetTime
-	// and serves as the single point of persistence to localStorage.
+	// --- Existing useEffect for saving goals to localStorage and database ---
 	useEffect(() => {
 		if (goals.length > 0) {
-			// Ensure we never store an empty array
 			console.log('Saving goals to local storage:', goals);
 			localStorage.setItem('userGoals', JSON.stringify(goals));
+		} else {
+			console.log(
+				'Goals array is empty, removing userGoals from localStorage.'
+			);
+			localStorage.removeItem('userGoals');
 		}
 
-		const saveToDatabase = async () => {
-			if (!user) return; // Wait until Clerk loads
-			const email = user.primaryEmailAddress?.emailAddress;
-			if (!email) return;
+		const saveGoalsToDatabase = async () => {
+			if (!user) return;
+			const currentEmail = user.primaryEmailAddress?.emailAddress;
+			if (!currentEmail) return;
 
 			try {
 				console.log('Saving goals to database:', goals);
 				const result = await saveQuery(
-					email,
+					currentEmail,
 					JSON.stringify(goals),
-					lastDailyResetTime
+					lastDailyResetTime ? lastDailyResetTime.toISOString() : null
 				);
 				if (!result.ok) {
 					console.error('Failed to save goals:', result.error);
 				}
 			} catch (err) {
-				console.error('Error calling saveQuery:', err);
+				console.error('Error calling saveQuery for goals:', err);
 			}
 		};
 
+		// Uncomment the following lines when you are ready to enable database saving
 		// if (user && goals.length > 0) {
-		// 	saveToDatabase();
+		//     saveGoalsToDatabase();
 		// }
-	}, [goals]);
+	}, [goals, user, lastDailyResetTime]); // Added lastDailyResetTime to dependencies here as it's passed to saveQuery
 
+	// --- Existing useEffect for saving lastDailyResetTime to localStorage and database ---
 	useEffect(() => {
 		if (lastDailyResetTime) {
 			console.log(
-				'Saving lastDailyResetTime  to local storage:',
+				'Saving lastDailyResetTime to local storage:',
 				lastDailyResetTime
 			);
 			localStorage.setItem(
 				'lastDailyResetTime',
 				lastDailyResetTime.toISOString()
 			);
+		} else {
+			console.log(
+				'lastDailyResetTime is null, removing from localStorage.'
+			);
+			localStorage.removeItem('lastDailyResetTime');
 		}
 
-		const saveToDatabase = async () => {
-			if (!user) return; // Wait until Clerk loads
-			const email = user.primaryEmailAddress?.emailAddress;
-			if (!email) return;
+		const saveLastResetTimeToDatabase = async () => {
+			if (!user) return;
+			const currentEmail = user.primaryEmailAddress?.emailAddress;
+			if (!currentEmail) return;
 
 			try {
-				console.log('Saving lastDailyResetTime to database:', goals);
-				const result = await saveQuery(
-					email,
-					JSON.stringify(goals),
+				console.log(
+					'Saving lastDailyResetTime to database:',
 					lastDailyResetTime
 				);
+				const result = await saveQuery(
+					currentEmail,
+					JSON.stringify(goals), // Ensure goals are also sent if you save them together
+					lastDailyResetTime ? lastDailyResetTime.toISOString() : null
+				);
 				if (!result.ok) {
-					console.error('Failed to save goals:', result.error);
+					console.error(
+						'Failed to save lastDailyResetTime:',
+						result.error
+					);
 				}
 			} catch (err) {
-				console.error('Error calling saveQuery:', err);
+				console.error(
+					'Error calling saveQuery for lastDailyResetTime:',
+					err
+				);
 			}
 		};
 
-		// if (user && goals.length > 0) {
-		// 	saveToDatabase();
+		// Uncomment the following lines when you are ready to enable database saving
+		// if (user) { // No need to check goals.length here, as lastDailyResetTime can exist independently
+		//     saveLastResetTimeToDatabase();
 		// }
-	}, [lastDailyResetTime]);
+	}, [lastDailyResetTime, user, goals]); // Added goals to dependencies here as it's passed to saveQuery
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
-		// Step 1: Capture "First" positions immediately BEFORE the state update that causes reordering.
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
 			goalsTabRef.current.snapshotPositions();
 		}
 		console.log('handleUpdateGoal ', goals);
-		// --- MODIFIED: Use preSetGoals for all goal updates ---
 		preSetGoals(
 			(prevGoals) => {
 				const updatedList = prevGoals.map((goal) =>
 					goal.id === goalId ? { ...goal, ...updatedGoal } : goal
 				);
 				console.log('calling preSetGoals 1', updatedList);
-				return updatedList; // preSetGoals will handle sorting
+				return updatedList;
 			},
 			goals,
 			setGoals
@@ -286,13 +296,13 @@ export default function App() {
 	};
 
 	const handleHabitSelect = async (habit) => {
-		console.log('Received habit:', habit); // Debugging log
+		console.log('Received habit:', habit);
 		if (!habit) {
 			console.error('Habit is undefined when selecting!');
 			return;
 		}
 
-		const restoredCompletedDays = restoreGoal(habit.title); // Restore completedDays here
+		const restoredCompletedDays = restoreGoal(habit.title);
 
 		const newGoal = {
 			id: uuidv4(),
@@ -301,7 +311,7 @@ export default function App() {
 			color: habit.color || '#FFFFFF',
 			progress: 0,
 			isCompleted: false,
-			completedDays: restoredCompletedDays, // Assign restored completedDays
+			completedDays: restoredCompletedDays,
 			createdAt: new Date().toISOString(),
 		};
 
@@ -320,10 +330,10 @@ export default function App() {
 						<GoalsTab
 							ref={goalsTabRef}
 							goals={goals}
-							onReSort={() => {}} // Can likely be removed as preSetGoals handles sorting
+							onReSort={() => {}}
 							onUpdateGoal={handleUpdateGoal}
-							setGoals={setGoals} // Pass preSetGoals down for direct updates if needed (e.g., deletions)
-							preSetGoals={preSetGoals} // Pass preSetGoals down for direct updates if needed (e.g., deletions)
+							setGoals={setGoals}
+							preSetGoals={preSetGoals}
 						/>
 					)}
 					{activeTab === 'explore' && (

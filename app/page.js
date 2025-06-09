@@ -221,9 +221,9 @@ export default function App() {
 		};
 
 		// Uncomment the following lines when you are ready to enable database saving
-		// if (user && goals.length > 0) {
-		//     saveGoalsToDatabase();
-		// }
+		if (user && goals.length > 0) {
+			saveGoalsToDatabase();
+		}
 	}, [goals, user, lastDailyResetTime]); // Added lastDailyResetTime to dependencies here as it's passed to saveQuery
 
 	// --- Existing useEffect for saving lastDailyResetTime to localStorage and database ---

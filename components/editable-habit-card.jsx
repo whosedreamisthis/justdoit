@@ -175,7 +175,7 @@ export default function EditableHabitCard({
 								className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
 							>
 								<button
-									className={`${styles.addButton}`}
+									className={`addButton`}
 									onClick={(e) => {
 										e.stopPropagation(); // Prevent card collapse
 										const habitData = handleAddToGoals(

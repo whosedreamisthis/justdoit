@@ -150,3 +150,17 @@ body,
 .react-calendar__month-view__days__day--weekend {
 	color: black !important; /* Change text color */
 }
+
+.addButton {
+	color: #3b3b3b;
+	background-color: #f3dac4;
+	border: none;
+	border-radius: 5px;
+	padding: 5px 15px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	box-shadow: 0 5px 5px 0 rgba(50, 50, 50, 0.2),
+		0 5px 5px 0 rgba(50, 50, 50, 0.19);
+}

@@ -36,7 +36,7 @@ export default function MinimizableCard({
 						className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
 					>
 						<button
-							className={`${styles.addButton}`}
+							className={`addButton`}
 							onClick={(e) => {
 								e.stopPropagation(); // Prevent card collapse
 								onSelect(habit);

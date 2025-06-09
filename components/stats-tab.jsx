@@ -1,7 +1,8 @@
 import '@/app/globals.css';
 import StatsCard from './stats-card';
+import styles from '@/styles/goals-tab.module.css';
 
-export default function StatsTab({ goals, onUpdateGoal }) {
+export default function StatsTab({ goals, onUpdateGoal, isSignedIn }) {
 	// Consolidate goals by habit title
 	const uniqueGoals = goals.reduce((acc, goal) => {
 		// --- ADD THIS SAFETY CHECK FOR CURRENT GOAL'S COMPLETEDDAYS ---
@@ -40,7 +41,13 @@ export default function StatsTab({ goals, onUpdateGoal }) {
 	}, {});
 
 	const consolidatedGoals = Object.values(uniqueGoals);
-
+	if (!isSignedIn) {
+		return (
+			<h2 className={`${styles.signInMessage}`}>
+				Sign in to add goals and see their statistics here.
+			</h2>
+		);
+	}
 	return (
 		<>
 			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">

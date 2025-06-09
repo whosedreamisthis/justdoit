@@ -403,7 +403,14 @@ export default function App() {
 							onSelect={handleHabitSelect}
 						/>
 					)}
-					{activeTab === 'stats' && <StatsTab goals={goals} />}
+					{activeTab === 'stats' && (
+						<StatsTab
+							goals={goals}
+							isSignedIn={
+								userEmail != undefined && userEmail != null
+							}
+						/>
+					)}
 					{activeTab === 'profile' && <ProfileTab />}
 				</div>
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />

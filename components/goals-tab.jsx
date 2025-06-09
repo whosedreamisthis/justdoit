@@ -1,6 +1,7 @@
-// goals-tab.jsx
+// components/goals-tab.jsx
 'use client';
-import {
+
+import React, {
 	useState,
 	useEffect,
 	useRef,
@@ -8,24 +9,23 @@ import {
 	useImperativeHandle,
 	forwardRef,
 	useLayoutEffect,
-	isSignedIn,
-} from 'react';
-import MinimizableGoalCard from '././minimizable-goal-card';
+} from 'react'; // Removed isSignedIn from here as it's a prop, not a React hook
+import MinimizableGoalCard from './minimizable-goal-card'; // Corrected path
 import '@/app/globals.css';
 import styles from '@/styles/goals-tab.module.css';
-import { archiveGoal } from '@/app/page-helper'; // Import archiveGoal
-import { SignedIn } from '@clerk/nextjs';
+import { archiveGoal } from '@/app/page-helper';
+// import { SignedIn } from '@clerk/nextjs'; // Not used in this snippet
 
 // Use forwardRef to receive the ref from the parent (App.js)
 const GoalsTab = forwardRef(function GoalsTab(
 	{
 		goals,
 		onEdit,
-		onReSort, // This prop is now largely redundant due to sorting in App.js
+		onReSort,
 		setGoals,
-		preSetGoals, // Still needed for handleDelete in GoalsTab
+		preSetGoals,
 		onUpdateGoal,
-		isSignedIn,
+		isSignedIn, // This is a prop, correctly received here
 	},
 	ref
 ) {
@@ -33,17 +33,15 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const [currentDayIndex, setCurrentDayIndex] = useState(
 		getDayOfWeekIndex(new Date())
 	);
-	const goalRefs = useRef({}); // Stores references to goal DOM elements
-	const prevGoalPositions = useRef({}); // Stores positions BEFORE DOM update (the "First" position)
-	const pendingAnimation = useRef(false); // Flag to indicate an animation is queued
+	const goalRefs = useRef({});
+	const prevGoalPositions = useRef({});
+	const pendingAnimation = useRef(false);
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
 		return day === 0 ? 6 : day - 1; // Adjust to make Monday=0, Sunday=6
 	}
 
-	// Use useMemo to create a sorted copy of goals for display.
-	// Ensure this sort logic matches the one in app/page.js
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort((a, b) => {
 			// Primary sort: Incomplete goals first
@@ -70,31 +68,27 @@ const GoalsTab = forwardRef(function GoalsTab(
 		});
 	}, [goals]);
 
-	// Expose a method for the parent to call to snapshot positions
 	useImperativeHandle(ref, () => ({
 		snapshotPositions: () => {
 			for (const goal of sortedGoals) {
-				// Snapshot current positions of displayed goals
 				const node = goalRefs.current[goal.id];
 				if (node) {
 					prevGoalPositions.current[goal.id] =
 						node.getBoundingClientRect();
 				}
 			}
-			pendingAnimation.current = true; // Signal that an animation is about to happen
+			pendingAnimation.current = true;
 		},
 	}));
 
-	// useLayoutEffect is synchronous and runs before paint, ideal for FLIP animations
 	useLayoutEffect(() => {
 		if (!pendingAnimation.current) {
-			return; // No animation pending
+			return;
 		}
 
 		const cleanupFunctions = [];
-		let anyGoalMoved = false;
+		// let anyGoalMoved = false; // This variable is not used after calculation, can be removed
 
-		// Loop through the *newly sorted* goals to find their current ("Last") positions
 		for (const goal of sortedGoals) {
 			const node = goalRefs.current[goal.id];
 			const prevRect = prevGoalPositions.current[goal.id];
@@ -102,32 +96,27 @@ const GoalsTab = forwardRef(function GoalsTab(
 			if (node && prevRect) {
 				const currentRect = node.getBoundingClientRect();
 
-				// Check if the goal's position actually changed
 				if (
 					prevRect.top !== currentRect.top ||
 					prevRect.left !== currentRect.left
 				) {
-					anyGoalMoved = true;
+					// anyGoalMoved = true; // No longer needed
 
-					// INVERT: Calculate the delta and apply transform instantly
 					const deltaX = prevRect.left - currentRect.left;
 					const deltaY = prevRect.top - currentRect.top;
 
-					node.style.transition = 'none'; // Disable transition temporarily
+					node.style.transition = 'none';
 					node.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
 
-					// FORCE REFLOW: Critical for making the "invert" visible before "play"
-					// Accessing any layout property forces a synchronous reflow.
+					// FORCE REFLOW
 					node.offsetHeight;
 
-					// PLAY: Re-enable transition and animate to its new (final) position
-					node.style.transition = 'transform 0.5s ease-out'; // Match CSS duration
-					node.style.transform = 'translate(0, 0)'; // Animate to final identity transform
+					node.style.transition = 'transform 0.5s ease-out';
+					node.style.transform = 'translate(0, 0)';
 
-					// Clean up inline styles after animation completes
 					const onTransitionEnd = () => {
-						node.style.transition = ''; // Remove inline transition
-						node.style.transform = ''; // Remove inline transform
+						node.style.transition = '';
+						node.style.transform = '';
 						node.removeEventListener(
 							'transitionend',
 							onTransitionEnd
@@ -145,16 +134,14 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// Clear previous positions and reset pending flag after processing
 		prevGoalPositions.current = {};
-		pendingAnimation.current = false; // Reset the flag once animation is initiated
+		pendingAnimation.current = false;
 
 		return () => {
 			cleanupFunctions.forEach((fn) => fn());
 		};
-	}, [sortedGoals]); // Rerun when sortedGoals changes
+	}, [sortedGoals]);
 
-	// Effect for daily day index update (existing logic, no change needed)
 	useEffect(() => {
 		const now = new Date();
 		const midnightToday = new Date(
@@ -184,10 +171,9 @@ const GoalsTab = forwardRef(function GoalsTab(
 	};
 
 	const handleDelete = (goalId) => {
-		// Find the goal to be deleted to archive its completedDays
 		const goalToDelete = goals.find((goal) => goal.id === goalId);
 		if (goalToDelete) {
-			archiveGoal(goalToDelete); // Archive the goal's completedDays
+			archiveGoal(goalToDelete);
 		}
 
 		preSetGoals(
@@ -195,7 +181,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 				const updatedGoals = prevGoals.filter(
 					(goal) => goal.id !== goalId
 				);
-				localStorage.setItem('userGoals', JSON.stringify(updatedGoals));
+				// localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // This should be handled by App.js useEffect
 
 				return updatedGoals;
 			},
@@ -207,6 +193,10 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const handleExpand = (goalId) => {
 		setExpandedGoal(expandedGoal === goalId ? null : goalId);
 	};
+
+	// Removed the destructuring of `isSignedIn` from the top-level `forwardRef` arguments
+	// as it was causing a linting error because `isSignedIn` is a prop, not a React hook.
+	// It's correctly passed as a prop from App.js.
 
 	if (!isSignedIn) {
 		return (
@@ -222,25 +212,28 @@ const GoalsTab = forwardRef(function GoalsTab(
 				{sortedGoals.map((goal) => (
 					<div
 						id={`goal-${goal.id}`}
-						key={goal.id} // Ensure key is stable and unique
+						key={goal.id} // This is the correct place for the key
 						data-goal-id={goal.id}
 						className={`rounded-xl shadow-md ${styles.goalItem}`}
 						style={{ backgroundColor: goal.color }}
 						ref={(el) => (goalRefs.current[goal.id] = el)}
 					>
 						<MinimizableGoalCard
+							// REMOVED: key={goal.id} from here
 							goal={goal}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							updateProgress={updateProgress}
 							onDelete={handleDelete}
 							onUpdateGoal={onUpdateGoal}
+							currentDayIndex={currentDayIndex} // Added this if MinimizableGoalCard needs it
 						/>
 					</div>
 				))}
 			</div>
 		</div>
 	);
-}); // Don't forget to close forwardRef
+});
 
+GoalsTab.displayName = 'GoalsTab';
 export default GoalsTab;

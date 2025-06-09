@@ -56,6 +56,10 @@ export async function saveQuery(email, goals) {
  * and either an array of queries or an error object.
  */
 export async function loadQueriesByEmail(email) {
+	console.log(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+	console.log(process.env.CLERK_SECRET_KEY);
+	console.log(process.env.DATABASE);
+
 	console.log(`4444444444444444441 loadQueriesByEmail`);
 	try {
 		console.log(`1 loadQueriesByEmail`);

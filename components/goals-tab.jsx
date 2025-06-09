@@ -67,7 +67,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		});
 	}, [goals]);
-	console.log('sortedGoals', sortedGoals);
 
 	// Expose a method for the parent to call to snapshot positions
 	useImperativeHandle(ref, () => ({

@@ -18,7 +18,6 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			return [];
 		}
 	});
-	console.log('Loaded custom habits:', customHabits);
 
 	const cardRefs = useRef({});
 

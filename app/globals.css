@@ -166,3 +166,7 @@ body,
 	box-shadow: 0 5px 5px 0 rgba(50, 50, 50, 0.2),
 		0 5px 5px 0 rgba(50, 50, 50, 0.19);
 }
+
+.addButton {
+	background-color: #707070;
+}

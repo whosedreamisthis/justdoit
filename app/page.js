@@ -14,7 +14,12 @@ import Header from '@/components/header';
 import { saveQuery } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
-import PageHelper, { sortGoals, preSetGoals } from '@/app/page-helper';
+import PageHelper, {
+	sortGoals,
+	preSetGoals,
+	restoreGoal,
+} from '@/app/page-helper'; // Import restoreGoal
+
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
@@ -43,7 +48,7 @@ export default function App() {
 			? new Date(
 					lastDailyResetTime.getFullYear(),
 					lastDailyResetTime.getMonth(),
-					lastDailyResetTime.getDate(),
+					lastDailyResetTime.getDate(), // Corrected to use lastDailyResetTime
 					0,
 					0,
 					0
@@ -287,14 +292,16 @@ export default function App() {
 			return;
 		}
 
+		const restoredCompletedDays = restoreGoal(habit.title); // Restore completedDays here
+
 		const newGoal = {
 			id: uuidv4(),
-			title: habit.title, // This is where the error happens
-			description: habit.description || '', // Ensure it's defined
-			color: habit.color || '#FFFFFF', // Default color if missing
+			title: habit.title,
+			description: habit.description || '',
+			color: habit.color || '#FFFFFF',
 			progress: 0,
 			isCompleted: false,
-			completedDays: {},
+			completedDays: restoredCompletedDays, // Assign restored completedDays
 			createdAt: new Date().toISOString(),
 		};
 

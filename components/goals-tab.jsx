@@ -12,6 +12,8 @@ import {
 import MinimizableGoalCard from '././minimizable-goal-card';
 import '@/app/globals.css';
 import styles from '@/styles/goals-tab.module.css';
+import { archiveGoal } from '@/app/page-helper'; // Import archiveGoal
+
 // Use forwardRef to receive the ref from the parent (App.js)
 const GoalsTab = forwardRef(function GoalsTab(
 	{
@@ -182,6 +184,12 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	const handleDelete = (goalId) => {
 		console.log('handleDelete', goalId);
+
+		// Find the goal to be deleted to archive its completedDays
+		const goalToDelete = goals.find((goal) => goal.id === goalId);
+		if (goalToDelete) {
+			archiveGoal(goalToDelete); // Archive the goal's completedDays
+		}
 
 		preSetGoals(
 			(prevGoals) => {

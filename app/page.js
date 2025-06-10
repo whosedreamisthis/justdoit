@@ -11,7 +11,7 @@ import ProfileTab from '@/components/profile-tab';
 import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
-import { saveQuery, loadQueriesByEmail } from '@/actions/ai'; // Correct path to your actions
+import { saveQuery, loadQueriesByEmail } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
 import PageHelper, {
@@ -22,8 +22,9 @@ import PageHelper, {
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
-	const [goals, setGoals] = useState([]); // Initialized as an empty array
+	const [goals, setGoals] = useState([]);
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
+	const [isLoading, setIsLoading] = useState(true); // New loading state
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
 	const [userEmail, setUserEmail] = useState(null);
@@ -89,35 +90,34 @@ export default function App() {
 		if (email && email !== userEmail) {
 			setUserEmail(email);
 		}
-	}, [email, userEmail]); // Depend on both email and userEmail state
+	}, [email, userEmail]);
 
-	// Consolidate the two useEffects related to fetching data by userEmail/email
-	// into one to manage the data fetching lifecycle clearly.
 	useEffect(() => {
-		// Only proceed if userEmail is set and not null
 		if (!userEmail) {
 			console.log(
 				'User email not available, returning early from data fetch useEffect.'
 			);
+			// If no user email, it means we are not signed in or email is not yet loaded.
+			// In this case, there are no goals to load, so we can stop loading.
+			setIsLoading(false); // Add this line
 			return;
 		}
 
 		const fetchData = async () => {
+			setIsLoading(true); // Start loading
 			try {
-				const response = await loadQueriesByEmail(userEmail); // Use userEmail here
+				const response = await loadQueriesByEmail(userEmail);
 
 				if (
 					response.ok &&
 					response.queries &&
 					response.queries.length > 0
 				) {
-					const firstQuery = response.queries[0]; // Get the first query object
+					const firstQuery = response.queries[0];
 
-					// IMPORTANT: Check if firstQuery exists and has a 'goals' property
 					if (firstQuery && Array.isArray(firstQuery.goals)) {
-						setGoals(firstQuery.goals); // Set the goals array
+						setGoals(firstQuery.goals);
 					} else {
-						// Handle case where 'goals' property is missing or not an array
 						console.warn(
 							"First query object is missing or 'goals' property is not an array. Setting goals to empty.",
 							firstQuery
@@ -125,59 +125,24 @@ export default function App() {
 						setGoals([]);
 					}
 				} else {
-					// No queries found or API error
-
-					setGoals([]); // Ensure goals are an empty array
+					setGoals([]);
 					if (response.error) {
 						toast.error(`Error loading goals: ${response.error}`);
 					}
 				}
 			} catch (error) {
 				console.error('Caught error during loadQueriesByEmail:', error);
-				setGoals([]); // Ensure goals are an empty array on error
+				setGoals([]);
 				toast.error('Failed to load goals due to a network error.');
+			} finally {
+				setIsLoading(false); // End loading
 			}
 		};
 
 		fetchData();
-	}, [userEmail]); // This effect depends only on `userEmail`
+	}, [userEmail]);
 
-	// --- useEffect for loading initial state from localStorage (client-side only) ---
-	// This useEffect should run once on mount to populate state from localStorage.
-	// It should ideally run *before* the database fetch if localStorage is your primary cache.
-	// However, if you want database to always override, then its placement here is fine.
-	// Ensure that if storedGoals is null/undefined, it defaults to an empty array before map.
 	useEffect(() => {
-		/*const storedGoalsString = localStorage.getItem('userGoals');
-		const storedGoals = storedGoalsString
-			? JSON.parse(storedGoalsString)
-			: []; // Default to empty array if null
-
-		console.log('Loaded goals from localStorage:', storedGoals);
-
-		// Crucial check: Ensure storedGoals is an array before mapping
-		if (Array.isArray(storedGoals) && storedGoals.length > 0) {
-			const loadedGoals = storedGoals.map((goal) => ({
-				...goal,
-				isCompleted:
-					typeof goal.isCompleted === 'boolean'
-						? goal.isCompleted
-						: goal.progress >= 100,
-				completedDays: goal.completedDays || {},
-				createdAt: goal.createdAt || new Date().toISOString(),
-			}));
-			console.log(
-				'preSetGoals(loadedGoals) is updating goals from localStorage:',
-				loadedGoals
-			);
-			preSetGoals(loadedGoals, goals, setGoals); // Pass loadedGoals directly
-		} else {
-			console.log(
-				'No goals in localStorage or not an array. Starting with empty goals.'
-			);
-			// No need to setGoals([]) here as it's initialized to [] and the database fetch will handle it.
-		}*/
-
 		const storedTime = localStorage.getItem('lastDailyResetTime');
 		if (storedTime) {
 			setLastDailyResetTime(new Date(storedTime));
@@ -193,55 +158,7 @@ export default function App() {
 				)
 			);
 		}
-	}, []); // Runs only once on component mount
-
-	// --- New: Listen for browser tab visibility changes (user returns to tab) ---
-	useEffect(() => {
-		// const handleVisibilityChange = () => {
-		// 	if (document.visibilityState === 'visible') {
-		// 		console.log(
-		// 			'Tab became visible. Checking for daily reset and restoring goals...'
-		// 		);
-		// 		const storedGoalsString = localStorage.getItem('userGoals');
-		// 		const storedGoals = storedGoalsString
-		// 			? JSON.parse(storedGoalsString)
-		// 			: [];
-		// 		if (Array.isArray(storedGoals) && storedGoals.length > 0) {
-		// 			console.log(
-		// 				'Restoring goals from localStorage on visibility change.'
-		// 			);
-		// 			const loadedGoals = storedGoals.map((goal) => ({
-		// 				...goal,
-		// 				isCompleted:
-		// 					typeof goal.isCompleted === 'boolean'
-		// 						? goal.isCompleted
-		// 						: goal.progress >= 100,
-		// 				completedDays: goal.completedDays || {},
-		// 				createdAt: goal.createdAt || new Date().toISOString(),
-		// 			}));
-		// 			preSetGoals(loadedGoals, goals, setGoals);
-		// 		} else if (
-		// 			!Array.isArray(storedGoals) ||
-		// 			storedGoals.length === 0
-		// 		) {
-		// 			if (goals.length > 0) {
-		// 				console.log(
-		// 					'Clearing goals as localStorage is empty or malformed.'
-		// 				);
-		// 				setGoals([]);
-		// 			}
-		// 		}
-		// 		checkAndResetDailyGoals();
-		// 	}
-		// };
-		// document.addEventListener('visibilitychange', handleVisibilityChange);
-		// return () => {
-		// 	document.removeEventListener(
-		// 		'visibilitychange',
-		// 		handleVisibilityChange
-		// 	);
-		// };
-	}, [goals, checkAndResetDailyGoals]);
+	}, []);
 
 	useEffect(() => {
 		if (lastDailyResetTime) {
@@ -253,35 +170,24 @@ export default function App() {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
 
-	// --- Existing useEffect for saving goals to localStorage and database ---
 	useEffect(() => {
-		// Save to localStorage
 		if (goals.length > 0) {
 			localStorage.setItem('userGoals', JSON.stringify(goals));
 		} else {
 			localStorage.removeItem('userGoals');
 		}
 
-		// Save to database
 		const saveGoalsToDatabase = async () => {
 			if (!user) return;
 			const currentEmail = user.primaryEmailAddress?.emailAddress;
 			if (!currentEmail) return;
 
 			try {
-				// Ensure the 'goals' array is sent as an array, not a JSON string,
-				// to your saveQuery action. `saveQuery` expects `email` and `goals` (as an array).
-				const result = await saveQuery(
-					currentEmail,
-					goals // Pass the goals array directly
-				);
+				const result = await saveQuery(currentEmail, goals);
 				if (!result.ok) {
 					console.error('Failed to save goals:', result.error);
 					toast.error('Failed to save goals to cloud!');
 				}
-				// else {
-				// 	toast.success('Goals saved to cloud!');
-				// }
 			} catch (err) {
 				console.error('Error calling saveQuery for goals:', err);
 				toast.error('Error saving goals to cloud!');
@@ -291,9 +197,8 @@ export default function App() {
 		if (user && goals.length > 0) {
 			saveGoalsToDatabase();
 		}
-	}, [goals, user]); // Removed lastDailyResetTime from dependencies as it's not part of the `goals` data structure being saved by `saveQuery` based on your `saveQuery` function signature.
+	}, [goals, user]);
 
-	// --- Existing useEffect for saving lastDailyResetTime to localStorage (database saving handled in goals useEffect if tied together) ---
 	useEffect(() => {
 		if (lastDailyResetTime) {
 			localStorage.setItem(
@@ -362,7 +267,7 @@ export default function App() {
 					{activeTab === 'goals' && (
 						<GoalsTab
 							ref={goalsTabRef}
-							goals={goals} // This is the state that needs to be an array
+							goals={goals}
 							onReSort={() => {}}
 							onUpdateGoal={handleUpdateGoal}
 							setGoals={setGoals}
@@ -370,6 +275,7 @@ export default function App() {
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}
+							isLoading={isLoading} // Pass isLoading prop
 						/>
 					)}
 					{activeTab === 'explore' && (
@@ -384,6 +290,7 @@ export default function App() {
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}
+							isLoading={isLoading} // Pass isLoading prop
 						/>
 					)}
 					{activeTab === 'profile' && (

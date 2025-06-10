@@ -9,14 +9,12 @@ import React, {
 	useImperativeHandle,
 	forwardRef,
 	useLayoutEffect,
-} from 'react'; // Removed isSignedIn from here as it's a prop, not a React hook
-import MinimizableGoalCard from './minimizable-goal-card'; // Corrected path
+} from 'react';
+import MinimizableGoalCard from './minimizable-goal-card';
 import '@/app/globals.css';
 import styles from '@/styles/goals-tab.module.css';
 import { archiveGoal } from '@/app/page-helper';
-// import { SignedIn } from '@clerk/nextjs'; // Not used in this snippet
 
-// Use forwardRef to receive the ref from the parent (App.js)
 const GoalsTab = forwardRef(function GoalsTab(
 	{
 		goals,
@@ -25,7 +23,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setGoals,
 		preSetGoals,
 		onUpdateGoal,
-		isSignedIn, // This is a prop, correctly received here
+		isSignedIn,
+		isLoading, // Receive isLoading prop
 	},
 	ref
 ) {
@@ -44,22 +43,18 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort((a, b) => {
-			// Primary sort: Incomplete goals first
 			const completionA = a.isCompleted ? 1 : -1;
 			const completionB = b.isCompleted ? 1 : -1;
 			if (completionA !== completionB) {
 				return completionA - completionB;
 			}
 
-			// Secondary sort for incomplete goals: Newest (largest timestamp) first
 			if (!a.isCompleted && !b.isCompleted) {
 				return (
 					new Date(b.createdAt).getTime() -
 					new Date(a.createdAt).getTime()
 				);
-			}
-			// Secondary sort for completed goals: Oldest (smallest timestamp) first
-			else {
+			} else {
 				return (
 					new Date(a.createdAt).getTime() -
 					new Date(b.createdAt).getTime()
@@ -87,7 +82,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 		}
 
 		const cleanupFunctions = [];
-		// let anyGoalMoved = false; // This variable is not used after calculation, can be removed
 
 		for (const goal of sortedGoals) {
 			const node = goalRefs.current[goal.id];
@@ -100,15 +94,12 @@ const GoalsTab = forwardRef(function GoalsTab(
 					prevRect.top !== currentRect.top ||
 					prevRect.left !== currentRect.left
 				) {
-					// anyGoalMoved = true; // No longer needed
-
 					const deltaX = prevRect.left - currentRect.left;
 					const deltaY = prevRect.top - currentRect.top;
 
 					node.style.transition = 'none';
 					node.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
 
-					// FORCE REFLOW
 					node.offsetHeight;
 
 					node.style.transition = 'transform 0.5s ease-out';
@@ -181,8 +172,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 				const updatedGoals = prevGoals.filter(
 					(goal) => goal.id !== goalId
 				);
-				// localStorage.setItem('userGoals', JSON.stringify(updatedGoals)); // This should be handled by App.js useEffect
-
 				return updatedGoals;
 			},
 			goals,
@@ -194,15 +183,21 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setExpandedGoal(expandedGoal === goalId ? null : goalId);
 	};
 
-	// Removed the destructuring of `isSignedIn` from the top-level `forwardRef` arguments
-	// as it was causing a linting error because `isSignedIn` is a prop, not a React hook.
-	// It's correctly passed as a prop from App.js.
-
 	if (!isSignedIn) {
 		return (
 			<h2 className={`${styles.signInMessage}`}>Sign in to add goals.</h2>
 		);
 	}
+
+	// Conditional rendering for the loader
+	if (isLoading && goals.length === 0) {
+		return (
+			<div className="flex justify-center items-center h-full min-h-[200px]">
+				<div className="loader"></div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="p-3 bg-subtle-background">
 			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">
@@ -212,21 +207,20 @@ const GoalsTab = forwardRef(function GoalsTab(
 				{sortedGoals.map((goal) => (
 					<div
 						id={`goal-${goal.id}`}
-						key={goal.id} // This is the correct place for the key
+						key={goal.id}
 						data-goal-id={goal.id}
 						className={`rounded-xl shadow-md ${styles.goalItem}`}
 						style={{ backgroundColor: goal.color }}
 						ref={(el) => (goalRefs.current[goal.id] = el)}
 					>
 						<MinimizableGoalCard
-							// REMOVED: key={goal.id} from here
 							goal={goal}
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							updateProgress={updateProgress}
 							onDelete={handleDelete}
 							onUpdateGoal={onUpdateGoal}
-							currentDayIndex={currentDayIndex} // Added this if MinimizableGoalCard needs it
+							currentDayIndex={currentDayIndex}
 						/>
 					</div>
 				))}

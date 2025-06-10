@@ -2,39 +2,37 @@ import '@/app/globals.css';
 import StatsCard from './stats-card';
 import styles from '@/styles/goals-tab.module.css';
 
-export default function StatsTab({ goals, onUpdateGoal, isSignedIn }) {
+export default function StatsTab({
+	goals,
+	onUpdateGoal,
+	isSignedIn,
+	isLoading,
+}) {
+	// Receive isLoading prop
 	// Consolidate goals by habit title
 	const uniqueGoals = goals.reduce((acc, goal) => {
-		// --- ADD THIS SAFETY CHECK FOR CURRENT GOAL'S COMPLETEDDAYS ---
-		// Ensure goal.completedDays is always an object before using it.
-		// If it's null, undefined, or not an object, default to an empty object.
 		const safeGoalCompletedDays =
 			goal.completedDays && typeof goal.completedDays === 'object'
 				? goal.completedDays
 				: {};
-		// --- END SAFETY CHECK ---
 
 		if (!acc[goal.title]) {
 			acc[goal.title] = {
 				...goal,
-				completedDays: { ...safeGoalCompletedDays }, // Use the safe version here
+				completedDays: { ...safeGoalCompletedDays },
 			};
 		} else {
-			// --- ADD THIS SAFETY CHECK FOR ACCUMULATED GOAL'S COMPLETEDDAYS ---
-			// Ensure the accumulated goal's completedDays is also an object before merging
 			if (
 				!acc[goal.title].completedDays ||
 				typeof acc[goal.title].completedDays !== 'object'
 			) {
 				acc[goal.title].completedDays = {};
 			}
-			// --- END SAFETY CHECK ---
 
 			Object.keys(safeGoalCompletedDays).forEach((day) => {
-				// Now safeGoalCompletedDays is guaranteed to be an object
 				acc[goal.title].completedDays[day] =
 					acc[goal.title].completedDays[day] ||
-					safeGoalCompletedDays[day]; // Use the safe version here
+					safeGoalCompletedDays[day];
 			});
 		}
 		return acc;
@@ -48,6 +46,16 @@ export default function StatsTab({ goals, onUpdateGoal, isSignedIn }) {
 			</h2>
 		);
 	}
+
+	// Conditional rendering for the loader
+	if (isLoading && goals.length === 0) {
+		return (
+			<div className="flex justify-center items-center h-full min-h-[200px]">
+				<div className="loader"></div>
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">
@@ -60,8 +68,6 @@ export default function StatsTab({ goals, onUpdateGoal, isSignedIn }) {
 							<StatsCard
 								goal={{
 									...goal,
-									// --- OPTIONAL: Add another safety check here for StatsCard as well ---
-									// This ensures StatsCard always receives an object for completedDays
 									completedDays:
 										goal.completedDays &&
 										typeof goal.completedDays === 'object'

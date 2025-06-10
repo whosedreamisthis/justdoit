@@ -1,4 +1,3 @@
-// app/page.js
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import BottomTabs from '@/components/bottom-nav';
@@ -14,17 +13,13 @@ import Header from '@/components/header';
 import { saveQuery, loadQueriesByEmail } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
-import PageHelper, {
-	sortGoals,
-	preSetGoals,
-	// restoreGoal, // Removed restoreGoal import
-} from '@/app/page-helper';
+import PageHelper, { sortGoals, preSetGoals } from '@/app/page-helper';
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
-	const [archivedGoals, setArchivedGoals] = useState({}); // Moved useState for archivedGoals here
-	const [lastDailyResetTime, setLastDailyResetTime] = useState();
+	const [archivedGoals, setArchivedGoals] = useState({});
+	const [lastDailyResetTime, setLastDailyResetTime] = useState(null); // Initialize with null
 	const [isLoading, setIsLoading] = useState(true);
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
@@ -47,6 +42,7 @@ export default function App() {
 			0
 		);
 
+		// Use lastDailyResetTime from state (which will come from DB)
 		const lastResetDate = lastDailyResetTime
 			? new Date(
 					lastDailyResetTime.getFullYear(),
@@ -59,9 +55,8 @@ export default function App() {
 			: null;
 
 		console.log('lastResetDate', lastResetDate);
-		console.log('lastResetDate.getTime()', lastResetDate.getTime());
 		console.log('todayMidnight.getTime()', todayMidnight.getTime());
-		console.log('lastDailyResetTime', lastDailyResetTime);
+		console.log('lastDailyResetTime (from state)', lastDailyResetTime);
 
 		const shouldReset =
 			!lastResetDate || lastResetDate.getTime() < todayMidnight.getTime();
@@ -92,35 +87,8 @@ export default function App() {
 			setLastDailyResetTime(todayMidnight);
 		}
 	}, [lastDailyResetTime, goals]);
-	useEffect(() => {
-		const storedTime = localStorage.getItem('lastDailyResetTime');
-		const now = new Date();
-		const todayMidnight = new Date(
-			now.getFullYear(),
-			now.getMonth(),
-			now.getDate(),
-			0,
-			0,
-			0
-		);
 
-		if (storedTime) {
-			const parsedStoredTime = new Date(storedTime);
-			// Ensure stored time is also at midnight for consistent comparison
-			const storedTimeMidnight = new Date(
-				parsedStoredTime.getFullYear(),
-				parsedStoredTime.getMonth(),
-				parsedStoredTime.getDate(),
-				0,
-				0,
-				0
-			);
-			setLastDailyResetTime(storedTimeMidnight);
-		} else {
-			// Set to midnight of the current day if no stored time
-			setLastDailyResetTime(todayMidnight);
-		}
-	}, []);
+	// This effect now only logs mount, initial local storage handling removed
 	useEffect(() => {
 		console.log('App component mounted!');
 	}, []);
@@ -176,13 +144,33 @@ export default function App() {
 							);
 							setArchivedGoals({});
 						}
+						// Set lastDailyResetTime from the database
+						if (firstQuery.lastDailyResetTime) {
+							setLastDailyResetTime(
+								new Date(firstQuery.lastDailyResetTime)
+							);
+						} else {
+							// If no reset time in DB, initialize to today's midnight
+							const now = new Date();
+							const todayMidnight = new Date(
+								now.getFullYear(),
+								now.getMonth(),
+								now.getDate(),
+								0,
+								0,
+								0
+							);
+							setLastDailyResetTime(todayMidnight);
+						}
 					} else {
 						setGoals([]);
 						setArchivedGoals({});
+						setLastDailyResetTime(null); // Or initialize to current midnight
 					}
 				} else {
 					setGoals([]);
 					setArchivedGoals({});
+					setLastDailyResetTime(null); // Or initialize to current midnight
 					if (response.error) {
 						toast.error(`Error loading goals: ${response.error}`);
 					}
@@ -191,6 +179,7 @@ export default function App() {
 				console.error('Caught error during loadQueriesByEmail:', error);
 				setGoals([]);
 				setArchivedGoals({});
+				setLastDailyResetTime(null); // Or initialize to current midnight
 				toast.error('Failed to load goals due to a network error.');
 			} finally {
 				setIsLoading(false);
@@ -198,86 +187,66 @@ export default function App() {
 		};
 
 		fetchData();
-	}, [userEmail]);
+	}, [userEmail]); // Depend on userEmail to refetch when it becomes available
 
+	// This useEffect is responsible for triggering the daily reset check AFTER data is loaded
 	useEffect(() => {
-		const storedTime = localStorage.getItem('lastDailyResetTime');
-		console.log('storedTime', storedTime);
-		if (storedTime) {
-			setLastDailyResetTime(new Date(storedTime));
-		} else {
-			setLastDailyResetTime(
-				new Date(
-					new Date().getFullYear(),
-					new Date().getMonth(),
-					new Date().getDate(),
-					0,
-					0,
-					0
-				)
-			);
-		}
-	}, []);
+		// Only run if lastDailyResetTime has been loaded/initialized (not null)
+		// and goals are loaded (not empty, or it will log "NO GOALS" and return)
+		if (lastDailyResetTime !== null && !isLoading) {
+			// Added !isLoading to ensure data is fetched
+			// A slight delay might be good here to ensure all state is settled after data fetch
+			const timer = setTimeout(() => {
+				checkAndResetDailyGoals();
+			}, 100); // Small delay to allow state to fully settle
 
-	useEffect(() => {
-		if (lastDailyResetTime) {
-			console.log(checkAndResetDailyGoals);
-			checkAndResetDailyGoals();
+			return () => clearTimeout(timer);
 		}
-	}, [lastDailyResetTime, checkAndResetDailyGoals]);
+	}, [lastDailyResetTime, checkAndResetDailyGoals, isLoading]); // Add isLoading to dependencies
 
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [activeTab]);
 
+	// Effect to save goals, archivedGoals, AND lastDailyResetTime to the database
 	useEffect(() => {
-		if (goals.length > 0) {
-			localStorage.setItem('userGoals', JSON.stringify(goals));
-		} else {
-			localStorage.removeItem('userGoals');
-		}
-
 		const saveGoalsToDatabase = async () => {
 			if (!user) return;
 			const currentEmail = user.primaryEmailAddress?.emailAddress;
 			if (!currentEmail) return;
 
 			try {
-				// Pass archivedGoals to saveQuery
+				// Pass archivedGoals and lastDailyResetTime to saveQuery
 				const result = await saveQuery(
 					currentEmail,
 					goals,
-					archivedGoals
+					archivedGoals,
+					lastDailyResetTime // Pass lastDailyResetTime from state
 				);
 				if (!result.ok) {
-					console.error('Failed to save goals:', result.error);
-					toast.error('Failed to save goals to cloud!');
+					console.error('Failed to save data:', result.error);
+					toast.error('Failed to save data to cloud!');
 				}
 			} catch (err) {
-				console.error('Error calling saveQuery for goals:', err);
-				toast.error('Error saving goals to cloud!');
+				console.error('Error calling saveQuery:', err);
+				toast.error('Error saving data to cloud!');
 			}
 		};
 
-		// Only save if there are goals or archived goals to save
+		// Only save if there are goals, archived goals, or a reset time to save
+		// And ensure user and email are available
 		if (
 			user &&
-			(goals.length > 0 || Object.keys(archivedGoals).length > 0)
+			user.primaryEmailAddress?.emailAddress &&
+			(goals.length > 0 ||
+				Object.keys(archivedGoals).length > 0 ||
+				lastDailyResetTime !== null)
 		) {
 			saveGoalsToDatabase();
 		}
-	}, [goals, archivedGoals, user]); // Add archivedGoals to dependency array
+	}, [goals, archivedGoals, lastDailyResetTime, user]); // Add lastDailyResetTime to dependency array
 
-	useEffect(() => {
-		if (lastDailyResetTime) {
-			localStorage.setItem(
-				'lastDailyResetTime',
-				lastDailyResetTime.toISOString()
-			);
-		} else {
-			localStorage.removeItem('lastDailyResetTime');
-		}
-	}, [lastDailyResetTime]);
+	// Removed the localStorage useEffect for lastDailyResetTime
 
 	const handleUpdateGoal = (goalId, updatedGoal) => {
 		if (activeTab === 'goals' && goalsTabRef.current?.snapshotPositions) {
@@ -295,20 +264,17 @@ export default function App() {
 		);
 	};
 
-	// Moved archiveGoal function from page-helper to page.js
 	const archiveAndRemoveGoal = (goalToArchive) => {
 		if (!goalToArchive || typeof goalToArchive.title !== 'string') {
 			console.warn('Invalid goal provided for archiving.');
 			return;
 		}
 
-		// Update archivedGoals state
 		setArchivedGoals((prevArchived) => ({
 			...prevArchived,
 			[goalToArchive.title]: goalToArchive.completedDays || {},
 		}));
 
-		// Remove from active goals
 		setGoals((prevGoals) =>
 			prevGoals.filter((g) => g.id !== goalToArchive.id)
 		);
@@ -325,7 +291,6 @@ export default function App() {
 			return;
 		}
 
-		// Restore completedDays from archivedGoals state
 		const restoredCompletedDays = archivedGoals[habit.title] || {};
 
 		const newGoal = {
@@ -345,9 +310,11 @@ export default function App() {
 
 	const onSignOut = () => {
 		setGoals([]);
-		setArchivedGoals({}); // Clear archived goals on sign out
+		setArchivedGoals({});
+		setLastDailyResetTime(null); // Clear lastDailyResetTime on sign out
 		setUserEmail(null);
 	};
+
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
@@ -363,7 +330,7 @@ export default function App() {
 							onUpdateGoal={handleUpdateGoal}
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
-							onArchiveGoal={archiveAndRemoveGoal} // Pass the new archive function
+							onArchiveGoal={archiveAndRemoveGoal}
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}

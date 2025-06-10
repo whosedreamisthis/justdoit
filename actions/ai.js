@@ -2,15 +2,24 @@
 import db from '@/utils/db';
 import Query from '@/models/query';
 
-export async function saveQuery(email, goals, archivedGoals) {
-	// Added archivedGoals parameter
+export async function saveQuery(
+	email,
+	goals,
+	archivedGoals,
+	lastDailyResetTime
+) {
+	// Added lastDailyResetTime parameter
 	try {
 		await db(); // Ensure database connection is established
 
 		// Use findOneAndUpdate with upsert: true to update if exists, insert if not
 		const result = await Query.findOneAndUpdate(
 			{ email: email }, // Filter: Find a document where the 'email' field matches the provided email
-			{ goals: goals, archivedGoals: archivedGoals }, // Update: Set the 'goals' and 'archivedGoals' fields
+			{
+				goals: goals,
+				archivedGoals: archivedGoals,
+				lastDailyResetTime: lastDailyResetTime,
+			}, // Update: Set the 'goals', 'archivedGoals', and 'lastDailyResetTime' fields
 			{
 				upsert: true, // <--- Crucial: If no document matches, create a new one
 				new: true, // <--- Important: Return the modified document rather than the original
@@ -26,6 +35,10 @@ export async function saveQuery(email, goals, archivedGoals) {
 				result.createdAt = result.createdAt.toISOString();
 			if (result.updatedAt)
 				result.updatedAt = result.updatedAt.toISOString();
+			if (result.lastDailyResetTime)
+				// Convert lastDailyResetTime
+				result.lastDailyResetTime =
+					result.lastDailyResetTime.toISOString();
 		}
 
 		// Ensure the object is a plain JavaScript object before returning to client
@@ -69,6 +82,10 @@ export async function loadQueriesByEmail(email) {
 				query.createdAt = query.createdAt.toISOString();
 			if (query.updatedAt)
 				query.updatedAt = query.updatedAt.toISOString();
+			if (query.lastDailyResetTime)
+				// Convert lastDailyResetTime
+				query.lastDailyResetTime =
+					query.lastDailyResetTime.toISOString();
 			// Final safeguard: deep clone and strip non-serializable properties
 			return JSON.parse(JSON.stringify(query));
 		});
@@ -111,6 +128,9 @@ export async function loadQueryById(queryId) {
 		if (query._id) query._id = query._id.toString();
 		if (query.createdAt) query.createdAt = query.createdAt.toISOString();
 		if (query.updatedAt) query.updatedAt = query.updatedAt.toISOString();
+		if (query.lastDailyResetTime)
+			// Convert lastDailyResetTime
+			query.lastDailyResetTime = query.lastDailyResetTime.toISOString();
 
 		// Final safeguard for the single query object
 		const safeQuery = JSON.parse(JSON.stringify(query));
@@ -156,6 +176,10 @@ export async function loadLatestQueryByEmail(email) {
 			latestQuery.createdAt = latestQuery.createdAt.toISOString();
 		if (latestQuery.updatedAt)
 			latestQuery.updatedAt = latestQuery.updatedAt.toISOString();
+		if (latestQuery.lastDailyResetTime)
+			// Convert lastDailyResetTime
+			latestQuery.lastDailyResetTime =
+				latestQuery.lastDailyResetTime.toISOString();
 
 		// Final safeguard for the single query object
 		const safeLatestQuery = JSON.parse(JSON.stringify(latestQuery));

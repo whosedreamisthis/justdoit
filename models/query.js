@@ -15,6 +15,17 @@ const goalSchema = new Schema(
 	{ _id: false }
 );
 
+// Define a schema for custom habits
+const customHabitSchema = new Schema(
+	{
+		id: { type: String, required: true },
+		title: { type: String, required: true },
+		description: { type: String },
+		color: { type: String },
+	},
+	{ _id: false }
+);
+
 // 2. Define the main Query Schema
 const QuerySchema = new Schema(
 	{
@@ -25,12 +36,12 @@ const QuerySchema = new Schema(
 			unique: true,
 		},
 		goals: [goalSchema],
-		// ADD THIS NEW FIELD FOR ARCHIVED GOALS
 		archivedGoals: {
 			type: Object, // Use Object for a flexible dictionary/map
 			default: {}, // Default to an empty object
 		},
 		lastDailyResetTime: { type: Date },
+		customHabits: [customHabitSchema], // New field for custom habits
 	},
 	{ timestamps: true }
 );

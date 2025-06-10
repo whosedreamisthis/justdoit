@@ -10,14 +10,7 @@ import '@/app/globals.css';
 export default function ExploreTab({ habitsByCategory, onSelect }) {
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
-	const [customHabits, setCustomHabits] = useState(() => {
-		try {
-			const stored = localStorage.getItem('customHabits');
-			return stored ? JSON.parse(stored) : [];
-		} catch {
-			return [];
-		}
-	});
+	const [customHabits, setCustomHabits] = useState([]);
 
 	const cardRefs = useRef({});
 

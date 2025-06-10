@@ -48,13 +48,14 @@ export const restoreGoal = (goalTitle) => {
 };
 
 export const preSetGoals = (update, goals, setGoals) => {
+	console.log('preSetGoals goals', goals);
 	if (!Array.isArray(goals)) {
 		console.error('goals is undefined or not an array:', goals);
 		return;
 	}
 
 	let finalGoalsArray = typeof update === 'function' ? update(goals) : update;
-
+	console.log('finalGoalsArray', finalGoalsArray);
 	if (!Array.isArray(finalGoalsArray)) {
 		console.error(
 			'finalGoalsArray is undefined or not an array:',

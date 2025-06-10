@@ -23,7 +23,7 @@ import PageHelper, {
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
-	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
+	const [lastDailyResetTime, setLastDailyResetTime] = useState();
 	const [isLoading, setIsLoading] = useState(true); // New loading state
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
@@ -32,6 +32,10 @@ export default function App() {
 	const email = user?.primaryEmailAddress?.emailAddress;
 
 	const checkAndResetDailyGoals = useCallback(() => {
+		if (goals.length === 0) {
+			console.log('NO GOALS');
+			return;
+		}
 		const now = new Date();
 		const todayMidnight = new Date(
 			now.getFullYear(),
@@ -53,6 +57,11 @@ export default function App() {
 			  )
 			: null;
 
+		console.log('lastResetDate', lastResetDate);
+		console.log('lastResetDate.getTime()', lastResetDate.getTime());
+		console.log('todayMidnight.getTime()', todayMidnight.getTime());
+		console.log('lastDailyResetTime', lastDailyResetTime);
+
 		const shouldReset =
 			!lastResetDate || lastResetDate.getTime() < todayMidnight.getTime();
 
@@ -61,6 +70,7 @@ export default function App() {
 
 			preSetGoals(
 				(prevGoals) => {
+					console.log('prevGoals', prevGoals);
 					if (!prevGoals || prevGoals.length === 0) {
 						console.warn('Skipping reset: No goals to update.');
 						return prevGoals;
@@ -81,7 +91,35 @@ export default function App() {
 			setLastDailyResetTime(todayMidnight);
 		}
 	}, [lastDailyResetTime, goals]);
+	useEffect(() => {
+		const storedTime = localStorage.getItem('lastDailyResetTime');
+		const now = new Date();
+		const todayMidnight = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			0,
+			0,
+			0
+		);
 
+		if (storedTime) {
+			const parsedStoredTime = new Date(storedTime);
+			// Ensure stored time is also at midnight for consistent comparison
+			const storedTimeMidnight = new Date(
+				parsedStoredTime.getFullYear(),
+				parsedStoredTime.getMonth(),
+				parsedStoredTime.getDate(),
+				0,
+				0,
+				0
+			);
+			setLastDailyResetTime(storedTimeMidnight);
+		} else {
+			// Set to midnight of the current day if no stored time
+			setLastDailyResetTime(todayMidnight);
+		}
+	}, []);
 	useEffect(() => {
 		console.log('App component mounted!');
 	}, []);
@@ -144,6 +182,7 @@ export default function App() {
 
 	useEffect(() => {
 		const storedTime = localStorage.getItem('lastDailyResetTime');
+		console.log('storedTime', storedTime);
 		if (storedTime) {
 			setLastDailyResetTime(new Date(storedTime));
 		} else {
@@ -162,6 +201,7 @@ export default function App() {
 
 	useEffect(() => {
 		if (lastDailyResetTime) {
+			console.log(checkAndResetDailyGoals);
 			checkAndResetDailyGoals();
 		}
 	}, [lastDailyResetTime, checkAndResetDailyGoals]);

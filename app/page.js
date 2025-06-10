@@ -300,11 +300,15 @@ export default function App() {
 							archivedGoals={archivedGoals} // Pass archivedGoals to StatsTab if it needs them
 						/>
 					)}
-					<ProfileTab
-						user={user}
-						onSignOut={onSignOut}
-						isSignedIn={userEmail != undefined && userEmail != null}
-					/>
+					{activeTab === 'profile' && (
+						<ProfileTab
+							user={user}
+							onSignOut={onSignOut}
+							isSignedIn={
+								userEmail != undefined && userEmail != null
+							}
+						/>
+					)}
 				</div>
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 			</div>

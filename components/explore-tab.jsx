@@ -7,40 +7,48 @@ import EditableHabitCard from './editable-habit-card';
 import styles from '@/styles/explore-tab.module.css';
 import '@/app/globals.css';
 
-export default function ExploreTab({ habitsByCategory, onSelect }) {
+export default function ExploreTab({
+	habitsByCategory,
+	onSelect,
+	onAddCustomHabit, // Received as prop for adding custom habits
+	customHabits, // Received as prop (the array of custom habits)
+	onUpdateCustomHabit, // Received as prop for updating custom habits
+	onDeleteCustomHabit, // Received as prop for deleting custom habits
+}) {
+	// Initialize expandedCategory to an empty Set on both server and client initially.
+	// The localStorage value will be loaded and applied only after hydration to prevent mismatch.
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
-	const [customHabits, setCustomHabits] = useState([]);
+
+	// customHabits state removed, now using customHabits prop directly
 
 	const cardRefs = useRef({});
 
 	useEffect(() => {
+		// This effect runs only on the client after hydration.
 		const saved = localStorage.getItem('expandedCategory');
 		if (saved) {
 			try {
 				setExpandedCategory(new Set(JSON.parse(saved)));
-			} catch {}
+			} catch (e) {
+				console.error(
+					'Error parsing expandedCategory from localStorage:',
+					e
+				);
+			}
 		}
-	}, []);
+	}, []); // Empty dependency array means it runs once after initial render
+
+	// This useEffect saves the expandedCategory state to localStorage on changes
 	useEffect(() => {
 		localStorage.setItem(
 			'expandedCategory',
 			JSON.stringify(Array.from(expandedCategory))
 		);
 	}, [expandedCategory]);
-	useEffect(() => {
-		localStorage.setItem('customHabits', JSON.stringify(customHabits));
-	}, [customHabits]);
 
-	const handleAddCustomHabit = (habit) => {
-		setCustomHabits((prev) => [...prev, habit]);
-		onSelect?.(habit);
-		setExpandedCategory((prev) => new Set(prev).add('Custom Habits'));
-	};
-	const handleUpdateCustomHabit = (id, updated) =>
-		setCustomHabits((prev) => prev.map((h) => (h.id === id ? updated : h)));
-	const handleDeleteCustomHabit = (id) =>
-		setCustomHabits((prev) => prev.filter((h) => h.id !== id));
+	// REMOVED: useEffect for saving customHabits to localStorage
+	// REMOVED: customHabits state initialization from localStorage
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
@@ -48,10 +56,14 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 			next.has(key) ? next.delete(key) : next.add(key);
 			return next;
 		});
-		setExpandedCard(null);
+		setExpandedCard(null); // Collapse any open card when category is toggled
 	};
+
 	const handleExpandCard = (id) =>
 		setExpandedCard((prev) => (prev === id ? null : id));
+
+	// REMOVED: handleAddCustomHabit, handleUpdateCustomHabit, handleDeleteCustomHabit functions
+	// These are now expected as props from page.js
 
 	return (
 		<div className={`${styles.exploreContainer} p-3 bg-subtle-background`}>
@@ -59,13 +71,19 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 				Explore Habits
 			</h2>
 			<div className="space-y-4">
-				<div className="rounded-xl shadow-md overflow-hidden">
+				{/* The "Add Custom Habit" card remains the first element */}
+				<div
+					className="rounded-xl shadow-md overflow-hidden"
+					style={{ backgroundColor: '#A7B39E' }}
+				>
 					<MinimizableCustomCard
-						onSelect={handleAddCustomHabit}
+						onSelect={onAddCustomHabit} // Now calls the prop function
 						isExpanded={expandedCard === 'custom-add'}
 						onExpand={() => handleExpandCard('custom-add')}
 					/>
 				</div>
+
+				{/* Render Pre-defined Categories */}
 				{Object.entries(habitsByCategory).map(([cat, habits]) => (
 					<div
 						key={cat}
@@ -112,6 +130,8 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 						)}
 					</div>
 				))}
+
+				{/* Custom Habits Category - now displays habits from the customHabits prop */}
 				<div
 					className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
 				>
@@ -151,10 +171,8 @@ export default function ExploreTab({ habitsByCategory, onSelect }) {
 										<EditableHabitCard
 											habit={h}
 											onSelect={onSelect}
-											onUpdateHabit={
-												handleUpdateCustomHabit
-											}
-											onDelete={handleDeleteCustomHabit}
+											onUpdateHabit={onUpdateCustomHabit} // Now calls the prop function
+											onDelete={onDeleteCustomHabit} // Now calls the prop function
 											isExpanded={expandedCard === h.id}
 											onExpand={() =>
 												handleExpandCard(h.id)

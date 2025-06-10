@@ -13,7 +13,7 @@ const goalSchema = new Schema(
 		createdAt: { type: Date, default: Date.now },
 	},
 	{ _id: false }
-); // _id: false means Mongoose won't automatically add an _id to each sub-document
+);
 
 // 2. Define the main Query Schema
 const QuerySchema = new Schema(
@@ -22,22 +22,24 @@ const QuerySchema = new Schema(
 			type: String,
 			required: true,
 			index: true,
-			unique: true, // Make sure this is here if you only want one document per email
+			unique: true,
 		},
-		// IMPORTANT CHANGE HERE: Define goals as an array of goalSchema
-		goals: [goalSchema], // <--- THIS IS THE CRUCIAL LINE. IT MUST BE `[goalSchema]`
-		lastDailyResetTime: { type: Date }, // Assuming this will be a Date object
+		goals: [goalSchema],
+		// ADD THIS NEW FIELD FOR ARCHIVED GOALS
+		archivedGoals: {
+			type: Object, // Use Object for a flexible dictionary/map
+			default: {}, // Default to an empty object
+		},
+		lastDailyResetTime: { type: Date },
 	},
-	{ timestamps: true } // Adds createdAt and updatedAt fields automatically
+	{ timestamps: true }
 );
 
 // 3. Robust model definition for Next.js hot-reloading environments
 let Query;
-// Check if the model already exists in Mongoose's cache
 if (mongoose.models.Query) {
 	Query = mongoose.models.Query;
 } else {
-	// If not, define and register the new model
 	Query = mongoose.model('Query', QuerySchema);
 }
 

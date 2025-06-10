@@ -2,14 +2,15 @@
 import db from '@/utils/db';
 import Query from '@/models/query';
 
-export async function saveQuery(email, goals) {
+export async function saveQuery(email, goals, archivedGoals) {
+	// Added archivedGoals parameter
 	try {
 		await db(); // Ensure database connection is established
 
 		// Use findOneAndUpdate with upsert: true to update if exists, insert if not
 		const result = await Query.findOneAndUpdate(
 			{ email: email }, // Filter: Find a document where the 'email' field matches the provided email
-			{ goals: goals }, // Update: Set the 'goals' field to the new goals array
+			{ goals: goals, archivedGoals: archivedGoals }, // Update: Set the 'goals' and 'archivedGoals' fields
 			{
 				upsert: true, // <--- Crucial: If no document matches, create a new one
 				new: true, // <--- Important: Return the modified document rather than the original

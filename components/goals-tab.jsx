@@ -13,7 +13,7 @@ import React, {
 import MinimizableGoalCard from './minimizable-goal-card';
 import '@/app/globals.css';
 import styles from '@/styles/goals-tab.module.css';
-import { archiveGoal } from '@/app/page-helper';
+// import { archiveGoal } from '@/app/page-helper'; // Removed this import
 
 const GoalsTab = forwardRef(function GoalsTab(
 	{
@@ -24,7 +24,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 		preSetGoals,
 		onUpdateGoal,
 		isSignedIn,
-		isLoading, // Receive isLoading prop
+		isLoading,
+		onArchiveGoal, // Receive onArchiveGoal as a prop
 	},
 	ref
 ) {
@@ -164,19 +165,16 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const handleDelete = (goalId) => {
 		const goalToDelete = goals.find((goal) => goal.id === goalId);
 		if (goalToDelete) {
-			archiveGoal(goalToDelete);
+			// Call the passed prop function to handle archiving
+			onArchiveGoal(goalToDelete);
 		}
 
-		preSetGoals(
-			(prevGoals) => {
-				const updatedGoals = prevGoals.filter(
-					(goal) => goal.id !== goalId
-				);
-				return updatedGoals;
-			},
-			goals,
-			setGoals
-		);
+		// The removal from the 'goals' array is now handled by onArchiveGoal in page.js
+		// No need to call preSetGoals here to filter, as onArchiveGoal takes care of it.
+		// However, if you want a local state update *before* page.js updates,
+		// you could keep the preSetGoals here, but it might cause a flicker.
+		// For consistency and single source of truth, it's better if page.js handles
+		// the `setGoals` call after archiving.
 	};
 
 	const handleExpand = (goalId) => {
@@ -189,7 +187,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 		);
 	}
 
-	// Conditional rendering for the loader
 	if (isLoading && goals.length === 0) {
 		return (
 			<div className="flex justify-center items-center h-full min-h-[200px]">
@@ -218,7 +215,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 							isExpanded={expandedGoal === goal.id}
 							onExpand={() => handleExpand(goal.id)}
 							updateProgress={updateProgress}
-							onDelete={handleDelete}
+							onDelete={handleDelete} // onDelete calls handleDelete in GoalsTab
 							onUpdateGoal={onUpdateGoal}
 							currentDayIndex={currentDayIndex}
 						/>

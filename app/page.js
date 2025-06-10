@@ -17,14 +17,15 @@ import { v4 as uuidv4 } from 'uuid';
 import PageHelper, {
 	sortGoals,
 	preSetGoals,
-	restoreGoal,
+	// restoreGoal, // Removed restoreGoal import
 } from '@/app/page-helper';
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
 	const [goals, setGoals] = useState([]);
+	const [archivedGoals, setArchivedGoals] = useState({}); // Moved useState for archivedGoals here
 	const [lastDailyResetTime, setLastDailyResetTime] = useState();
-	const [isLoading, setIsLoading] = useState(true); // New loading state
+	const [isLoading, setIsLoading] = useState(true);
 	const goalsTabRef = useRef(null);
 	const { user } = useUser();
 	const [userEmail, setUserEmail] = useState(null);
@@ -135,14 +136,12 @@ export default function App() {
 			console.log(
 				'User email not available, returning early from data fetch useEffect.'
 			);
-			// If no user email, it means we are not signed in or email is not yet loaded.
-			// In this case, there are no goals to load, so we can stop loading.
-			setIsLoading(false); // Add this line
+			setIsLoading(false);
 			return;
 		}
 
 		const fetchData = async () => {
-			setIsLoading(true); // Start loading
+			setIsLoading(true);
 			try {
 				const response = await loadQueriesByEmail(userEmail);
 
@@ -153,17 +152,37 @@ export default function App() {
 				) {
 					const firstQuery = response.queries[0];
 
-					if (firstQuery && Array.isArray(firstQuery.goals)) {
-						setGoals(firstQuery.goals);
+					if (firstQuery) {
+						// Set goals
+						if (Array.isArray(firstQuery.goals)) {
+							setGoals(firstQuery.goals);
+						} else {
+							console.warn(
+								"First query object is missing or 'goals' property is not an array. Setting goals to empty.",
+								firstQuery
+							);
+							setGoals([]);
+						}
+						// Set archived goals
+						if (
+							firstQuery.archivedGoals &&
+							typeof firstQuery.archivedGoals === 'object'
+						) {
+							setArchivedGoals(firstQuery.archivedGoals);
+						} else {
+							console.warn(
+								"First query object is missing or 'archivedGoals' property is not an object. Setting archivedGoals to empty.",
+								firstQuery
+							);
+							setArchivedGoals({});
+						}
 					} else {
-						console.warn(
-							"First query object is missing or 'goals' property is not an array. Setting goals to empty.",
-							firstQuery
-						);
 						setGoals([]);
+						setArchivedGoals({});
 					}
 				} else {
 					setGoals([]);
+					setArchivedGoals({});
 					if (response.error) {
 						toast.error(`Error loading goals: ${response.error}`);
 					}
@@ -171,9 +190,10 @@ export default function App() {
 			} catch (error) {
 				console.error('Caught error during loadQueriesByEmail:', error);
 				setGoals([]);
+				setArchivedGoals({});
 				toast.error('Failed to load goals due to a network error.');
 			} finally {
-				setIsLoading(false); // End loading
+				setIsLoading(false);
 			}
 		};
 
@@ -223,7 +243,12 @@ export default function App() {
 			if (!currentEmail) return;
 
 			try {
-				const result = await saveQuery(currentEmail, goals);
+				// Pass archivedGoals to saveQuery
+				const result = await saveQuery(
+					currentEmail,
+					goals,
+					archivedGoals
+				);
 				if (!result.ok) {
 					console.error('Failed to save goals:', result.error);
 					toast.error('Failed to save goals to cloud!');
@@ -234,10 +259,14 @@ export default function App() {
 			}
 		};
 
-		if (user && goals.length > 0) {
+		// Only save if there are goals or archived goals to save
+		if (
+			user &&
+			(goals.length > 0 || Object.keys(archivedGoals).length > 0)
+		) {
 			saveGoalsToDatabase();
 		}
-	}, [goals, user]);
+	}, [goals, archivedGoals, user]); // Add archivedGoals to dependency array
 
 	useEffect(() => {
 		if (lastDailyResetTime) {
@@ -266,6 +295,26 @@ export default function App() {
 		);
 	};
 
+	// Moved archiveGoal function from page-helper to page.js
+	const archiveAndRemoveGoal = (goalToArchive) => {
+		if (!goalToArchive || typeof goalToArchive.title !== 'string') {
+			console.warn('Invalid goal provided for archiving.');
+			return;
+		}
+
+		// Update archivedGoals state
+		setArchivedGoals((prevArchived) => ({
+			...prevArchived,
+			[goalToArchive.title]: goalToArchive.completedDays || {},
+		}));
+
+		// Remove from active goals
+		setGoals((prevGoals) =>
+			prevGoals.filter((g) => g.id !== goalToArchive.id)
+		);
+		toast.success(`${goalToArchive.title} archived!`);
+	};
+
 	const handleHabitSelect = async (habit) => {
 		if (!habit) {
 			console.error('Habit is undefined when selecting!');
@@ -276,7 +325,8 @@ export default function App() {
 			return;
 		}
 
-		const restoredCompletedDays = restoreGoal(habit.title);
+		// Restore completedDays from archivedGoals state
+		const restoredCompletedDays = archivedGoals[habit.title] || {};
 
 		const newGoal = {
 			id: uuidv4(),
@@ -295,6 +345,7 @@ export default function App() {
 
 	const onSignOut = () => {
 		setGoals([]);
+		setArchivedGoals({}); // Clear archived goals on sign out
 		setUserEmail(null);
 	};
 	return (
@@ -312,10 +363,11 @@ export default function App() {
 							onUpdateGoal={handleUpdateGoal}
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
+							onArchiveGoal={archiveAndRemoveGoal} // Pass the new archive function
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}
-							isLoading={isLoading} // Pass isLoading prop
+							isLoading={isLoading}
 						/>
 					)}
 					{activeTab === 'explore' && (
@@ -330,7 +382,7 @@ export default function App() {
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}
-							isLoading={isLoading} // Pass isLoading prop
+							isLoading={isLoading}
 						/>
 					)}
 					{activeTab === 'profile' && (

@@ -168,6 +168,7 @@ body,
 }
 
 /* Loader CSS */
+/* Add this to your app/globals.css file */
 .loader {
 	border: 8px solid #f3f3f3; /* Light grey */
 	border-top: 8px solid #9caf88; /* Primary color */
@@ -175,6 +176,8 @@ body,
 	width: 60px;
 	height: 60px;
 	animation: spin 2s linear infinite;
+	/* Optional: To center the loader if it's the only element in a flex container */
+	margin: 0 auto;
 }
 
 @keyframes spin {
@@ -185,3 +188,7 @@ body,
 		transform: rotate(360deg);
 	}
 }
+
+/* Keep your existing global styles below this */
+
+/* other styles... */

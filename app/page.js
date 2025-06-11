@@ -381,8 +381,9 @@ export default function App() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center text-gray-700">
-				Loading your data...
+			<div className="min-h-screen flex flex-col items-center justify-center text-gray-700 gap-4">
+				<div className="loader"></div>
+				<div>Loading your data...</div>
 			</div>
 		);
 	}

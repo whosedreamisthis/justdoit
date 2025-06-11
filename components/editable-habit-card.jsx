@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ScrollOnExpand from '../hooks/scroll-on-expand';
+import ScrollOnExpand from '../hooks/scroll-on-expand'; // Path to your hook
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from '@/styles/goal-card.module.css';
 import {
@@ -14,9 +14,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
-import { useUser } from '@clerk/nextjs'; // Import useUser
-import ConfirmationDialog from './confirmation-dialog'; // Import ConfirmationDialog
-import Portal from './portal'; // Import Portal for robust modal display
+import { useUser } from '@clerk/nextjs';
+import ConfirmationDialog from './confirmation-dialog';
+import Portal from './portal';
 
 /**
  * EditableHabitCard component for user-created habits.
@@ -36,9 +36,13 @@ export default function EditableHabitCard({
 	const [title, setTitle] = useState(habit.title);
 	const [description, setDescription] = useState(habit.description);
 	const [color, setColor] = useState(habit.color);
-	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // New state for delete confirmation
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-	const cardRef = ScrollOnExpand(isExpanded);
+	// --- IMPORTANT CHANGE HERE ---
+	// Pass both isExpanded and isEditing to the ScrollOnExpand hook
+	const cardRef = ScrollOnExpand(isExpanded, isEditing);
+	// --- END IMPORTANT CHANGE ---
+
 	const titleRef = useRef(null);
 	const { isSignedIn } = useUser();
 
@@ -48,7 +52,7 @@ export default function EditableHabitCard({
 		setDescription(habit.description);
 		setColor(habit.color);
 		setIsEditing(false);
-		setShowDeleteConfirm(false); // Reset confirmation dialog state
+		setShowDeleteConfirm(false);
 	}, [habit, isExpanded]);
 
 	// Focus input on edit
@@ -88,38 +92,32 @@ export default function EditableHabitCard({
 			return;
 		}
 
-		e.stopPropagation(); // Ensure event object exists before calling this
+		e.stopPropagation();
 		if (!isSignedIn) {
-			// Check if user is signed in
 			toast.error('You need to sign in before adding goals.');
 			return;
 		}
-		onSelect?.(habit); // Pass the valid habit object
+		onSelect?.(habit);
 		return habit;
 	};
-	const test = (e) => {
-		console.log('Test function called with event:', e);
-	};
-	// New: Request confirmation for deletion
+
 	const requestDeleteConfirmation = (e) => {
-		e.stopPropagation(); // Prevent card click behavior
-		setShowDeleteConfirm(true); // Show the confirmation dialog
+		e.stopPropagation();
+		setShowDeleteConfirm(true);
 	};
 
-	// New: Confirm deletion
 	const confirmDelete = () => {
-		onDelete(habit.id); // Call the onDelete prop with habit.id
-		setShowDeleteConfirm(false); // Close the dialog
+		onDelete(habit.id);
+		setShowDeleteConfirm(false);
 	};
 
-	// New: Cancel deletion
 	const cancelDelete = () => {
-		setShowDeleteConfirm(false); // Close the dialog
+		setShowDeleteConfirm(false);
 	};
 
 	return (
 		<div
-			ref={cardRef}
+			ref={cardRef} // Attach the ref to the main card div
 			className={`card rounded-lg p-4 transition-all relative ${
 				isExpanded
 					? 'max-h-[500px] overflow-auto z-10'
@@ -190,37 +188,31 @@ export default function EditableHabitCard({
 					<FontAwesomeIcon
 						icon={faTrashCan}
 						className={styles.goalCardIcon}
-						onClick={requestDeleteConfirmation} //requestDeleteConfirmation} // <--- THIS IS THE CRUCIAL CHANGE
+						onClick={requestDeleteConfirmation}
 						title="Delete"
 					/>
 
-					{isExpanded &&
-						!isEditing && ( // This nested `isExpanded` check might be redundant if the parent div already checks it
-							<div className="flex flex-col h-full rounded-lg">
-								<div
-									className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
+					{isExpanded && !isEditing && (
+						<div className="flex flex-col h-full rounded-lg">
+							<div
+								className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
+							>
+								<button
+									className={`addButton`}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleAddToGoals(e, habit);
+									}}
 								>
-									<button
-										className={`addButton`}
-										onClick={(e) => {
-											e.stopPropagation(); // Prevent card collapse
-											const habitData = handleAddToGoals(
-												e,
-												habit
-											); // Call the function
-											// Pass the actual data
-										}}
-									>
-										Add
-									</button>
-								</div>
+									Add
+								</button>
 							</div>
-						)}
+						</div>
+					)}
 				</div>
 			)}
 
-			{/* Confirmation Dialog - NOW WRAPPED IN A PORTAL */}
-			{showDeleteConfirm && ( // Only render Portal if dialog is open
+			{showDeleteConfirm && (
 				<Portal>
 					<ConfirmationDialog
 						isOpen={showDeleteConfirm}

@@ -7,27 +7,22 @@ import MinimizableCard from './minimizable-card';
 import EditableHabitCard from './editable-habit-card';
 import styles from '@/styles/explore-tab.module.css';
 import '@/app/globals.css';
+// ADD THESE IMPORTS:
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function ExploreTab({
 	habitsByCategory,
 	onSelect,
 	onAddCustomHabit,
-	customHabits, // Still passed as a prop, though primarily used by MinimizableCustomCard
+	customHabits,
 	onUpdateCustomHabit,
 	onDeleteCustomHabit,
 	expandedCategory,
 	setExpandedCategory,
 }) {
-	// const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
-	const cardRefs = useRef({});
-
-	// useEffect(() => {
-	// 	localStorage.setItem(
-	// 		'expandedCategory',
-	// 		JSON.stringify(Array.from(expandedCategory))
-	// 	);
-	// }, [expandedCategory]);
+	const cardRefs = useRef({}); // This ref is not currently used in the provided logic, can be removed if not needed elsewhere.
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
@@ -47,9 +42,9 @@ export default function ExploreTab({
 				Explore Habits
 			</h2>
 			<div className="space-y-4">
-				{/* This "Add Custom Habit" card remains the first element */}
+				{/* "Add Custom Habit" card remains */}
 				<div
-					className="rounded-xl shadow-md overflow-hidden"
+					className="rounded-xl shadow-md" // --- REMOVED 'overflow-hidden' here ---
 					style={{ backgroundColor: '#A7B39E' }}
 				>
 					<MinimizableCustomCard
@@ -59,46 +54,41 @@ export default function ExploreTab({
 					/>
 				</div>
 
-				{/* Render ALL Categories dynamically, including 'Your Custom Habits' */}
-				{Object.entries(habitsByCategory).map(([cat, habits]) => {
-					// Determine if the current category being mapped is "Your Custom Habits"
-					const isCustomHabitsCategory = cat === 'Your Custom Habits';
+				{Object.entries(habitsByCategory).map(([category, habits]) => {
+					const isCustomCategory = category === 'Your Custom Habits';
 
-					// If it's the "Your Custom Habits" category and there are no custom habits,
-					// or if it's any other category and it's empty, display a message.
 					const displayEmptyMessage =
 						habits.length === 0 &&
-						(isCustomHabitsCategory ||
-							cat !== 'Your Custom Habits');
+						(isCustomCategory || category !== 'Your Custom Habits');
 
 					return (
 						<div
-							key={cat}
+							key={category}
 							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer} border-1`}
 						>
 							<div
 								role="button"
 								tabIndex={0}
 								className="flex justify-between items-center cursor-pointer"
-								onClick={() => toggleCategory(cat)}
-								aria-expanded={expandedCategory.has(cat)}
+								onClick={() => toggleCategory(category)}
+								aria-expanded={expandedCategory.has(category)}
 							>
 								<h3 className="text-lg font-semibold text-charcoal">
-									{cat}
+									{category}
 								</h3>
 								<span
 									className={`text-xl ${styles.expandArrow}`}
 								>
-									{expandedCategory.has(cat) ? '▼' : '►'}
+									{expandedCategory.has(category) ? '▼' : '►'}
 								</span>
 							</div>
-							{expandedCategory.has(cat) && (
+							{expandedCategory.has(category) && (
 								<div
 									className={`mt-2 space-y-2 ${styles.habitsContainer}`}
 								>
 									{displayEmptyMessage ? (
 										<p className="text-gray-600 italic p-3">
-											{isCustomHabitsCategory
+											{isCustomCategory
 												? 'Your custom habits will appear here after you add them.'
 												: 'No habits in this category yet.'}
 										</p>
@@ -106,17 +96,12 @@ export default function ExploreTab({
 										habits.map((h) => (
 											<div
 												key={h.id}
-												ref={(el) =>
-													(cardRefs.current[h.id] =
-														el)
-												}
-												className="rounded-xl shadow-md overflow-hidden"
+												className="rounded-xl shadow-md" // --- REMOVED 'overflow-hidden' here ---
 												style={{
 													backgroundColor: h.color,
 												}}
 											>
-												{/* Use EditableHabitCard for custom habits, MinimizableCard for others */}
-												{isCustomHabitsCategory ? (
+												{isCustomCategory ? (
 													<EditableHabitCard
 														habit={h}
 														onSelect={onSelect}
@@ -166,6 +151,16 @@ export default function ExploreTab({
 						Select a category to see habits.
 					</p>
 				)}
+			</div>
+			{/* Add Custom Habit Button */}
+			<div className="fixed bottom-20 right-4 z-20">
+				<button
+					onClick={onAddCustomHabit}
+					className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg"
+					aria-label="Add custom habit"
+				>
+					<FontAwesomeIcon icon={faPlus} size="lg" />
+				</button>
 			</div>
 		</div>
 	);

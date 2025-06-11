@@ -48,13 +48,13 @@ export default function MinimizableGoalCard({
 	}, [goal.id, goal.title, goal.description, goal.color, isExpanded]);
 
 	// Effect to focus title input when editing mode is enabled
-	useEffect(() => {
-		if (isEditing && titleInputRef.current) {
-			titleInputRef.current.focus();
-			// Set cursor at the beginning for better UX when starting edit
-			titleInputRef.current.setSelectionRange(0, 0);
-		}
-	}, [isEditing]);
+	// useEffect(() => {
+	// 	if (isEditing && titleInputRef.current) {
+	// 		titleInputRef.current.focus();
+	// 		// Set cursor at the beginning for better UX when starting edit
+	// 		titleInputRef.current.setSelectionRange(0, 0);
+	// 	}
+	// }, [isEditing]);
 
 	// Handler for saving edited goal details
 	const handleSaveEdit = (e) => {

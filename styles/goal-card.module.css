@@ -12,3 +12,112 @@
 .progressIncomplete {
 	color: #779ecb;
 }
+/* styles/goal-card.module.css */
+
+/* Modal Overlay: Covers the entire screen */
+.modalOverlay {
+	position: fixed; /* This is key for it to be relative to the viewport */
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(
+		0,
+		0,
+		0,
+		0.7
+	); /* Slightly darker overlay for better contrast */
+	display: flex;
+	justify-content: center; /* Center horizontally */
+	align-items: center; /* Center vertically */
+	z-index: 1000; /* Ensures it's on top of everything else */
+	opacity: 0; /* Start hidden */
+	visibility: hidden; /* Start non-interactive */
+	transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth fade-in/out */
+}
+
+/* When the modal is open, make it visible */
+.modalOverlay[data-is-open='true'] {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Modal Content: The actual popup box */
+.modalContent {
+	background: #deb887; /* Soft brown background */
+	padding: 30px;
+	border-radius: 12px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* Slightly stronger shadow */
+	text-align: center;
+	max-width: 400px;
+	width: 90%; /* Responsive width */
+	color: #3b3b3b; /* Text color for the entire modal content */
+	transform: scale(0.9); /* Start slightly smaller for pop-in effect */
+	transition: transform 0.3s ease-out; /* Pop-in animation */
+}
+
+/* Animation for the modal content when it's open */
+.modalOverlay[data-is-open='true'] .modalContent {
+	transform: scale(1); /* Scale to normal size */
+}
+
+.modalTitle {
+	font-size: 1.7rem; /* Slightly larger title */
+	color: #3b3b3b;
+	margin-bottom: 18px; /* More space below title */
+	font-weight: 700;
+}
+
+.modalMessage {
+	font-size: 1.15rem; /* Slightly larger message */
+	color: #3b3b3b;
+	margin-bottom: 30px; /* More space below message */
+	line-height: 1.6; /* Better readability */
+}
+
+.modalActions {
+	display: flex;
+	justify-content: space-around;
+	gap: 20px; /* Increased space between buttons */
+}
+
+.modalButton {
+	padding: 12px 28px; /* Slightly more padding for buttons */
+	border: none;
+	border-radius: 8px;
+	font-size: 1.1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease,
+		box-shadow 0.2s ease;
+	flex: 1;
+}
+
+.confirmButton {
+	background-color: #e74c3c;
+	color: white;
+}
+
+.confirmButton:hover {
+	background-color: #c0392b;
+	transform: translateY(-2px); /* Lift on hover */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cancelButton {
+	background-color: #ccc;
+	color: #3b3b3b;
+}
+
+.cancelButton:hover {
+	background-color: #bbb;
+	transform: translateY(-2px); /* Lift on hover */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure no other conflicting styles are present */
+/* For example, if you have a 'card' class, ensure it doesn't have:
+   position: relative;
+   overflow: hidden;
+   (unless intended for its own content, but not for the modal)
+*/

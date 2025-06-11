@@ -14,7 +14,8 @@ import {
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
 import styles from '@/styles/goal-card.module.css';
-
+import ConfirmationDialog from './confirmation-dialog';
+import Portal from './portal';
 export default function MinimizableGoalCard({
 	goal,
 	onEdit, // Not used in this component, but keeping for reference if needed
@@ -29,7 +30,7 @@ export default function MinimizableGoalCard({
 		goal.description || ''
 	);
 	const [editedColor, setEditedColor] = useState(goal.color);
-
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Changed to false
 	const titleInputRef = useRef(null);
 	const cardRef = ScrollOnExpand(isExpanded); // Hook for scrolling card into view when expanded
 
@@ -39,6 +40,8 @@ export default function MinimizableGoalCard({
 		setEditedDescription(goal.description || '');
 		setEditedColor(goal.color);
 		setIsEditing(false); // Reset editing state
+		// Ensure dialog is closed when goal changes or card collapses
+		setShowDeleteConfirm(false);
 	}, [goal.id, goal.title, goal.description, goal.color, isExpanded]);
 
 	// Effect to focus title input when editing mode is enabled
@@ -49,12 +52,6 @@ export default function MinimizableGoalCard({
 			titleInputRef.current.setSelectionRange(0, 0);
 		}
 	}, [isEditing]);
-
-	// Handler for deleting the goal
-	const handleDelete = (e) => {
-		e.stopPropagation(); // Prevent card click behavior
-		onDelete(goal.id); // Call the onDelete prop from parent (GoalsTab)
-	};
 
 	// Handler for saving edited goal details
 	const handleSaveEdit = (e) => {
@@ -90,7 +87,7 @@ export default function MinimizableGoalCard({
 
 	// Handler for toggling goal progress (between 0 and 100)
 	const toggleProgress = (e) => {
-		if (isEditing) return; // Do not toggle progress if in editing mode
+		if (isEditing || showDeleteConfirm) return; // Do not toggle progress if in editing mode or dialog is open
 		e.stopPropagation(); // Prevent event bubbling up to parent div and affecting other elements
 
 		const now = new Date();
@@ -134,6 +131,24 @@ export default function MinimizableGoalCard({
 		onUpdateGoal(updatedGoal); // Pass the entire updated goal object
 	};
 
+	// New: Request confirmation for deletion
+	const requestDeleteConfirmation = (e) => {
+		e.stopPropagation(); // Prevent card click behavior
+		setShowDeleteConfirm(true); // Show the confirmation dialog
+	};
+
+	// New: Confirm deletion
+	const confirmDelete = () => {
+		onDelete(goal.id); // Corrected: Use goal.id
+		setShowDeleteConfirm(false);
+		toast.success('Goal deleted!'); // Corrected: "Goal deleted!"
+	};
+
+	// New: Cancel deletion
+	const cancelDelete = () => {
+		setShowDeleteConfirm(false);
+	};
+
 	return (
 		<div
 			ref={cardRef} // Ref for scrolling hook
@@ -145,7 +160,7 @@ export default function MinimizableGoalCard({
 			// Background color changes based on editing mode
 			style={{ backgroundColor: isEditing ? editedColor : goal.color }}
 			// The main card area (excluding the ellipsis button) triggers progress toggle
-			onClick={toggleProgress} // This is the core fix: Attach toggleProgress here
+			onClick={toggleProgress}
 		>
 			{/* Progress Bar */}
 			<div
@@ -268,7 +283,7 @@ export default function MinimizableGoalCard({
 						<FontAwesomeIcon
 							icon={faTrashCan}
 							className={`far ${styles.goalCardIcon} z-20 cursor-pointer`}
-							onClick={handleDelete}
+							onClick={requestDeleteConfirmation} // Corrected: Calls requestDeleteConfirmation
 							title="Delete Goal"
 						/>
 					</div>
@@ -295,6 +310,17 @@ export default function MinimizableGoalCard({
 					/>
 				</div>
 			)}
+
+			{/* Confirmation Dialog - RENDERED HERE */}
+			<Portal>
+				<ConfirmationDialog
+					isOpen={showDeleteConfirm}
+					title="Confirm Goal Deletion"
+					message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
+					onConfirm={confirmDelete}
+					onCancel={cancelDelete}
+				/>
+			</Portal>
 		</div>
 	);
 }

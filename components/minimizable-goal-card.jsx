@@ -35,7 +35,7 @@ export default function MinimizableGoalCard({
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const titleInputRef = useRef(null);
-	const cardRef = ScrollOnExpand(isExpanded); // Hook for scrolling card into view when expanded
+	const cardRef = ScrollOnExpand(isExpanded, isEditing); // Pass both isExpanded and isEditing
 
 	// Effect to reset edit state and inputs when goal or expansion state changes
 	useEffect(() => {

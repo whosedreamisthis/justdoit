@@ -168,7 +168,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 					}
 				}
 				scrollAdjustmentPending.current = false; // Reset the flag after attempting scroll
-			}, 400);
+			}, 200);
 		} else {
 			// If no scroll is needed based on the condition, make sure to reset the flag immediately
 			scrollAdjustmentPending.current = false;

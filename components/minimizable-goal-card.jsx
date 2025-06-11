@@ -74,7 +74,6 @@ export default function MinimizableGoalCard({
 		// Call the onUpdateGoal prop from parent (GoalsTab)
 		onUpdateGoal(updatedGoal); // Pass the entire updated goal object
 		setIsEditing(false); // Exit editing mode
-		toast.success('Goal updated successfully!');
 	};
 
 	// Handler for canceling edit mode and reverting changes

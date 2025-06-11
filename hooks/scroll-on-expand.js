@@ -8,10 +8,10 @@ import { useRef, useEffect } from 'react';
  * @returns {React.RefObject} - A ref object to be attached to the element that needs to be scrolled.
  */
 const ScrollOnExpand = (shouldScroll, editModeActive) => {
+	// keep editModeActive param
 	const elementRef = useRef(null);
 
 	useEffect(() => {
-		// Log to see when the effect is triggered and what its dependencies are
 		console.log(
 			'ScrollOnExpand useEffect triggered. shouldScroll:',
 			shouldScroll,
@@ -21,11 +21,8 @@ const ScrollOnExpand = (shouldScroll, editModeActive) => {
 			elementRef.current
 		);
 
-		// The condition to trigger a scroll: either the component should be expanded
-		// or it has just entered an active edit mode that changes its height/position.
-		if ((shouldScroll || editModeActive) && elementRef.current) {
-			// Use requestAnimationFrame to ensure the DOM has updated after expansion/edit state
-			// before attempting to scroll. This makes the scroll more reliable.
+		// The condition to trigger a scroll: when the card is expanded, regardless of edit mode.
+		if (shouldScroll && elementRef.current) {
 			requestAnimationFrame(() => {
 				const element = elementRef.current;
 				const rect = element.getBoundingClientRect();
@@ -47,19 +44,19 @@ const ScrollOnExpand = (shouldScroll, editModeActive) => {
 					viewportHeight - bottomNavHeight - bottomPadding
 				);
 
-				// Perform an initial scroll to bring the element into the general view.
-				// 'nearest' is a good start as it tries to minimize scrolling.
+				// Always perform scrollIntoView on the element itself when shouldScroll is true.
+				// This helps with internal card scrolling for editable content if it overflows.
 				element.scrollIntoView({
-					behavior: 'smooth',
+					behavior: 'auto', // Can be 'smooth' if you prefer, but 'auto' is less intrusive
 					block: 'nearest',
 					inline: 'nearest',
 				});
 				console.log(
-					"Initial scrollIntoView (block: 'nearest') called."
+					"element.scrollIntoView (block: 'nearest') called."
 				);
 
-				// After a brief delay (to allow the initial scroll to complete),
-				// re-check its position and adjust for desired padding and bottom nav.
+				// Re-enable window.scrollBy adjustments for ALL cases where shouldScroll is true.
+				// This includes when it expands to edit mode, as per your request.
 				setTimeout(() => {
 					const newRect = element.getBoundingClientRect();
 					console.log(
@@ -84,14 +81,12 @@ const ScrollOnExpand = (shouldScroll, editModeActive) => {
 					);
 
 					if (isTopCutOff) {
-						// If the top is cut off, scroll up just enough to show the top with padding
 						scrollAmount = newRect.top - topPadding;
 						console.log(
 							'Adjusting UP (top cut off). Scroll amount:',
 							scrollAmount
 						);
 					} else if (isBottomCutOff && !isTallerThanAvailable) {
-						// If bottom is cut off, and it's not super tall, scroll down to reveal bottom with padding
 						scrollAmount =
 							newRect.bottom -
 							(viewportHeight - bottomNavHeight - bottomPadding);
@@ -100,8 +95,6 @@ const ScrollOnExpand = (shouldScroll, editModeActive) => {
 							scrollAmount
 						);
 					} else if (isTallerThanAvailable) {
-						// If the element is taller than the available viewport space,
-						// ensure its top aligns with the top padding for better readability.
 						scrollAmount = newRect.top - topPadding;
 						console.log(
 							'Adjusting (tall card, aligning top). Scroll amount:',
@@ -119,19 +112,19 @@ const ScrollOnExpand = (shouldScroll, editModeActive) => {
 							scrollAmount
 						);
 					} else {
-						console.log('No further scroll adjustment needed.');
+						console.log(
+							'No further window scroll adjustment needed.'
+						);
 					}
 					console.log('--- End ScrollOnExpand Debug ---');
 				}, 150); // Small delay to allow initial scroll/layout to settle
 			});
-		} else if (shouldScroll || editModeActive) {
-			// This warning helps identify cases where the hook is meant to scroll
-			// but the element ref is not yet available in the DOM.
+		} else if (shouldScroll) {
 			console.warn(
 				'ScrollOnExpand: scroll condition is true but elementRef.current is null! This means the ref is not attached or element not rendered yet.'
 			);
 		}
-	}, [shouldScroll, editModeActive]); // Effect runs when either shouldScroll or editModeActive changes
+	}, [shouldScroll, editModeActive]); // Effect runs when shouldScroll or editModeActive changes (though editModeActive's direct effect on window.scrollBy is removed)
 
 	return elementRef; // Return the ref so the component can attach it to its DOM element
 };

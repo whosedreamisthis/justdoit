@@ -38,8 +38,9 @@ export default function EditableHabitCard({
 	const [color, setColor] = useState(habit.color);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-	// Original ScrollOnExpand usage (only passing isExpanded)
-	const cardRef = ScrollOnExpand(isExpanded);
+	// IMPORTANT CHANGE: Pass (isExpanded || isEditing) as the shouldScroll parameter.
+	// This ensures the ScrollOnExpand hook is triggered whenever the card is expanded OR in editing mode.
+	const cardRef = ScrollOnExpand(isExpanded || isEditing, isEditing);
 
 	const titleRef = useRef(null);
 	const { isSignedIn } = useUser();
@@ -58,7 +59,6 @@ export default function EditableHabitCard({
 		if (isEditing && titleRef.current) titleRef.current.focus();
 	}, [isEditing]);
 
-	// --- FIX FOR SAVING ISSUE ---
 	const handleSave = async (e) => {
 		e.stopPropagation(); // Prevent card collapse
 
@@ -85,7 +85,6 @@ export default function EditableHabitCard({
 			toast.error('Failed to update habit. Please try again.'); // Provide error feedback
 		}
 	};
-	// --- END FIX ---
 
 	const handleCancel = (e) => {
 		e.stopPropagation(); // Prevent card collapse

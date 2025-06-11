@@ -31,8 +31,8 @@ const ScrollOnExpand = (shouldScroll) => {
 				// before attempting to scroll. This makes the scroll more reliable.
 				requestAnimationFrame(() => {
 					elementRef.current.scrollIntoView({
-						behavior: 'smooth', // Smooth scrolling animation
-						block: 'center', // IMPORTANT CHANGE: Align the nearest edge of the element with the nearest edge of the viewport
+						behavior: 'auto', // Smooth scrolling animation
+						block: 'nearest', // IMPORTANT CHANGE: Align the nearest edge of the element with the nearest edge of the viewport
 						// This prevents it from scrolling 'too far up' unnecessarily.
 					});
 				});

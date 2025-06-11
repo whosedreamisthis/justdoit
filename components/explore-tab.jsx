@@ -1,3 +1,4 @@
+// components/explore-tab.js
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -10,22 +11,16 @@ import '@/app/globals.css';
 export default function ExploreTab({
 	habitsByCategory,
 	onSelect,
-	onAddCustomHabit, // Received as prop for adding custom habits
-	customHabits, // Received as prop (the array of custom habits)
-	onUpdateCustomHabit, // Received as prop for updating custom habits
-	onDeleteCustomHabit, // Received as prop for deleting custom habits
+	onAddCustomHabit,
+	customHabits, // Still passed as a prop, though primarily used by MinimizableCustomCard
+	onUpdateCustomHabit,
+	onDeleteCustomHabit,
 }) {
-	// Initialize expandedCategory to an empty Set on both server and client initially.
-	// The localStorage value will be loaded and applied only after hydration to prevent mismatch.
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
-
-	// customHabits state removed, now using customHabits prop directly
-
 	const cardRefs = useRef({});
 
 	useEffect(() => {
-		// This effect runs only on the client after hydration.
 		const saved = localStorage.getItem('expandedCategory');
 		if (saved) {
 			try {
@@ -37,9 +32,8 @@ export default function ExploreTab({
 				);
 			}
 		}
-	}, []); // Empty dependency array means it runs once after initial render
+	}, []);
 
-	// This useEffect saves the expandedCategory state to localStorage on changes
 	useEffect(() => {
 		localStorage.setItem(
 			'expandedCategory',
@@ -47,23 +41,17 @@ export default function ExploreTab({
 		);
 	}, [expandedCategory]);
 
-	// REMOVED: useEffect for saving customHabits to localStorage
-	// REMOVED: customHabits state initialization from localStorage
-
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
 			const next = new Set(prev);
 			next.has(key) ? next.delete(key) : next.add(key);
 			return next;
 		});
-		setExpandedCard(null); // Collapse any open card when category is toggled
+		setExpandedCard(null);
 	};
 
 	const handleExpandCard = (id) =>
 		setExpandedCard((prev) => (prev === id ? null : id));
-
-	// REMOVED: handleAddCustomHabit, handleUpdateCustomHabit, handleDeleteCustomHabit functions
-	// These are now expected as props from page.js
 
 	return (
 		<div className={`${styles.exploreContainer} p-3 bg-subtle-background`}>
@@ -71,119 +59,118 @@ export default function ExploreTab({
 				Explore Habits
 			</h2>
 			<div className="space-y-4">
-				{/* The "Add Custom Habit" card remains the first element */}
+				{/* This "Add Custom Habit" card remains the first element */}
 				<div
 					className="rounded-xl shadow-md overflow-hidden"
 					style={{ backgroundColor: '#A7B39E' }}
 				>
 					<MinimizableCustomCard
-						onSelect={onAddCustomHabit} // Now calls the prop function
+						onSelect={onAddCustomHabit}
 						isExpanded={expandedCard === 'custom-add'}
 						onExpand={() => handleExpandCard('custom-add')}
 					/>
 				</div>
 
-				{/* Render Pre-defined Categories */}
-				{Object.entries(habitsByCategory).map(([cat, habits]) => (
-					<div
-						key={cat}
-						className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
-					>
-						<div
-							role="button"
-							tabIndex={0}
-							className="flex justify-between items-center cursor-pointer"
-							onClick={() => toggleCategory(cat)}
-							aria-expanded={expandedCategory.has(cat)}
-						>
-							<h3 className="text-lg font-semibold text-charcoal">
-								{cat}
-							</h3>
-							<span className={`text-xl ${styles.expandArrow}`}>
-								{expandedCategory.has(cat) ? '▼' : '►'}
-							</span>
-						</div>
-						{expandedCategory.has(cat) && (
-							<div
-								className={`mt-2 space-y-2 ${styles.habitsContainer}`}
-							>
-								{habits.map((h) => (
-									<div
-										key={h.id}
-										ref={(el) =>
-											(cardRefs.current[h.id] = el)
-										}
-										className="rounded-xl shadow-md overflow-hidden"
-										style={{ backgroundColor: h.color }}
-									>
-										<MinimizableCard
-											habit={h}
-											onSelect={onSelect}
-											isExpanded={expandedCard === h.id}
-											onExpand={() =>
-												handleExpandCard(h.id)
-											}
-										/>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-				))}
+				{/* Render ALL Categories dynamically, including 'Your Custom Habits' */}
+				{Object.entries(habitsByCategory).map(([cat, habits]) => {
+					// Determine if the current category being mapped is "Your Custom Habits"
+					const isCustomHabitsCategory = cat === 'Your Custom Habits';
 
-				{/* Custom Habits Category - now displays habits from the customHabits prop */}
-				<div
-					className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
-				>
-					<div
-						role="button"
-						tabIndex={0}
-						className="flex justify-between items-center cursor-pointer"
-						onClick={() => toggleCategory('Custom Habits')}
-						aria-expanded={expandedCategory.has('Custom Habits')}
-					>
-						<h3 className="text-lg font-semibold text-charcoal">
-							Custom Habits
-						</h3>
-						<span className={`text-xl ${styles.expandArrow}`}>
-							{expandedCategory.has('Custom Habits') ? '▼' : '►'}
-						</span>
-					</div>
-					{expandedCategory.has('Custom Habits') && (
+					// If it's the "Your Custom Habits" category and there are no custom habits,
+					// or if it's any other category and it's empty, display a message.
+					const displayEmptyMessage =
+						habits.length === 0 &&
+						(isCustomHabitsCategory ||
+							cat !== 'Your Custom Habits');
+
+					return (
 						<div
-							className={`mt-2 space-y-2 ${styles.habitsContainer}`}
+							key={cat}
+							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
 						>
-							{customHabits.length === 0 ? (
-								<p className="text-gray-600 italic p-3">
-									Your custom habits will appear here after
-									you add them.
-								</p>
-							) : (
-								customHabits.map((h) => (
-									<div
-										key={h.id}
-										ref={(el) =>
-											(cardRefs.current[h.id] = el)
-										}
-										className="rounded-xl shadow-md overflow-hidden"
-										style={{ backgroundColor: h.color }}
-									>
-										<EditableHabitCard
-											habit={h}
-											onSelect={onSelect}
-											onUpdateHabit={onUpdateCustomHabit} // Now calls the prop function
-											onDelete={onDeleteCustomHabit} // Now calls the prop function
-											isExpanded={expandedCard === h.id}
-											onExpand={() =>
-												handleExpandCard(h.id)
-											}
-										/>
-									</div>
-								))
+							<div
+								role="button"
+								tabIndex={0}
+								className="flex justify-between items-center cursor-pointer"
+								onClick={() => toggleCategory(cat)}
+								aria-expanded={expandedCategory.has(cat)}
+							>
+								<h3 className="text-lg font-semibold text-charcoal">
+									{cat}
+								</h3>
+								<span
+									className={`text-xl ${styles.expandArrow}`}
+								>
+									{expandedCategory.has(cat) ? '▼' : '►'}
+								</span>
+							</div>
+							{expandedCategory.has(cat) && (
+								<div
+									className={`mt-2 space-y-2 ${styles.habitsContainer}`}
+								>
+									{displayEmptyMessage ? (
+										<p className="text-gray-600 italic p-3">
+											{isCustomHabitsCategory
+												? 'Your custom habits will appear here after you add them.'
+												: 'No habits in this category yet.'}
+										</p>
+									) : (
+										habits.map((h) => (
+											<div
+												key={h.id}
+												ref={(el) =>
+													(cardRefs.current[h.id] =
+														el)
+												}
+												className="rounded-xl shadow-md overflow-hidden"
+												style={{
+													backgroundColor: h.color,
+												}}
+											>
+												{/* Use EditableHabitCard for custom habits, MinimizableCard for others */}
+												{isCustomHabitsCategory ? (
+													<EditableHabitCard
+														habit={h}
+														onSelect={onSelect}
+														onUpdateHabit={
+															onUpdateCustomHabit
+														}
+														onDelete={
+															onDeleteCustomHabit
+														}
+														isExpanded={
+															expandedCard ===
+															h.id
+														}
+														onExpand={() =>
+															handleExpandCard(
+																h.id
+															)
+														}
+													/>
+												) : (
+													<MinimizableCard
+														habit={h}
+														onSelect={onSelect}
+														isExpanded={
+															expandedCard ===
+															h.id
+														}
+														onExpand={() =>
+															handleExpandCard(
+																h.id
+															)
+														}
+													/>
+												)}
+											</div>
+										))
+									)}
+								</div>
 							)}
 						</div>
-					)}
-				</div>
+					);
+				})}
 			</div>
 			<div className="flex justify-center items-center min-h-[200px]">
 				{!expandedCategory.size && expandedCard === null && (

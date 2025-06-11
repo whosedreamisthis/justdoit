@@ -35,6 +35,7 @@ export default function App() {
 			setUserEmail(email);
 			const fetchData = async () => {
 				setIsLoading(true);
+				console.log('App: Fetching data for email:', email); // Log fetch start
 				try {
 					const { ok, queries, error } = await loadQueriesByEmail(
 						email
@@ -45,6 +46,13 @@ export default function App() {
 						setGoals(latestQuery.goals || []);
 						setArchivedGoals(latestQuery.archivedGoals || {});
 						setCustomHabits(latestQuery.customHabits || []);
+						console.log('App: Data loaded successfully.', {
+							goals: latestQuery.goals?.length,
+							archived: Object.keys(
+								latestQuery.archivedGoals || {}
+							).length,
+							customHabits: latestQuery.customHabits?.length, // Log loaded custom habits count
+						});
 
 						// Handle lastDailyResetTime
 						if (latestQuery.lastDailyResetTime) {
@@ -60,7 +68,7 @@ export default function App() {
 						}
 					} else {
 						console.log(
-							'No existing data for this user or error:',
+							'App: No existing data for this user or error during load:',
 							error
 						);
 						// If no data exists, initialize states to default empty/current values
@@ -72,7 +80,7 @@ export default function App() {
 						setLastDailyResetTime(now);
 					}
 				} catch (err) {
-					console.error('Failed to load initial data:', err);
+					console.error('App: Failed to load initial data:', err);
 					toast.error('Failed to load your data.');
 					// Even on error, ensure states are reset to a known good (empty) state
 					setGoals([]);
@@ -83,12 +91,13 @@ export default function App() {
 					setLastDailyResetTime(now);
 				} finally {
 					setIsLoading(false);
+					console.log('App: Finished initial data loading.');
 				}
 			};
-
 			fetchData();
 		} else {
 			// If no user email, clear states and stop loading
+			console.log('App: No user email available. Clearing states.');
 			setGoals([]);
 			setArchivedGoals({});
 			setCustomHabits([]);
@@ -97,38 +106,82 @@ export default function App() {
 		}
 	}, [email]); // Dependency on email ensures fetch happens when user logs in/out
 
-	// Effect to save data to database whenever relevant states change
-	// This replaces all localStorage.setItem calls for these data types
+	// Unified function to save all user data to the database
+	// This function will be called by the debounced useEffect below
+	const saveAllUserData = useCallback(async () => {
+		if (!userEmail) {
+			console.warn(
+				'saveAllUserData: Attempted to save data without user email.'
+			);
+			return;
+		}
+		console.log('saveAllUserData: Initiating save to DB...');
+		console.log(
+			'saveAllUserData: Current customHabits being sent:',
+			JSON.stringify(customHabits, null, 2)
+		); // Log actual customHabits content
+		console.log(
+			'saveAllUserData: Current goals being sent:',
+			JSON.stringify(goals, null, 2)
+		); // Log actual goals content
+		console.log(
+			'saveAllUserData: Current archivedGoals being sent:',
+			JSON.stringify(archivedGoals, null, 2)
+		); // Log actual archivedGoals content
+
+		try {
+			const { ok, error } = await saveQuery(
+				userEmail,
+				goals, // Use latest state from closure
+				archivedGoals, // Use latest state from closure
+				lastDailyResetTime, // Use latest state from closure
+				customHabits // Use latest state from closure
+			);
+			if (!ok) {
+				console.error('saveAllUserData: Failed to save data:', error);
+				toast.error(`Failed to save changes automatically: ${error}`);
+			} else {
+				console.log(
+					'saveAllUserData: Data saved successfully by debounced effect.'
+				);
+			}
+		} catch (err) {
+			console.error(
+				'saveAllUserData: Error during data save (debounced call):',
+				err
+			);
+			toast.error('An unexpected error occurred while saving.');
+		}
+	}, [userEmail, goals, archivedGoals, lastDailyResetTime, customHabits]); // Dependencies: all state variables read inside
+
+	// Debounced save using useEffect - this will now solely handle all data saving
+	// It triggers a save whenever 'goals', 'archivedGoals', 'lastDailyResetTime', or 'customHabits' change.
 	useEffect(() => {
+		// Only run the save effect if loading is complete and user email is available
 		if (userEmail && !isLoading) {
-			// Only save if user is logged in and initial loading is complete
-			const saveUserData = async () => {
-				try {
-					const { ok, error } = await saveQuery(
-						userEmail,
-						goals,
-						archivedGoals,
-						lastDailyResetTime,
-						customHabits
-					);
-					if (!ok) {
-						console.error('Failed to save data:', error);
-						// Optionally show a toast error here if saving silently fails often
-					}
-				} catch (err) {
-					console.error('Error during data save:', err);
-				}
-			};
-			const timeoutId = setTimeout(saveUserData, 500); // Debounce save operations
-			return () => clearTimeout(timeoutId);
+			console.log(
+				'App useEffect: State change detected, scheduling save...'
+			);
+			const timeoutId = setTimeout(() => {
+				saveAllUserData(); // Call the memoized saveAllUserData function
+			}, 500); // Debounce save operations
+			return () => clearTimeout(timeoutId); // Cleanup on unmount or re-render
+		} else {
+			console.log(
+				'App useEffect: Skipping save. userEmail:',
+				userEmail,
+				'isLoading:',
+				isLoading
+			);
 		}
 	}, [
 		goals,
 		archivedGoals,
 		lastDailyResetTime,
-		customHabits,
+		customHabits, // This dependency ensures the effect re-runs when customHabits changes
 		userEmail,
 		isLoading,
+		saveAllUserData, // Add saveAllUserData to dependencies to ensure it's up-to-date
 	]);
 
 	// Daily reset logic
@@ -144,7 +197,7 @@ export default function App() {
 
 		// If the last reset was before today's midnight, reset goals
 		if (resetTime.getTime() < todayMidnight.getTime()) {
-			console.log('Performing daily reset...');
+			console.log('App: Performing daily reset...');
 			setGoals((prevGoals) =>
 				prevGoals.map((goal) => ({
 					...goal,
@@ -174,74 +227,105 @@ export default function App() {
 			if (existingGoalIndex > -1) {
 				const newGoals = [...prevGoals];
 				newGoals[existingGoalIndex] = updatedGoal;
-				return newGoals;
+				return newGoals; // This state update will trigger the useEffect for saving
 			}
 			return prevGoals; // Goal not found
 		});
 	}, []);
 
-	const handleHabitSelect = (habit) => {
-		const restoredCompletedDays = archivedGoals[habit.title] || {}; // Retrieve from archivedGoals state
+	const handleHabitSelect = useCallback(
+		(habit) => {
+			const restoredCompletedDays = archivedGoals[habit.title] || {}; // Retrieve from archivedGoals state
 
-		const newGoal = {
-			id: uuidv4(),
-			title: habit.title,
-			description: habit.description,
-			color: habit.color || '#FFFFFF',
-			progress: 0,
-			isCompleted: false,
-			completedDays: restoredCompletedDays,
-			createdAt: new Date().toISOString(), // Use ISO string for consistency
-		};
+			const newGoal = {
+				id: uuidv4(),
+				title: habit.title,
+				description: habit.description,
+				color: habit.color || '#FFFFFF',
+				progress: 0,
+				isCompleted: false,
+				completedDays: restoredCompletedDays,
+				createdAt: new Date().toISOString(), // Use ISO string for consistency
+			};
 
-		preSetGoals((prevGoals) => [...prevGoals, newGoal], goals, setGoals);
-		toast.success(`${habit.title} added as a goal!`);
-	};
-
-	// New: Handler for archiving and removing a goal
-	const archiveAndRemoveGoal = useCallback(
-		(goalToArchive) => {
-			// Use the helper to get completedDays, but don't save to localStorage there
-			const completedDaysToArchive = archiveGoal(goalToArchive);
-
-			setArchivedGoals((prevArchived) => {
-				// Create a new object for immutability
-				const newArchived = { ...prevArchived };
-				if (completedDaysToArchive) {
-					newArchived[goalToArchive.title] = completedDaysToArchive;
-				}
-				return newArchived;
+			setGoals((prevGoals) => {
+				const updatedGoals = [...prevGoals, newGoal];
+				return updatedGoals; // This state update will trigger the useEffect for saving
 			});
-
-			// Remove the goal from the active goals list
-			setGoals((prevGoals) =>
-				prevGoals.filter((goal) => goal.id !== goalToArchive.id)
-			);
-
-			toast.success(`'${goalToArchive.title}' archived!`);
+			toast.success(`${habit.title} added as a goal!`);
 		},
-		[setArchivedGoals, setGoals] // Dependencies
+		[archivedGoals]
 	);
 
-	// New: Handlers for Custom Habits
+	// New: Handler for archiving and removing a goal
+	const archiveAndRemoveGoal = useCallback((goalToArchive) => {
+		const completedDaysToArchive = archiveGoal(goalToArchive);
+
+		setArchivedGoals((prevArchived) => {
+			const newArchived = { ...prevArchived };
+			if (completedDaysToArchive) {
+				newArchived[goalToArchive.title] = completedDaysToArchive;
+			}
+			return newArchived; // This state update will trigger the useEffect for saving
+		});
+
+		setGoals((prevGoals) =>
+			prevGoals.filter((goal) => goal.id !== goalToArchive.id)
+		);
+
+		toast.success(`'${goalToArchive.title}' archived!`);
+	}, []);
+
+	// Handlers for Custom Habits - Now ONLY updating local state
 	const handleAddCustomHabit = useCallback((newHabit) => {
-		setCustomHabits((prevHabits) => [...prevHabits, newHabit]);
+		console.log(
+			'handleAddCustomHabit: Adding new custom habit locally:',
+			newHabit
+		);
+		setCustomHabits((prevHabits) => {
+			const updatedHabits = [...prevHabits, newHabit];
+			console.log(
+				'handleAddCustomHabit: New customHabits state after add:',
+				updatedHabits
+			);
+			return updatedHabits; // This state update will trigger the useEffect for saving
+		});
 		toast.success(`'${newHabit.title}' added to custom habits!`);
 	}, []);
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
-		setCustomHabits((prevHabits) =>
-			prevHabits.map((habit) =>
-				habit.id === updatedHabit.id ? updatedHabit : habit
-			)
+		console.log(
+			'handleUpdateCustomHabit: Updating custom habit locally:',
+			updatedHabit
 		);
+		setCustomHabits((prevHabits) => {
+			const updatedHabits = prevHabits.map((habit) =>
+				habit.id === updatedHabit.id ? updatedHabit : habit
+			);
+			console.log(
+				'handleUpdateCustomHabit: New customHabits state after update:',
+				updatedHabits
+			);
+			return updatedHabits; // This state update will trigger the useEffect for saving
+		});
 		toast.success(`'${updatedHabit.title}' updated!`);
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
-		setCustomHabits((prevHabits) =>
-			prevHabits.filter((habit) => habit.id !== habitId)
+		console.log(
+			'handleDeleteCustomHabit: Deleting custom habit locally with ID:',
+			habitId
 		);
+		setCustomHabits((prevHabits) => {
+			const updatedHabits = prevHabits.filter(
+				(habit) => habit.id !== habitId
+			);
+			console.log(
+				'handleDeleteCustomHabit: New customHabits state after delete:',
+				updatedHabits
+			);
+			return updatedHabits; // This state update will trigger the useEffect for saving
+		});
 		toast.success('Custom habit deleted!');
 	}, []);
 
@@ -251,13 +335,22 @@ export default function App() {
 		setLastDailyResetTime(null); // Clear last reset time on sign out
 		setCustomHabits([]); // Clear custom habits on sign out
 		setUserEmail(null);
+		console.log('App: User signed out. States cleared.');
 	};
 
 	// Combine habitsByCategory and customHabits for ExploreTab
 	const allHabits = {
 		...habitsByCategory,
-		'Your Custom Habits': customHabits, // Add custom habits under a new category
+		'Your Custom Habits': customHabits, // Use 'Your Custom Habits' as the key to match ExploreTab's logic
 	};
+
+	if (isLoading) {
+		return (
+			<div className="min-h-screen flex items-center justify-center text-gray-700">
+				Loading your data...
+			</div>
+		);
+	}
 
 	return (
 		<>
@@ -286,7 +379,7 @@ export default function App() {
 							habitsByCategory={allHabits} // Pass combined habits
 							onSelect={handleHabitSelect}
 							onAddCustomHabit={handleAddCustomHabit} // Pass the handler for adding custom habits
-							customHabits={customHabits} // Pass custom habits to ExploreTab
+							customHabits={customHabits} // Pass custom habits to ExploreTab (for rendering existing ones)
 							onUpdateCustomHabit={handleUpdateCustomHabit} // Pass update handler
 							onDeleteCustomHabit={handleDeleteCustomHabit} // Pass delete handler
 						/>

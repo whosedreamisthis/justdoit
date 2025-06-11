@@ -253,6 +253,32 @@ export default function App() {
 	const handleHabitSelect = useCallback(
 		(habit) => {
 			const restoredCompletedDays = archivedGoals[habit.title] || {};
+			const now = new Date();
+			const currentYear = now.getFullYear();
+			const currentMonth = now.getMonth() + 1; // Month is 0-indexed in JS, 1-indexed in completedDays
+			const currentDay = now.getDate();
+
+			// Create a new object for completedDays, excluding the current day's entry
+			const newCompletedDays = {};
+			for (const year in restoredCompletedDays) {
+				newCompletedDays[year] = {};
+				for (const month in restoredCompletedDays[year]) {
+					newCompletedDays[year][month] = {};
+					for (const day in restoredCompletedDays[year][month]) {
+						// Only copy if it's not the current day
+						if (
+							!(
+								parseInt(year) === currentYear &&
+								parseInt(month) === currentMonth &&
+								parseInt(day) === currentDay
+							)
+						) {
+							newCompletedDays[year][month][day] =
+								restoredCompletedDays[year][month][day];
+						}
+					}
+				}
+			}
 
 			const newGoal = {
 				id: uuidv4(),
@@ -261,7 +287,7 @@ export default function App() {
 				color: habit.color || '#FFFFFF',
 				progress: 0,
 				isCompleted: false,
-				completedDays: restoredCompletedDays,
+				completedDays: newCompletedDays, // Use the filtered completedDays
 				createdAt: new Date().toISOString(),
 			};
 

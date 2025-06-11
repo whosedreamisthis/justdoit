@@ -195,27 +195,28 @@ export default function EditableHabitCard({
 						title="Delete"
 					/>
 
-					{isExpanded && ( // This nested `isExpanded` check might be redundant if the parent div already checks it
-						<div className="flex flex-col h-full rounded-lg">
-							<div
-								className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
-							>
-								<button
-									className={`addButton`}
-									onClick={(e) => {
-										e.stopPropagation(); // Prevent card collapse
-										const habitData = handleAddToGoals(
-											e,
-											habit
-										); // Call the function
-										// Pass the actual data
-									}}
+					{isExpanded &&
+						!isEditing && ( // This nested `isExpanded` check might be redundant if the parent div already checks it
+							<div className="flex flex-col h-full rounded-lg">
+								<div
+									className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
 								>
-									Add
-								</button>
+									<button
+										className={`addButton`}
+										onClick={(e) => {
+											e.stopPropagation(); // Prevent card collapse
+											const habitData = handleAddToGoals(
+												e,
+												habit
+											); // Call the function
+											// Pass the actual data
+										}}
+									>
+										Add
+									</button>
+								</div>
 							</div>
-						</div>
-					)}
+						)}
 				</div>
 			)}
 

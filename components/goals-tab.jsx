@@ -38,7 +38,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	// Ref to track if a scroll adjustment is pending after a re-sort
 	const scrollAdjustmentPending = useRef(false);
-	// REMOVED: targetScrollGoalId ref as it's no longer needed for this approach
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
@@ -74,7 +73,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 			pendingAnimation.current = true;
 			scrollAdjustmentPending.current = true; // Mark that a scroll adjustment is needed
-			// REMOVED: Setting targetScrollGoalId here
 		},
 	}));
 
@@ -117,7 +115,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 							'transitionend',
 							onTransitionEnd
 						);
-						// REMOVED: Conditional scroll adjustment on transitionend
 					};
 
 					node.addEventListener('transitionend', onTransitionEnd);
@@ -131,8 +128,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// --- NEW SIMPLIFIED Scroll Adjustment Logic for Sorting ---
-		// Perform scroll adjustment after a small delay to allow animations to settle
+		// --- UPDATED Scroll Adjustment Logic for Sorting ---
+		// Perform scroll adjustment after a sufficient delay to allow FLIP animations to mostly settle
 		if (scrollAdjustmentPending.current) {
 			const firstGoalNode = goalRefs.current[sortedGoals[0]?.id];
 			const lastGoalNode =
@@ -168,9 +165,9 @@ const GoalsTab = forwardRef(function GoalsTab(
 					}
 				}
 				scrollAdjustmentPending.current = false; // Reset the flag after attempting scroll
-			}, 250); // Increased delay to 250ms for more stability after animations
+			}, 400); // Adjusted delay to 400ms (closer to FLIP animation end of 500ms)
 		}
-		// --- END NEW SIMPLIFIED Scroll Adjustment Logic ---
+		// --- END UPDATED Scroll Adjustment Logic ---
 
 		prevGoalPositions.current = {};
 		pendingAnimation.current = false;
@@ -180,57 +177,43 @@ const GoalsTab = forwardRef(function GoalsTab(
 		};
 	}, [sortedGoals]); // Depend on sortedGoals to re-run when goal order changes
 
-	// Helper function for scrolling, now consistent with scroll-on-expand.js logic
+	// Helper function for scrolling, now solely using window.scrollBy for precise control
 	const performScrollAdjustment = (element) => {
 		if (!element) return;
 
-		// Change behavior from 'auto' to 'smooth' for the initial scrollIntoView
-		element.scrollIntoView({
-			behavior: 'smooth',
-			block: 'nearest',
-			inline: 'nearest',
-		});
+		// Directly calculate scroll amount without an initial scrollIntoView
+		const rect = element.getBoundingClientRect();
+		const viewportHeight = window.innerHeight;
+		const topPadding = 20; // Desired padding from the top of the viewport
+		const bottomNavHeight = 80; // Approximate height of your BottomTabs component
+		const bottomPadding = 20; // Desired padding from the bottom of the viewport
 
-		// The rest of the logic remains the same (fine-tuning with window.scrollBy)
-		requestAnimationFrame(() => {
-			setTimeout(() => {
-				const rect = element.getBoundingClientRect();
-				const viewportHeight = window.innerHeight;
-				const topPadding = 20; // Desired padding from the top of the viewport
-				const bottomNavHeight = 80; // Approximate height of your BottomTabs component
-				const bottomPadding = 20; // Desired padding from the bottom of the viewport
+		let scrollAmount = 0;
 
-				let scrollAmount = 0;
+		const isTopCutOff = rect.top < topPadding;
+		const isBottomCutOff =
+			rect.bottom > viewportHeight - bottomNavHeight - bottomPadding;
+		const isTallerThanAvailable =
+			rect.height >
+			viewportHeight - topPadding - bottomNavHeight - bottomPadding;
 
-				const isTopCutOff = rect.top < topPadding;
-				const isBottomCutOff =
-					rect.bottom >
-					viewportHeight - bottomNavHeight - bottomPadding;
-				const isTallerThanAvailable =
-					rect.height >
-					viewportHeight -
-						topPadding -
-						bottomNavHeight -
-						bottomPadding;
+		if (isTopCutOff) {
+			scrollAmount = rect.top - topPadding;
+		} else if (isBottomCutOff && !isTallerThanAvailable) {
+			scrollAmount =
+				rect.bottom -
+				(viewportHeight - bottomNavHeight - bottomPadding);
+		} else if (isTallerThanAvailable) {
+			// If the element is taller than available space, align its top with top padding
+			scrollAmount = rect.top - topPadding;
+		}
 
-				if (isTopCutOff) {
-					scrollAmount = rect.top - topPadding;
-				} else if (isBottomCutOff && !isTallerThanAvailable) {
-					scrollAmount =
-						rect.bottom -
-						(viewportHeight - bottomNavHeight - bottomPadding);
-				} else if (isTallerThanAvailable) {
-					scrollAmount = rect.top - topPadding;
-				}
-
-				if (scrollAmount !== 0) {
-					window.scrollBy({
-						top: scrollAmount,
-						behavior: 'smooth', // This is already smooth
-					});
-				}
-			}, 150); // Small delay to allow initial scroll/layout to settle
-		});
+		if (scrollAmount !== 0) {
+			window.scrollBy({
+				top: scrollAmount,
+				behavior: 'smooth',
+			});
+		}
 	};
 
 	useEffect(() => {

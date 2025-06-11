@@ -91,7 +91,8 @@ export default function App() {
 				}
 			};
 			fetchData();
-		} else {
+		} else if (user === null) {
+			// Only clear state if user is truly signed out
 			console.log('App: No user email available. Clearing states.');
 			setGoals([]);
 			setArchivedGoals({});
@@ -99,7 +100,8 @@ export default function App() {
 			setLastDailyResetTime(null);
 			setIsLoading(false);
 		}
-	}, [email]);
+		// Do nothing if user is undefined (still loading)
+	}, [email, user]);
 
 	// Unified function to save all user data to the database (called by debounced useEffect)
 	const saveAllUserData = useCallback(async () => {
@@ -379,7 +381,7 @@ export default function App() {
 		'Your Custom Habits': customHabits,
 	};
 
-	if (isLoading) {
+	if (isLoading || user === undefined) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center text-gray-700 gap-4">
 				<div className="loader"></div>

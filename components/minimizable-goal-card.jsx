@@ -16,6 +16,7 @@ import ColorSquares from './color-squares';
 import styles from '@/styles/goal-card.module.css';
 import ConfirmationDialog from './confirmation-dialog';
 import Portal from './portal';
+
 export default function MinimizableGoalCard({
 	goal,
 	onEdit, // Not used in this component, but keeping for reference if needed
@@ -30,7 +31,8 @@ export default function MinimizableGoalCard({
 		goal.description || ''
 	);
 	const [editedColor, setEditedColor] = useState(goal.color);
-	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Changed to false
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
 	const titleInputRef = useRef(null);
 	const cardRef = ScrollOnExpand(isExpanded); // Hook for scrolling card into view when expanded
 
@@ -40,8 +42,8 @@ export default function MinimizableGoalCard({
 		setEditedDescription(goal.description || '');
 		setEditedColor(goal.color);
 		setIsEditing(false); // Reset editing state
-		// Ensure dialog is closed when goal changes or card collapses
-		setShowDeleteConfirm(false);
+		// REMOVED THE LINE BELOW: This was resetting the dialog state prematurely
+		// setShowDeleteConfirm(false); // Ensure dialog is closed when goal changes or card collapses
 	}, [goal.id, goal.title, goal.description, goal.color, isExpanded]);
 
 	// Effect to focus title input when editing mode is enabled
@@ -72,6 +74,7 @@ export default function MinimizableGoalCard({
 		// Call the onUpdateGoal prop from parent (GoalsTab)
 		onUpdateGoal(updatedGoal); // Pass the entire updated goal object
 		setIsEditing(false); // Exit editing mode
+		toast.success('Goal updated successfully!');
 	};
 
 	// Handler for canceling edit mode and reverting changes
@@ -139,12 +142,12 @@ export default function MinimizableGoalCard({
 	// New: Confirm deletion
 	const confirmDelete = () => {
 		onDelete(goal.id); // Corrected: Use goal.id
-		setShowDeleteConfirm(false);
+		setShowDeleteConfirm(false); // This closes the dialog after confirmation
 	};
 
 	// New: Cancel deletion
 	const cancelDelete = () => {
-		setShowDeleteConfirm(false);
+		setShowDeleteConfirm(false); // This closes the dialog if cancelled
 	};
 
 	return (
@@ -310,15 +313,17 @@ export default function MinimizableGoalCard({
 			)}
 
 			{/* Confirmation Dialog - RENDERED HERE */}
-			<Portal>
-				<ConfirmationDialog
-					isOpen={showDeleteConfirm}
-					title="Confirm Goal Deletion"
-					message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
-					onConfirm={confirmDelete}
-					onCancel={cancelDelete}
-				/>
-			</Portal>
+			{showDeleteConfirm && (
+				<Portal>
+					<ConfirmationDialog
+						isOpen={showDeleteConfirm}
+						title="Confirm Goal Deletion"
+						message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
+						onConfirm={confirmDelete}
+						onCancel={cancelDelete}
+					/>
+				</Portal>
+			)}
 		</div>
 	);
 }

@@ -38,6 +38,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	// Ref to track if a scroll adjustment is pending after a re-sort
 	const scrollAdjustmentPending = useRef(false);
+	// New ref to store the goals from the previous render to compare completion status
+	const prevGoalsRef = useRef([]);
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
@@ -78,6 +80,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	useLayoutEffect(() => {
 		if (!pendingAnimation.current) {
+			// Update prevGoalsRef even if no animation pending, for next render's comparison
+			prevGoalsRef.current = goals;
 			return;
 		}
 
@@ -128,65 +132,81 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// --- UPDATED Scroll Adjustment Logic for Sorting ---
-		// Perform scroll adjustment after a sufficient delay to allow FLIP animations to mostly settle
-		if (scrollAdjustmentPending.current) {
+		// Determine if any goal became incomplete
+		let becameIncompleteAndMovedUp = false;
+		if (prevGoalsRef.current && goals) {
+			for (const currentGoal of goals) {
+				const prevGoal = prevGoalsRef.current.find(
+					(g) => g.id === currentGoal.id
+				);
+
+				if (
+					prevGoal &&
+					prevGoal.isCompleted &&
+					!currentGoal.isCompleted
+				) {
+					// A goal transitioned from complete to incomplete
+					// This is the trigger for potential scroll up
+					becameIncompleteAndMovedUp = true;
+					break;
+				}
+			}
+		}
+
+		// --- Conditional Scroll Adjustment Logic ---
+		// Only proceed if a scroll adjustment is pending AND the condition for incomplete goal moving up is met
+		if (scrollAdjustmentPending.current && becameIncompleteAndMovedUp) {
 			const firstGoalNode = goalRefs.current[sortedGoals[0]?.id];
-			const lastGoalNode =
-				goalRefs.current[sortedGoals[sortedGoals.length - 1]?.id];
 
 			setTimeout(() => {
-				let scrolled = false;
-
-				// Prioritize scrolling the first goal into view if it's off-screen at the top
 				if (firstGoalNode) {
+					// Only scroll the first goal into view if it's off-screen at the top
 					const rect = firstGoalNode.getBoundingClientRect();
 					const topPadding = 20;
 					if (rect.top < topPadding) {
 						performScrollAdjustment(firstGoalNode);
-						scrolled = true;
-					}
-				}
-
-				// If no scroll happened for the first goal, try to scroll the last goal into view
-				// if it's off-screen at the bottom. This handles goals moving down.
-				if (!scrolled && lastGoalNode) {
-					const rect = lastGoalNode.getBoundingClientRect();
-					const viewportHeight = window.innerHeight;
-					const bottomNavHeight = 80;
-					const bottomPadding = 20;
-
-					if (
-						rect.bottom >
-						viewportHeight - bottomNavHeight - bottomPadding
-					) {
-						performScrollAdjustment(lastGoalNode);
-						scrolled = true;
 					}
 				}
 				scrollAdjustmentPending.current = false; // Reset the flag after attempting scroll
-			}, 400); // Adjusted delay to 400ms (closer to FLIP animation end of 500ms)
+			}, 400);
+		} else {
+			// If no scroll is needed based on the condition, make sure to reset the flag immediately
+			scrollAdjustmentPending.current = false;
 		}
-		// --- END UPDATED Scroll Adjustment Logic ---
+		// --- End Conditional Scroll Adjustment Logic ---
 
 		prevGoalPositions.current = {};
 		pendingAnimation.current = false;
+		prevGoalsRef.current = goals; // Update ref for next render
 
 		return () => {
 			cleanupFunctions.forEach((fn) => fn());
 		};
-	}, [sortedGoals]); // Depend on sortedGoals to re-run when goal order changes
+	}, [sortedGoals, goals]); // Depend on both sortedGoals and goals
 
-	// Helper function for scrolling, now solely using window.scrollBy for precise control
+	// Helper function for scrolling, solely using window.scrollBy for precise control
 	const performScrollAdjustment = (element) => {
-		if (!element) return;
+		if (!element) {
+			console.log('performScrollAdjustment: element is null, skipping.');
+			return;
+		}
 
-		// Directly calculate scroll amount without an initial scrollIntoView
 		const rect = element.getBoundingClientRect();
 		const viewportHeight = window.innerHeight;
 		const topPadding = 20; // Desired padding from the top of the viewport
 		const bottomNavHeight = 80; // Approximate height of your BottomTabs component
 		const bottomPadding = 20; // Desired padding from the bottom of the viewport
+
+		console.log('--- performScrollAdjustment Debug ---');
+		console.log('Element rect:', rect);
+		console.log('Viewport Height:', viewportHeight);
+		console.log('Top Padding:', topPadding);
+		console.log('Bottom Nav Height:', bottomNavHeight);
+		console.log('Bottom Padding:', bottomPadding);
+		console.log(
+			'Available viewport for content (after top/bottom pads/nav):',
+			viewportHeight - topPadding - bottomNavHeight - bottomPadding
+		);
 
 		let scrollAmount = 0;
 
@@ -199,13 +219,25 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 		if (isTopCutOff) {
 			scrollAmount = rect.top - topPadding;
+			console.log('Condition: Top Cut Off. Scroll amount:', scrollAmount);
 		} else if (isBottomCutOff && !isTallerThanAvailable) {
 			scrollAmount =
 				rect.bottom -
 				(viewportHeight - bottomNavHeight - bottomPadding);
+			console.log(
+				'Condition: Bottom Cut Off & Not Taller. Scroll amount:',
+				scrollAmount
+			);
 		} else if (isTallerThanAvailable) {
-			// If the element is taller than available space, align its top with top padding
 			scrollAmount = rect.top - topPadding;
+			console.log(
+				'Condition: Taller Than Available. Scroll amount:',
+				scrollAmount
+			);
+		} else {
+			console.log(
+				'Condition: Element fully in view with desired padding. No scroll needed.'
+			);
 		}
 
 		if (scrollAmount !== 0) {
@@ -213,7 +245,11 @@ const GoalsTab = forwardRef(function GoalsTab(
 				top: scrollAmount,
 				behavior: 'smooth',
 			});
+			console.log('window.scrollBy called with top:', scrollAmount);
+		} else {
+			console.log('No scroll needed (scrollAmount is 0).');
 		}
+		console.log('--- End performScrollAdjustment Debug ---');
 	};
 
 	useEffect(() => {

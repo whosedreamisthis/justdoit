@@ -44,23 +44,19 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort((a, b) => {
-			const completionA = a.isCompleted ? 1 : -1;
-			const completionB = b.isCompleted ? 1 : -1;
-			if (completionA !== completionB) {
-				return completionA - completionB;
+			// Prioritize uncompleted goals over completed goals
+			if (a.isCompleted && !b.isCompleted) {
+				return 1; // 'a' (completed) comes after 'b' (uncompleted)
+			}
+			if (!a.isCompleted && b.isCompleted) {
+				return -1; // 'a' (uncompleted) comes before 'b' (completed)
 			}
 
-			if (!a.isCompleted && !b.isCompleted) {
-				return (
-					new Date(b.createdAt).getTime() -
-					new Date(a.createdAt).getTime()
-				);
-			} else {
-				return (
-					new Date(a.createdAt).getTime() -
-					new Date(b.createdAt).getTime()
-				);
-			}
+			// If both are completed or both are uncompleted, sort by createdAt descending (most recent first)
+			return (
+				new Date(b.createdAt).getTime() -
+				new Date(a.createdAt).getTime()
+			);
 		});
 	}, [goals]);
 

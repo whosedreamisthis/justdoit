@@ -103,6 +103,17 @@ export default function App() {
 		// Do nothing if user is undefined (still loading)
 	}, [email, user]);
 
+	// Effect to scroll to top when activeTab changes
+	useEffect(() => {
+		// Scroll to the top of the window
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		// Alternatively, if you have a specific scrollable div:
+		// const mainContentDiv = document.querySelector('.flex-grow.pb-20');
+		// if (mainContentDiv) {
+		//     mainContentDiv.scrollTo({ top: 0, behavior: 'smooth' });
+		// }
+	}, [activeTab]);
+
 	// Unified function to save all user data to the database (called by debounced useEffect)
 	const saveAllUserData = useCallback(async () => {
 		if (!userEmail) {

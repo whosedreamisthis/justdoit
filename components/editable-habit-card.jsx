@@ -15,6 +15,8 @@ import {
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
 import { useUser } from '@clerk/nextjs'; // Import useUser
+import ConfirmationDialog from './confirmation-dialog'; // Import ConfirmationDialog
+import Portal from './portal'; // Import Portal for robust modal display
 
 /**
  * EditableHabitCard component for user-created habits.
@@ -34,16 +36,19 @@ export default function EditableHabitCard({
 	const [title, setTitle] = useState(habit.title);
 	const [description, setDescription] = useState(habit.description);
 	const [color, setColor] = useState(habit.color);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // New state for delete confirmation
 
 	const cardRef = ScrollOnExpand(isExpanded);
 	const titleRef = useRef(null);
 	const { isSignedIn } = useUser();
+
 	// Reset state when habit or expanded changes
 	useEffect(() => {
 		setTitle(habit.title);
 		setDescription(habit.description);
 		setColor(habit.color);
 		setIsEditing(false);
+		setShowDeleteConfirm(false); // Reset confirmation dialog state
 	}, [habit, isExpanded]);
 
 	// Focus input on edit
@@ -91,6 +96,26 @@ export default function EditableHabitCard({
 		}
 		onSelect?.(habit); // Pass the valid habit object
 		return habit;
+	};
+	const test = (e) => {
+		console.log('Test function called with event:', e);
+	};
+	// New: Request confirmation for deletion
+	const requestDeleteConfirmation = (e) => {
+		console.log('Requesting delete confirmation for habit:', habit);
+		e.stopPropagation(); // Prevent card click behavior
+		setShowDeleteConfirm(true); // Show the confirmation dialog
+	};
+
+	// New: Confirm deletion
+	const confirmDelete = () => {
+		onDelete(habit.id); // Call the onDelete prop with habit.id
+		setShowDeleteConfirm(false); // Close the dialog
+	};
+
+	// New: Cancel deletion
+	const cancelDelete = () => {
+		setShowDeleteConfirm(false); // Close the dialog
 	};
 
 	return (
@@ -166,14 +191,11 @@ export default function EditableHabitCard({
 					<FontAwesomeIcon
 						icon={faTrashCan}
 						className={styles.goalCardIcon}
-						onClick={(e) => {
-							e.stopPropagation();
-							onDelete(habit.id);
-						}}
+						onClick={requestDeleteConfirmation} //requestDeleteConfirmation} // <--- THIS IS THE CRUCIAL CHANGE
 						title="Delete"
 					/>
 
-					{isExpanded && (
+					{isExpanded && ( // This nested `isExpanded` check might be redundant if the parent div already checks it
 						<div className="flex flex-col h-full rounded-lg">
 							<div
 								className={`${styles.addButtonContainer} flex flex-row justify-end items-end gap-2`}
@@ -195,6 +217,19 @@ export default function EditableHabitCard({
 						</div>
 					)}
 				</div>
+			)}
+
+			{/* Confirmation Dialog - NOW WRAPPED IN A PORTAL */}
+			{showDeleteConfirm && ( // Only render Portal if dialog is open
+				<Portal>
+					<ConfirmationDialog
+						isOpen={showDeleteConfirm}
+						title="Confirm Habit Deletion"
+						message={`Are you sure you want to delete "${habit.title}"? This action cannot be undone.`}
+						onConfirm={confirmDelete}
+						onCancel={cancelDelete}
+					/>
+				</Portal>
 			)}
 		</div>
 	);

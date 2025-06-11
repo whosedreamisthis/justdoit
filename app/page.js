@@ -196,7 +196,6 @@ export default function App() {
 				}))
 			);
 			setLastDailyResetTime(todayMidnight);
-			toast.success('Daily goals reset!');
 		}
 	}, [lastDailyResetTime]);
 
@@ -331,8 +330,6 @@ export default function App() {
 		setGoals((prevGoals) =>
 			prevGoals.filter((goal) => goal.id !== goalToArchive.id)
 		);
-
-		toast.success(`'${goalToArchive.title}' archived!`);
 	}, []);
 
 	const handleAddCustomHabit = useCallback(
@@ -350,7 +347,6 @@ export default function App() {
 				return updatedHabits;
 			});
 			handleHabitSelect(newHabit); // Add the custom habit as a goal
-			toast.success(`'${newHabit.title}' added to custom habits!`);
 		},
 		[handleHabitSelect]
 	); // Add handleHabitSelect to the dependency array
@@ -370,7 +366,6 @@ export default function App() {
 			);
 			return updatedHabits;
 		});
-		toast.success(`'${updatedHabit.title}' updated!`);
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
@@ -388,7 +383,6 @@ export default function App() {
 			);
 			return updatedHabits;
 		});
-		toast.success('Custom habit deleted!');
 	}, []);
 
 	const onSignOut = () => {

@@ -36,9 +36,8 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const prevGoalPositions = useRef({});
 	const pendingAnimation = useRef(false);
 
-	// Ref to track if a scroll adjustment is pending after a re-sort
-	const scrollAdjustmentPending = useRef(false);
-	// New ref to store the goals from the previous render to compare completion status
+	// Removed scrollAdjustmentPending ref as it's no longer needed for scrolling
+	// prevGoalsRef is kept as it's useful for detecting changes for FLIP animation (even if not used for scroll)
 	const prevGoalsRef = useRef([]);
 
 	function getDayOfWeekIndex(date) {
@@ -74,19 +73,17 @@ const GoalsTab = forwardRef(function GoalsTab(
 				}
 			}
 			pendingAnimation.current = true;
-			scrollAdjustmentPending.current = true; // Mark that a scroll adjustment is needed
+			// Removed setting scrollAdjustmentPending here
 		},
 	}));
 
 	useLayoutEffect(() => {
 		if (!pendingAnimation.current) {
-			// Update prevGoalsRef even if no animation pending, for next render's comparison
-			prevGoalsRef.current = goals;
+			prevGoalsRef.current = goals; // Update prevGoalsRef for next render's comparison
 			return;
 		}
 
 		const cleanupFunctions = [];
-		let animatedGoalNodes = []; // Store nodes that are being animated
 
 		for (const goal of sortedGoals) {
 			const node = goalRefs.current[goal.id];
@@ -110,8 +107,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 					node.style.transition = 'transform 0.5s ease-out';
 					node.style.transform = 'translate(0, 0)';
 
-					animatedGoalNodes.push(node); // Add node to list of animated nodes
-
 					const onTransitionEnd = () => {
 						node.style.transition = '';
 						node.style.transform = '';
@@ -132,125 +127,71 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// Determine if any goal became incomplete
-		let becameIncompleteAndMovedUp = false;
-		if (prevGoalsRef.current && goals) {
-			for (const currentGoal of goals) {
-				const prevGoal = prevGoalsRef.current.find(
-					(g) => g.id === currentGoal.id
-				);
+		// --- Removed all scroll adjustment logic from here ---
+		// This entire block has been removed:
+		/*
+        let targetGoalToScroll = null;
+        let scrollDirection = null;
 
-				if (
-					prevGoal &&
-					prevGoal.isCompleted &&
-					!currentGoal.isCompleted
-				) {
-					// A goal transitioned from complete to incomplete
-					// This is the trigger for potential scroll up
-					becameIncompleteAndMovedUp = true;
-					break;
-				}
-			}
-		}
+        if (prevGoalsRef.current && goals) {
+            for (const currentGoal of goals) {
+                const prevGoal = prevGoalsRef.current.find(g => g.id === currentGoal.id);
+                if (prevGoal) {
+                    if (prevGoal.isCompleted && !currentGoal.isCompleted) {
+                        targetGoalToScroll = currentGoal;
+                        scrollDirection = 'top';
+                        break;
+                    } else if (!prevGoal.isCompleted && currentGoal.isCompleted) {
+                        targetGoalToScroll = currentGoal;
+                        scrollDirection = 'bottom';
+                        break;
+                    }
+                }
+            }
+        }
 
-		// --- Conditional Scroll Adjustment Logic ---
-		// Only proceed if a scroll adjustment is pending AND the condition for incomplete goal moving up is met
-		if (scrollAdjustmentPending.current && becameIncompleteAndMovedUp) {
-			const firstGoalNode = goalRefs.current[sortedGoals[0]?.id];
-
+		if (scrollAdjustmentPending.current && targetGoalToScroll) {
+			const nodeToScroll = goalRefs.current[targetGoalToScroll.id];
 			setTimeout(() => {
-				if (firstGoalNode) {
-					// Only scroll the first goal into view if it's off-screen at the top
-					const rect = firstGoalNode.getBoundingClientRect();
-					const topPadding = 20;
-					if (rect.top < topPadding) {
-						performScrollAdjustment(firstGoalNode);
-					}
+				if (nodeToScroll) {
+					requestAnimationFrame(() => {
+                        const rect = nodeToScroll.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        const topPadding = 30;
+                        const bottomNavHeight = 80;
+                        const bottomPadding = 30;
+                        let scrollAmount = 0;
+                        if (scrollDirection === 'top') {
+                            scrollAmount = rect.top - topPadding;
+                        } else if (scrollDirection === 'bottom') {
+                            if (rect.bottom > (viewportHeight - bottomNavHeight - bottomPadding)) {
+                                scrollAmount = rect.bottom - (viewportHeight - bottomNavHeight - bottomPadding);
+                            }
+                        }
+                        if (scrollAmount !== 0) {
+                            window.scrollBy({
+                                top: scrollAmount,
+                                behavior: 'smooth',
+                            });
+                        }
+					});
 				}
-				scrollAdjustmentPending.current = false; // Reset the flag after attempting scroll
-			}, 200);
+				scrollAdjustmentPending.current = false;
+			}, 150);
 		} else {
-			// If no scroll is needed based on the condition, make sure to reset the flag immediately
 			scrollAdjustmentPending.current = false;
 		}
-		// --- End Conditional Scroll Adjustment Logic ---
+        */
+		// --- End of removed scroll adjustment logic ---
 
 		prevGoalPositions.current = {};
 		pendingAnimation.current = false;
-		prevGoalsRef.current = goals; // Update ref for next render
+		prevGoalsRef.current = goals; // Still needed for FLIP to detect position changes
 
 		return () => {
 			cleanupFunctions.forEach((fn) => fn());
 		};
 	}, [sortedGoals, goals]); // Depend on both sortedGoals and goals
-
-	// Helper function for scrolling, solely using window.scrollBy for precise control
-	const performScrollAdjustment = (element) => {
-		if (!element) {
-			console.log('performScrollAdjustment: element is null, skipping.');
-			return;
-		}
-
-		const rect = element.getBoundingClientRect();
-		const viewportHeight = window.innerHeight;
-		const topPadding = 20; // Desired padding from the top of the viewport
-		const bottomNavHeight = 80; // Approximate height of your BottomTabs component
-		const bottomPadding = 20; // Desired padding from the bottom of the viewport
-
-		console.log('--- performScrollAdjustment Debug ---');
-		console.log('Element rect:', rect);
-		console.log('Viewport Height:', viewportHeight);
-		console.log('Top Padding:', topPadding);
-		console.log('Bottom Nav Height:', bottomNavHeight);
-		console.log('Bottom Padding:', bottomPadding);
-		console.log(
-			'Available viewport for content (after top/bottom pads/nav):',
-			viewportHeight - topPadding - bottomNavHeight - bottomPadding
-		);
-
-		let scrollAmount = 0;
-
-		const isTopCutOff = rect.top < topPadding;
-		const isBottomCutOff =
-			rect.bottom > viewportHeight - bottomNavHeight - bottomPadding;
-		const isTallerThanAvailable =
-			rect.height >
-			viewportHeight - topPadding - bottomNavHeight - bottomPadding;
-
-		if (isTopCutOff) {
-			scrollAmount = rect.top - topPadding;
-			console.log('Condition: Top Cut Off. Scroll amount:', scrollAmount);
-		} else if (isBottomCutOff && !isTallerThanAvailable) {
-			scrollAmount =
-				rect.bottom -
-				(viewportHeight - bottomNavHeight - bottomPadding);
-			console.log(
-				'Condition: Bottom Cut Off & Not Taller. Scroll amount:',
-				scrollAmount
-			);
-		} else if (isTallerThanAvailable) {
-			scrollAmount = rect.top - topPadding;
-			console.log(
-				'Condition: Taller Than Available. Scroll amount:',
-				scrollAmount
-			);
-		} else {
-			console.log(
-				'Condition: Element fully in view with desired padding. No scroll needed.'
-			);
-		}
-
-		if (scrollAmount !== 0) {
-			window.scrollBy({
-				top: scrollAmount,
-				behavior: 'smooth',
-			});
-			console.log('window.scrollBy called with top:', scrollAmount);
-		} else {
-			console.log('No scroll needed (scrollAmount is 0).');
-		}
-		console.log('--- End performScrollAdjustment Debug ---');
-	};
 
 	useEffect(() => {
 		const now = new Date();

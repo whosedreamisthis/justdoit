@@ -86,7 +86,7 @@ export default function ExploreTab({
 					return (
 						<div
 							key={cat}
-							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer}`}
+							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer} border-1`}
 						>
 							<div
 								role="button"

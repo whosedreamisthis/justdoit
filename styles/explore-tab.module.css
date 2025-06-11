@@ -7,3 +7,7 @@
 	max-height: none;
 	overflow: clip; /* ✅ Stronger than hidden, fully removes scroll functionality */
 }
+
+.categoryContainer {
+	border: 2px solid #bd9a7a;
+}

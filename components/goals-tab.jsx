@@ -36,10 +36,9 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const prevGoalPositions = useRef({});
 	const pendingAnimation = useRef(false);
 
-	// New ref to track if a scroll adjustment is pending after a re-sort
+	// Ref to track if a scroll adjustment is pending after a re-sort
 	const scrollAdjustmentPending = useRef(false);
-	// New ref to store the target goal for scrolling
-	const targetScrollGoalId = useRef(null);
+	// REMOVED: targetScrollGoalId ref as it's no longer needed for this approach
 
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
@@ -66,30 +65,16 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	useImperativeHandle(ref, () => ({
 		snapshotPositions: () => {
-			let topMostMovedGoalId = null;
-			let smallestTopChange = Infinity; // To find the goal that moved *least* (i.e., stayed closest to its original spot, often at the top)
-
 			for (const goal of sortedGoals) {
 				const node = goalRefs.current[goal.id];
 				if (node) {
-					const currentRect = node.getBoundingClientRect();
-					prevGoalPositions.current[goal.id] = currentRect;
-
-					// Heuristic: identify the goal that moved to the "top" of the new sorted list
-					// that also had a significant vertical change.
-					// Or, simply the one that ended up being the first in the new sorted list.
-					if (
-						!topMostMovedGoalId ||
-						currentRect.top < smallestTopChange
-					) {
-						topMostMovedGoalId = goal.id;
-						smallestTopChange = currentRect.top;
-					}
+					prevGoalPositions.current[goal.id] =
+						node.getBoundingClientRect();
 				}
 			}
 			pendingAnimation.current = true;
 			scrollAdjustmentPending.current = true; // Mark that a scroll adjustment is needed
-			targetScrollGoalId.current = topMostMovedGoalId; // Set the target goal for scrolling
+			// REMOVED: Setting targetScrollGoalId here
 		},
 	}));
 
@@ -132,15 +117,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 							'transitionend',
 							onTransitionEnd
 						);
-						// When this animation finishes, check if it's the target goal and perform scroll if pending
-						if (
-							scrollAdjustmentPending.current &&
-							goal.id === targetScrollGoalId.current
-						) {
-							performScrollAdjustment(node);
-							scrollAdjustmentPending.current = false; // Reset after adjustment
-							targetScrollGoalId.current = null;
-						}
+						// REMOVED: Conditional scroll adjustment on transitionend
 					};
 
 					node.addEventListener('transitionend', onTransitionEnd);
@@ -154,25 +131,46 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// Fallback for cases where the target goal might not trigger a transitionend immediately,
-		// or if you want to scroll even if the target goal itself didn't move but the layout shifted.
-		// We'll use a setTimeout to ensure all transitions have likely started.
-		if (scrollAdjustmentPending.current && targetScrollGoalId.current) {
-			const targetNode = goalRefs.current[targetScrollGoalId.current];
-			if (targetNode) {
-				// A small delay to allow initial transforms to take effect and for the browser to re-layout
-				setTimeout(() => {
-					if (
-						scrollAdjustmentPending.current &&
-						targetScrollGoalId.current
-					) {
-						performScrollAdjustment(targetNode);
-						scrollAdjustmentPending.current = false;
-						targetScrollGoalId.current = null;
+		// --- NEW SIMPLIFIED Scroll Adjustment Logic for Sorting ---
+		// Perform scroll adjustment after a small delay to allow animations to settle
+		if (scrollAdjustmentPending.current) {
+			const firstGoalNode = goalRefs.current[sortedGoals[0]?.id];
+			const lastGoalNode =
+				goalRefs.current[sortedGoals[sortedGoals.length - 1]?.id];
+
+			setTimeout(() => {
+				let scrolled = false;
+
+				// Prioritize scrolling the first goal into view if it's off-screen at the top
+				if (firstGoalNode) {
+					const rect = firstGoalNode.getBoundingClientRect();
+					const topPadding = 20;
+					if (rect.top < topPadding) {
+						performScrollAdjustment(firstGoalNode);
+						scrolled = true;
 					}
-				}, 200); // Adjust delay as needed
-			}
+				}
+
+				// If no scroll happened for the first goal, try to scroll the last goal into view
+				// if it's off-screen at the bottom. This handles goals moving down.
+				if (!scrolled && lastGoalNode) {
+					const rect = lastGoalNode.getBoundingClientRect();
+					const viewportHeight = window.innerHeight;
+					const bottomNavHeight = 80;
+					const bottomPadding = 20;
+
+					if (
+						rect.bottom >
+						viewportHeight - bottomNavHeight - bottomPadding
+					) {
+						performScrollAdjustment(lastGoalNode);
+						scrolled = true;
+					}
+				}
+				scrollAdjustmentPending.current = false; // Reset the flag after attempting scroll
+			}, 250); // Increased delay to 250ms for more stability after animations
 		}
+		// --- END NEW SIMPLIFIED Scroll Adjustment Logic ---
 
 		prevGoalPositions.current = {};
 		pendingAnimation.current = false;
@@ -182,38 +180,57 @@ const GoalsTab = forwardRef(function GoalsTab(
 		};
 	}, [sortedGoals]); // Depend on sortedGoals to re-run when goal order changes
 
-	// Helper function for scrolling
+	// Helper function for scrolling, now consistent with scroll-on-expand.js logic
 	const performScrollAdjustment = (element) => {
 		if (!element) return;
 
-		const rect = element.getBoundingClientRect();
-		const viewportHeight = window.innerHeight;
-		const topPadding = 20; // Desired padding from the top of the viewport
-		const bottomNavHeight = 80; // Approximate height of your BottomTabs component
-		const bottomPadding = 20; // Desired padding from the bottom of the viewport
+		// Change behavior from 'auto' to 'smooth' for the initial scrollIntoView
+		element.scrollIntoView({
+			behavior: 'smooth',
+			block: 'nearest',
+			inline: 'nearest',
+		});
 
-		let scrollAmount = 0;
+		// The rest of the logic remains the same (fine-tuning with window.scrollBy)
+		requestAnimationFrame(() => {
+			setTimeout(() => {
+				const rect = element.getBoundingClientRect();
+				const viewportHeight = window.innerHeight;
+				const topPadding = 20; // Desired padding from the top of the viewport
+				const bottomNavHeight = 80; // Approximate height of your BottomTabs component
+				const bottomPadding = 20; // Desired padding from the bottom of the viewport
 
-		// If the element's top is above the desired top padding
-		if (rect.top < topPadding) {
-			scrollAmount = rect.top - topPadding;
-		}
-		// If the element's bottom is below the desired bottom padding
-		else if (
-			rect.bottom >
-			viewportHeight - bottomNavHeight - bottomPadding
-		) {
-			scrollAmount =
-				rect.bottom -
-				(viewportHeight - bottomNavHeight - bottomPadding);
-		}
+				let scrollAmount = 0;
 
-		if (scrollAmount !== 0) {
-			window.scrollBy({
-				top: scrollAmount,
-				behavior: 'smooth',
-			});
-		}
+				const isTopCutOff = rect.top < topPadding;
+				const isBottomCutOff =
+					rect.bottom >
+					viewportHeight - bottomNavHeight - bottomPadding;
+				const isTallerThanAvailable =
+					rect.height >
+					viewportHeight -
+						topPadding -
+						bottomNavHeight -
+						bottomPadding;
+
+				if (isTopCutOff) {
+					scrollAmount = rect.top - topPadding;
+				} else if (isBottomCutOff && !isTallerThanAvailable) {
+					scrollAmount =
+						rect.bottom -
+						(viewportHeight - bottomNavHeight - bottomPadding);
+				} else if (isTallerThanAvailable) {
+					scrollAmount = rect.top - topPadding;
+				}
+
+				if (scrollAmount !== 0) {
+					window.scrollBy({
+						top: scrollAmount,
+						behavior: 'smooth', // This is already smooth
+					});
+				}
+			}, 150); // Small delay to allow initial scroll/layout to settle
+		});
 	};
 
 	useEffect(() => {

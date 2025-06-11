@@ -7,14 +7,16 @@ import MinimizableCard from './minimizable-card';
 import EditableHabitCard from './editable-habit-card';
 import styles from '@/styles/explore-tab.module.css';
 import '@/app/globals.css';
-// ADD THESE IMPORTS:
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+// FontAwesome imports are no longer needed if the button is removed, but I'll leave them if other icons are used.
+// Checking the current file, faPlus is the only FontAwesome usage related to the removed button.
+// If no other FontAwesomeIcons are used in explore-tab.jsx, you can remove these two lines as well:
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function ExploreTab({
 	habitsByCategory,
 	onSelect,
-	onAddCustomHabit,
+	onAddCustomHabit, // This prop might become unused if no other 'Add Custom Habit' mechanism exists
 	customHabits,
 	onUpdateCustomHabit,
 	onDeleteCustomHabit,
@@ -22,7 +24,7 @@ export default function ExploreTab({
 	setExpandedCategory,
 }) {
 	const [expandedCard, setExpandedCard] = useState(null);
-	const cardRefs = useRef({}); // This ref is not currently used in the provided logic, can be removed if not needed elsewhere.
+	const cardRefs = useRef({});
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
@@ -44,7 +46,7 @@ export default function ExploreTab({
 			<div className="space-y-4">
 				{/* "Add Custom Habit" card remains */}
 				<div
-					className="rounded-xl shadow-md" // --- REMOVED 'overflow-hidden' here ---
+					className="rounded-xl shadow-md"
 					style={{ backgroundColor: '#A7B39E' }}
 				>
 					<MinimizableCustomCard
@@ -96,7 +98,7 @@ export default function ExploreTab({
 										habits.map((h) => (
 											<div
 												key={h.id}
-												className="rounded-xl shadow-md" // --- REMOVED 'overflow-hidden' here ---
+												className="rounded-xl shadow-md"
 												style={{
 													backgroundColor: h.color,
 												}}
@@ -152,16 +154,7 @@ export default function ExploreTab({
 					</p>
 				)}
 			</div>
-			{/* Add Custom Habit Button */}
-			<div className="fixed bottom-20 right-4 z-20">
-				<button
-					onClick={onAddCustomHabit}
-					className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg"
-					aria-label="Add custom habit"
-				>
-					<FontAwesomeIcon icon={faPlus} size="lg" />
-				</button>
-			</div>
+			{/* The "Add Custom Habit Button" (blue plus button) has been removed from here. */}
 		</div>
 	);
 }

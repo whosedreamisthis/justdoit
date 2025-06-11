@@ -55,9 +55,9 @@ export default function EditableHabitCard({
 	}, [habit, isExpanded]);
 
 	// Focus input on edit
-	useEffect(() => {
-		if (isEditing && titleRef.current) titleRef.current.focus();
-	}, [isEditing]);
+	// useEffect(() => {
+	// 	if (isEditing && titleRef.current) titleRef.current.focus();
+	// }, [isEditing]);
 
 	const handleSave = async (e) => {
 		e.stopPropagation(); // Prevent card collapse
@@ -79,7 +79,6 @@ export default function EditableHabitCard({
 			await onUpdateHabit(updatedHabit); // Assuming onUpdateHabit expects the full updated object
 
 			setIsEditing(false); // Only set to false AFTER successful update
-			toast.success('Habit updated successfully!'); // Provide success feedback
 		} catch (error) {
 			console.error('Error updating habit:', error);
 			toast.error('Failed to update habit. Please try again.'); // Provide error feedback

@@ -42,7 +42,6 @@ export default function MinimizableCustomCard({
 		// Check if `onSelect` exists before calling it
 		if (typeof onSelect === 'function') {
 			onSelect(newCustomHabit);
-			toast.success('Custom habit added!'); // Success toast
 		} else {
 			console.error('ERROR: onSelect function is missing!');
 			toast.error('Failed to add habit: Handler missing.'); // Error toast for debugging

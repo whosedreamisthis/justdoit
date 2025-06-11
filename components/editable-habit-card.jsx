@@ -38,10 +38,8 @@ export default function EditableHabitCard({
 	const [color, setColor] = useState(habit.color);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-	// --- IMPORTANT CHANGE HERE ---
-	// Pass both isExpanded and isEditing to the ScrollOnExpand hook
-	const cardRef = ScrollOnExpand(isExpanded, isEditing);
-	// --- END IMPORTANT CHANGE ---
+	// Original ScrollOnExpand usage (only passing isExpanded)
+	const cardRef = ScrollOnExpand(isExpanded);
 
 	const titleRef = useRef(null);
 	const { isSignedIn } = useUser();
@@ -60,34 +58,48 @@ export default function EditableHabitCard({
 		if (isEditing && titleRef.current) titleRef.current.focus();
 	}, [isEditing]);
 
-	const handleSave = (e) => {
-		e.stopPropagation();
+	// --- FIX FOR SAVING ISSUE ---
+	const handleSave = async (e) => {
+		e.stopPropagation(); // Prevent card collapse
+
 		if (!title.trim()) {
-			toast.error('Title cannot be empty');
+			toast.error('Habit title cannot be empty.');
 			return;
 		}
-		onUpdateHabit(habit.id, {
-			...habit,
+
+		const updatedHabit = {
+			...habit, // Spread existing habit properties to retain id, etc.
 			title: title.trim(),
 			description: description.trim(),
-			color,
-		});
-		setIsEditing(false);
+			color: color,
+		};
+
+		try {
+			// Await the asynchronous update operation from the parent
+			await onUpdateHabit(updatedHabit); // Assuming onUpdateHabit expects the full updated object
+
+			setIsEditing(false); // Only set to false AFTER successful update
+			toast.success('Habit updated successfully!'); // Provide success feedback
+		} catch (error) {
+			console.error('Error updating habit:', error);
+			toast.error('Failed to update habit. Please try again.'); // Provide error feedback
+		}
 	};
+	// --- END FIX ---
 
 	const handleCancel = (e) => {
-		e.stopPropagation();
+		e.stopPropagation(); // Prevent card collapse
 		setIsEditing(false);
-		setTitle(habit.title);
-		setDescription(habit.description);
-		setColor(habit.color);
+		setTitle(habit.title); // Revert to original title
+		setDescription(habit.description); // Revert to original description
+		setColor(habit.color); // Revert to original color
 	};
 
-	const handleAddToGoals = (e, habit) => {
-		if (!e || !habit) {
+	const handleAddToGoals = (e, habitData) => {
+		if (!e || !habitData) {
 			console.error('Missing parameters in handleAddToGoals:', {
 				e,
-				habit,
+				habitData,
 			});
 			return;
 		}
@@ -97,8 +109,8 @@ export default function EditableHabitCard({
 			toast.error('You need to sign in before adding goals.');
 			return;
 		}
-		onSelect?.(habit);
-		return habit;
+		onSelect?.(habitData);
+		return habitData;
 	};
 
 	const requestDeleteConfirmation = (e) => {

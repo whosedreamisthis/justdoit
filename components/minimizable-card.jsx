@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import ScrollOnExpand from '../hooks/scroll-on-expand'; // <--- ADD THIS IMPORT
 import styles from '@/styles/explore-card.module.css';
+import { useUser } from '@clerk/nextjs'; // Import useUser
+import { toast } from 'react-hot-toast';
 
 export default function MinimizableCard({
 	index,
@@ -12,6 +14,7 @@ export default function MinimizableCard({
 	onExpand,
 }) {
 	const cardRef = ScrollOnExpand(isExpanded); // <--- ADD THIS LINE
+	const { isSignedIn } = useUser(); // Get isSignedIn status
 
 	return (
 		<div
@@ -39,6 +42,12 @@ export default function MinimizableCard({
 							className={`addButton`}
 							onClick={(e) => {
 								e.stopPropagation(); // Prevent card collapse
+								if (!isSignedIn) {
+									toast.error(
+										'You need to sign in before adding goals.'
+									);
+									return;
+								}
 								onSelect(habit);
 							}}
 						>

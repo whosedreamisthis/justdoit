@@ -14,6 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
+import { useUser } from '@clerk/nextjs'; // Import useUser
 
 /**
  * EditableHabitCard component for user-created habits.
@@ -36,7 +37,7 @@ export default function EditableHabitCard({
 
 	const cardRef = ScrollOnExpand(isExpanded);
 	const titleRef = useRef(null);
-
+	const { isSignedIn } = useUser();
 	// Reset state when habit or expanded changes
 	useEffect(() => {
 		setTitle(habit.title);
@@ -83,7 +84,11 @@ export default function EditableHabitCard({
 		}
 
 		e.stopPropagation(); // Ensure event object exists before calling this
-
+		if (!isSignedIn) {
+			// Check if user is signed in
+			toast.error('You need to sign in before adding goals.');
+			return;
+		}
 		onSelect?.(habit); // Pass the valid habit object
 		return habit;
 	};

@@ -122,19 +122,6 @@ export default function App() {
 			);
 			return;
 		}
-		console.log('saveAllUserData: Initiating save to DB...');
-		console.log(
-			'saveAllUserData: Current customHabits being sent:',
-			JSON.stringify(customHabits, null, 2)
-		);
-		console.log(
-			'saveAllUserData: Current goals being sent:',
-			JSON.stringify(goals, null, 2)
-		);
-		console.log(
-			'saveAllUserData: Current archivedGoals being sent:',
-			JSON.stringify(archivedGoals, null, 2)
-		);
 
 		try {
 			const { ok, error } = await saveQuery(

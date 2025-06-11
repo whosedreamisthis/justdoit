@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 import ColorSquares from './color-squares';
 import styles from '@/styles/explore-card.module.css';
 import { v4 as uuidv4 } from 'uuid';
-
+import { useUser } from '@clerk/nextjs';
 export default function MinimizableCustomCard({
 	onSelect,
 	isExpanded,
@@ -13,11 +13,16 @@ export default function MinimizableCustomCard({
 	const [customTitle, setCustomTitle] = useState('');
 	const [customDescription, setCustomDescription] = useState('');
 	const [customColor, setCustomColor] = useState('#A7B39E'); // Default color
+	const { isSignedIn } = useUser(); // Get isSignedIn status
 
 	// Function to add a new custom habit
 	const handleAddCustomHabit = (e) => {
 		e.stopPropagation();
-
+		if (!isSignedIn) {
+			// Check if user is signed in
+			toast.error('You need to sign in before adding goals.');
+			return;
+		}
 		if (!customTitle.trim()) {
 			toast.error('Please enter a title for your custom habit.');
 			return;

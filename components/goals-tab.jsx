@@ -36,8 +36,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const prevGoalPositions = useRef({});
 	const pendingAnimation = useRef(false);
 
-	// Removed scrollAdjustmentPending ref as it's no longer needed for scrolling
-	// prevGoalsRef is kept as it's useful for detecting changes for FLIP animation (even if not used for scroll)
 	const prevGoalsRef = useRef([]);
 
 	function getDayOfWeekIndex(date) {
@@ -47,21 +45,20 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	const sortedGoals = useMemo(() => {
 		return [...goals].sort((a, b) => {
-			// Prioritize uncompleted goals over completed goals
+			// Primary sort: Uncompleted goals over completed goals
 			if (a.isCompleted && !b.isCompleted) {
-				return 1; // 'a' (completed) comes after 'b' (uncompleted)
+				return 1;
 			}
 			if (!a.isCompleted && b.isCompleted) {
-				return -1; // 'a' (uncompleted) comes before 'b' (completed)
+				return -1;
 			}
 
-			// If both are completed or both are uncompleted, sort by createdAt descending (most recent first)
-			return (
-				new Date(b.createdAt).getTime() -
-				new Date(a.createdAt).getTime()
-			);
+			// Secondary sort: Alphabetically by title (case-insensitive)
+			return a.title.localeCompare(b.title, undefined, {
+				sensitivity: 'base',
+			});
 		});
-	}, [goals]);
+	}, [goals]); // The 'goals' dependency remains to trigger re-sort when goals data changes
 
 	useImperativeHandle(ref, () => ({
 		snapshotPositions: () => {
@@ -73,13 +70,12 @@ const GoalsTab = forwardRef(function GoalsTab(
 				}
 			}
 			pendingAnimation.current = true;
-			// Removed setting scrollAdjustmentPending here
 		},
 	}));
 
 	useLayoutEffect(() => {
 		if (!pendingAnimation.current) {
-			prevGoalsRef.current = goals; // Update prevGoalsRef for next render's comparison
+			prevGoalsRef.current = goals;
 			return;
 		}
 
@@ -127,71 +123,14 @@ const GoalsTab = forwardRef(function GoalsTab(
 			}
 		}
 
-		// --- Removed all scroll adjustment logic from here ---
-		// This entire block has been removed:
-		/*
-        let targetGoalToScroll = null;
-        let scrollDirection = null;
-
-        if (prevGoalsRef.current && goals) {
-            for (const currentGoal of goals) {
-                const prevGoal = prevGoalsRef.current.find(g => g.id === currentGoal.id);
-                if (prevGoal) {
-                    if (prevGoal.isCompleted && !currentGoal.isCompleted) {
-                        targetGoalToScroll = currentGoal;
-                        scrollDirection = 'top';
-                        break;
-                    } else if (!prevGoal.isCompleted && currentGoal.isCompleted) {
-                        targetGoalToScroll = currentGoal;
-                        scrollDirection = 'bottom';
-                        break;
-                    }
-                }
-            }
-        }
-
-		if (scrollAdjustmentPending.current && targetGoalToScroll) {
-			const nodeToScroll = goalRefs.current[targetGoalToScroll.id];
-			setTimeout(() => {
-				if (nodeToScroll) {
-					requestAnimationFrame(() => {
-                        const rect = nodeToScroll.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        const topPadding = 30;
-                        const bottomNavHeight = 80;
-                        const bottomPadding = 30;
-                        let scrollAmount = 0;
-                        if (scrollDirection === 'top') {
-                            scrollAmount = rect.top - topPadding;
-                        } else if (scrollDirection === 'bottom') {
-                            if (rect.bottom > (viewportHeight - bottomNavHeight - bottomPadding)) {
-                                scrollAmount = rect.bottom - (viewportHeight - bottomNavHeight - bottomPadding);
-                            }
-                        }
-                        if (scrollAmount !== 0) {
-                            window.scrollBy({
-                                top: scrollAmount,
-                                behavior: 'smooth',
-                            });
-                        }
-					});
-				}
-				scrollAdjustmentPending.current = false;
-			}, 150);
-		} else {
-			scrollAdjustmentPending.current = false;
-		}
-        */
-		// --- End of removed scroll adjustment logic ---
-
 		prevGoalPositions.current = {};
 		pendingAnimation.current = false;
-		prevGoalsRef.current = goals; // Still needed for FLIP to detect position changes
+		prevGoalsRef.current = goals;
 
 		return () => {
 			cleanupFunctions.forEach((fn) => fn());
 		};
-	}, [sortedGoals, goals]); // Depend on both sortedGoals and goals
+	}, [sortedGoals, goals]);
 
 	useEffect(() => {
 		const now = new Date();
@@ -217,7 +156,9 @@ const GoalsTab = forwardRef(function GoalsTab(
 		const updatedGoalData = {
 			progress: newProgress ?? 0,
 			isCompleted: newProgress >= 100,
+			// `updatedAt` is no longer set here as it's not used for sorting
 		};
+
 		onUpdateGoal(goalId, updatedGoalData);
 	};
 
@@ -241,7 +182,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 	if (isLoading && goals.length === 0) {
 		return (
 			<div className="flex justify-center items-center h-full min-h-[200px]">
-				<div className="loader"></div>
+				\<div className="loader"></div>
 			</div>
 		);
 	}

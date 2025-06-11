@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast'; // Ensure react-hot-toast is installed
 import ColorSquares from './color-squares';
 import styles from '@/styles/explore-card.module.css';
 import { v4 as uuidv4 } from 'uuid';
 import { useUser } from '@clerk/nextjs';
+
 export default function MinimizableCustomCard({
 	onSelect,
 	isExpanded,
@@ -24,8 +25,9 @@ export default function MinimizableCustomCard({
 			return;
 		}
 		if (!customTitle.trim()) {
+			// This toast will now always fire if title is empty
 			toast.error('Please enter a title for your custom habit.');
-			return;
+			return; // Important: return after showing toast
 		}
 
 		// Create new custom habit
@@ -40,8 +42,10 @@ export default function MinimizableCustomCard({
 		// Check if `onSelect` exists before calling it
 		if (typeof onSelect === 'function') {
 			onSelect(newCustomHabit);
+			toast.success('Custom habit added!'); // Success toast
 		} else {
 			console.error('ERROR: onSelect function is missing!');
+			toast.error('Failed to add habit: Handler missing.'); // Error toast for debugging
 		}
 
 		// Reset input fields after adding
@@ -136,7 +140,8 @@ export default function MinimizableCustomCard({
 						<div className="flex flex-row justify-end items-end gap-2">
 							<button
 								className={`addButton`}
-								disabled={!customTitle.trim()}
+								// --- IMPORTANT CHANGE: REMOVE 'disabled' attribute ---
+								// disabled={!customTitle.trim()} // <--- REMOVE THIS LINE
 								onClick={handleAddCustomHabit}
 							>
 								Add

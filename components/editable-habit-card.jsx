@@ -160,7 +160,7 @@ export default function EditableHabitCard({
 						{habit.title}
 					</h2>
 					{isExpanded && (
-						<p className="mt-1 text-gray-600 text-sm">
+						<p className="mt-1 text-gray-600 text-sm mb-5">
 							{habit.description}
 						</p>
 					)}

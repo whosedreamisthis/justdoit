@@ -247,7 +247,7 @@ export default function MinimizableGoalCard({
 						{goal.title}
 					</h2>
 					{isExpanded && (
-						<p className="relative text-gray-600 text-sm">
+						<p className="relative text-gray-600 text-sm mb-5">
 							{goal.description}
 						</p>
 					)}

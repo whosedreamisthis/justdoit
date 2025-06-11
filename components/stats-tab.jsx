@@ -41,9 +41,11 @@ export default function StatsTab({
 	const consolidatedGoals = Object.values(uniqueGoals);
 	if (!isSignedIn) {
 		return (
-			<h2 className={`${styles.signInMessage}`}>
-				Sign in to add goals and see their statistics here.
-			</h2>
+			<div className="center-flexbox justify-center p-5 align-middle">
+				<h2 className={`${styles.signInMessage}`}>
+					Sign in to add goals and see their statistics here.
+				</h2>
+			</div>
 		);
 	}
 

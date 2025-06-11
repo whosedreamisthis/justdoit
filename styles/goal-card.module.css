@@ -121,3 +121,7 @@
    overflow: hidden;
    (unless intended for its own content, but not for the modal)
 */
+
+.checkmark {
+	color: green;
+}

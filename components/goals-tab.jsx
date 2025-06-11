@@ -37,7 +37,10 @@ const GoalsTab = forwardRef(function GoalsTab(
 	const pendingAnimation = useRef(false);
 
 	const prevGoalsRef = useRef([]);
-
+	// New ref to track if a scroll adjustment is pending after a re-sort
+	const scrollAdjustmentPending = useRef(false);
+	// New ref to store the target goal for scrolling
+	const targetScrollGoalId = useRef(null);
 	function getDayOfWeekIndex(date) {
 		const day = date.getDay();
 		return day === 0 ? 6 : day - 1; // Adjust to make Monday=0, Sunday=6

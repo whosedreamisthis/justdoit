@@ -238,6 +238,12 @@ export default function MinimizableGoalCard({
 				// Display mode (not editing)
 				<>
 					<h2 className="relative text-lg font-bold text-gray-800">
+						{goal.isCompleted && (
+							<FontAwesomeIcon
+								className={`${styles.checkmark} mr-5`}
+								icon={faSquareCheck}
+							/>
+						)}
 						{goal.title}
 					</h2>
 					{isExpanded && (

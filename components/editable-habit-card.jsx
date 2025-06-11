@@ -102,7 +102,6 @@ export default function EditableHabitCard({
 	};
 	// New: Request confirmation for deletion
 	const requestDeleteConfirmation = (e) => {
-		console.log('Requesting delete confirmation for habit:', habit);
 		e.stopPropagation(); // Prevent card click behavior
 		setShowDeleteConfirm(true); // Show the confirmation dialog
 	};

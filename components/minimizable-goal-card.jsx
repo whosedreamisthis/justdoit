@@ -22,6 +22,7 @@ export default function MinimizableGoalCard({
 	onEdit, // Not used in this component, but keeping for reference if needed
 	isExpanded,
 	onExpand, // This is the function to expand/collapse the card
+	onSetExpanded,
 	onDelete,
 	onUpdateGoal, // This is the function to update the goal object (e.g., progress, title, description, color)
 }) {
@@ -119,6 +120,7 @@ export default function MinimizableGoalCard({
 				}
 			}
 		}
+		onSetExpanded(null);
 
 		// Create an updated goal object
 		const updatedGoal = {

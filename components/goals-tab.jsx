@@ -214,6 +214,9 @@ const GoalsTab = forwardRef(function GoalsTab(
 							onDelete={handleDelete} // onDelete calls handleDelete in GoalsTab
 							onUpdateGoal={onUpdateGoal}
 							currentDayIndex={currentDayIndex}
+							onSetExpanded={(d) => {
+								setExpandedGoal(d);
+							}}
 						/>
 					</div>
 				))}

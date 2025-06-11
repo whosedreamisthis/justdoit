@@ -334,16 +334,8 @@ export default function App() {
 
 	const handleAddCustomHabit = useCallback(
 		(newHabit) => {
-			console.log(
-				'handleAddCustomHabit: Adding new custom habit locally:',
-				newHabit
-			);
 			setCustomHabits((prevHabits) => {
 				const updatedHabits = [...prevHabits, newHabit];
-				console.log(
-					'handleAddCustomHabit: New customHabits state after add:',
-					updatedHabits
-				);
 				return updatedHabits;
 			});
 			handleHabitSelect(newHabit); // Add the custom habit as a goal
@@ -369,18 +361,11 @@ export default function App() {
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
-		console.log(
-			'handleDeleteCustomHabit: Deleting custom habit locally with ID:',
-			habitId
-		);
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.filter(
 				(habit) => habit.id !== habitId
 			);
-			console.log(
-				'handleDeleteCustomHabit: New customHabits state after delete:',
-				updatedHabits
-			);
+
 			return updatedHabits;
 		});
 	}, []);

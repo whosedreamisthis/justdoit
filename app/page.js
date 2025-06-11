@@ -26,6 +26,7 @@ export default function App() {
 	const goalsTabRef = useRef(null); // Ref to access methods on GoalsTab component
 	const { user } = useUser();
 	const [userEmail, setUserEmail] = useState(null);
+	const [expandedCategory, setExpandedCategory] = useState(new Set());
 
 	const email = user?.primaryEmailAddress?.emailAddress;
 
@@ -308,21 +309,25 @@ export default function App() {
 		toast.success(`'${goalToArchive.title}' archived!`);
 	}, []);
 
-	const handleAddCustomHabit = useCallback((newHabit) => {
-		console.log(
-			'handleAddCustomHabit: Adding new custom habit locally:',
-			newHabit
-		);
-		setCustomHabits((prevHabits) => {
-			const updatedHabits = [...prevHabits, newHabit];
+	const handleAddCustomHabit = useCallback(
+		(newHabit) => {
 			console.log(
-				'handleAddCustomHabit: New customHabits state after add:',
-				updatedHabits
+				'handleAddCustomHabit: Adding new custom habit locally:',
+				newHabit
 			);
-			return updatedHabits;
-		});
-		toast.success(`'${newHabit.title}' added to custom habits!`);
-	}, []);
+			setCustomHabits((prevHabits) => {
+				const updatedHabits = [...prevHabits, newHabit];
+				console.log(
+					'handleAddCustomHabit: New customHabits state after add:',
+					updatedHabits
+				);
+				return updatedHabits;
+			});
+			handleHabitSelect(newHabit); // Add the custom habit as a goal
+			toast.success(`'${newHabit.title}' added to custom habits!`);
+		},
+		[handleHabitSelect]
+	); // Add handleHabitSelect to the dependency array
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
 		console.log(
@@ -411,6 +416,8 @@ export default function App() {
 							customHabits={customHabits}
 							onUpdateCustomHabit={handleUpdateCustomHabit}
 							onDeleteCustomHabit={handleDeleteCustomHabit}
+							expandedCategory={expandedCategory}
+							setExpandedCategory={setExpandedCategory}
 						/>
 					)}
 					{activeTab === 'stats' && (

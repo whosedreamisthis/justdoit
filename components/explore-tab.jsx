@@ -15,31 +15,19 @@ export default function ExploreTab({
 	customHabits, // Still passed as a prop, though primarily used by MinimizableCustomCard
 	onUpdateCustomHabit,
 	onDeleteCustomHabit,
+	expandedCategory,
+	setExpandedCategory,
 }) {
-	const [expandedCategory, setExpandedCategory] = useState(new Set());
+	// const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const [expandedCard, setExpandedCard] = useState(null);
 	const cardRefs = useRef({});
 
-	useEffect(() => {
-		const saved = localStorage.getItem('expandedCategory');
-		if (saved) {
-			try {
-				setExpandedCategory(new Set(JSON.parse(saved)));
-			} catch (e) {
-				console.error(
-					'Error parsing expandedCategory from localStorage:',
-					e
-				);
-			}
-		}
-	}, []);
-
-	useEffect(() => {
-		localStorage.setItem(
-			'expandedCategory',
-			JSON.stringify(Array.from(expandedCategory))
-		);
-	}, [expandedCategory]);
+	// useEffect(() => {
+	// 	localStorage.setItem(
+	// 		'expandedCategory',
+	// 		JSON.stringify(Array.from(expandedCategory))
+	// 	);
+	// }, [expandedCategory]);
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {

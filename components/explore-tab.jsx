@@ -25,11 +25,25 @@ export default function ExploreTab({
 }) {
 	const [expandedCard, setExpandedCard] = useState(null);
 	const cardRefs = useRef({});
+	const categoryRefs = useRef({}); // New ref for categories
 
 	const toggleCategory = (key) => {
 		setExpandedCategory((prev) => {
 			const next = new Set(prev);
+			const willExpand = !next.has(key); // Check if the category is about to expand
 			next.has(key) ? next.delete(key) : next.add(key);
+
+			// If the category is expanding, scroll to it
+			if (willExpand && categoryRefs.current[key]) {
+				// Use a timeout to allow the DOM to update before scrolling
+				setTimeout(() => {
+					categoryRefs.current[key].scrollIntoView({
+						behavior: 'smooth',
+						block: 'start', // Scroll to the top of the category
+					});
+				}, 100); // Small delay to ensure rendering
+			}
+
 			return next;
 		});
 		setExpandedCard(null);
@@ -66,6 +80,7 @@ export default function ExploreTab({
 					return (
 						<div
 							key={category}
+							ref={(el) => (categoryRefs.current[category] = el)} // Attach ref to category div
 							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer} border-1`}
 						>
 							<div

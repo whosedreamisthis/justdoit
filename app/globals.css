@@ -189,6 +189,10 @@ body,
 	}
 }
 
+.statsContainer {
+	background-color: red;
+}
+
 /* Keep your existing global styles below this */
 
 /* other styles... */

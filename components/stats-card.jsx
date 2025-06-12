@@ -11,7 +11,7 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 	const daysArray = Array(daysInMonth).fill(false);
 	return (
 		<div
-			className={`p-4 rounded-md shadow-md`}
+			className={`p-4 rounded-md shadow-lg border-1 border-gray-500`}
 			style={{ backgroundColor: goal.color }}
 		>
 			<h2

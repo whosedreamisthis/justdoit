@@ -125,3 +125,7 @@
 .checkmark {
 	color: green;
 }
+
+.statsContainer {
+	background-color: red;
+}

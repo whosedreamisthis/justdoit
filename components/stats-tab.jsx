@@ -1,14 +1,14 @@
 import '@/app/globals.css';
 import StatsCard from './stats-card';
 import styles from '@/styles/goals-tab.module.css';
+import React, { useState, useEffect } from 'react'; // Import React, useState, useEffect
 
 export default function StatsTab({
 	goals,
-	onUpdateGoal,
+	onUpdateGoal, // Receive onUpdateGoal prop
 	isSignedIn,
 	isLoading,
 }) {
-	// Receive isLoading prop
 	// Consolidate goals by habit title
 	const uniqueGoals = goals.reduce((acc, goal) => {
 		const safeGoalCompletedDays =
@@ -40,9 +40,26 @@ export default function StatsTab({
 
 	const consolidatedGoals = Object.values(uniqueGoals);
 
-	// ONLY CHANGE: Sort alphabetically by title (case-insensitive)
+	// Sort alphabetically by title (case-insensitive)
 	consolidatedGoals.sort((a, b) =>
 		a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+	);
+
+	const [selectedGoalTitle, setSelectedGoalTitle] = useState('');
+
+	// Set default selected goal to the first one available
+	useEffect(() => {
+		if (consolidatedGoals.length > 0 && !selectedGoalTitle) {
+			setSelectedGoalTitle(consolidatedGoals[0].title);
+		}
+	}, [consolidatedGoals, selectedGoalTitle]);
+
+	const handleSelectChange = (event) => {
+		setSelectedGoalTitle(event.target.value);
+	};
+
+	const selectedGoal = consolidatedGoals.find(
+		(goal) => goal.title === selectedGoalTitle
 	);
 
 	if (!isSignedIn) {
@@ -65,29 +82,52 @@ export default function StatsTab({
 	}
 
 	return (
-		<>
+		<div className={`${styles.statsContainer}`}>
 			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">
 				Statistics
 			</h2>
 			<div className="flex justify-center mt-6">
-				<div className="grid grid-cols-1 gap-x-4 gap-y-4 max-w-sm sm:max-w-md md:max-w-lg">
-					{consolidatedGoals.map((goal) => (
-						<div className="m-2" key={goal.id}>
+				<div className="flex flex-col items-center">
+					{consolidatedGoals.length > 0 && (
+						<div className="mb-4">
+							<label htmlFor="goal-select" className="sr-only">
+								Select a Goal
+							</label>
+							<select
+								id="goal-select"
+								className="block w-full px-4 py-2 text-base text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+								value={selectedGoalTitle}
+								onChange={handleSelectChange}
+							>
+								{consolidatedGoals.map((goal) => (
+									<option key={goal.id} value={goal.title}>
+										{goal.title}
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+
+					{selectedGoal ? (
+						<div className="m-2">
 							<StatsCard
 								goal={{
-									...goal,
+									...selectedGoal,
 									completedDays:
-										goal.completedDays &&
-										typeof goal.completedDays === 'object'
-											? goal.completedDays
+										selectedGoal.completedDays &&
+										typeof selectedGoal.completedDays ===
+											'object'
+											? selectedGoal.completedDays
 											: {},
 								}}
 								onUpdateGoal={onUpdateGoal}
 							/>
 						</div>
-					))}
+					) : (
+						<p className="text-gray-600">No goals to display.</p>
+					)}
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }

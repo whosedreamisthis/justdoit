@@ -429,6 +429,7 @@ export default function App() {
 					{activeTab === 'stats' && (
 						<StatsTab
 							goals={goals}
+							onUpdateGoal={handleUpdateGoal} // Pass onUpdateGoal here
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}

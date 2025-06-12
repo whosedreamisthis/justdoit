@@ -33,7 +33,7 @@ export default function ColorSquares({ setColor, selectedColor }) {
 	// const [selectedColor, setSelectedColor] = useState(null);
 
 	return (
-		<div className="grid grid-cols-8 gap-4 mt-1">
+		<div className="grid grid-cols-8 gap-4 mt-1 mb-5">
 			{pastelColors.map((color, index) => (
 				<div
 					key={index}

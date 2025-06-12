@@ -109,7 +109,7 @@ export default function StatsTab({
 					)}
 
 					{selectedGoal ? (
-						<div className="m-2">
+						<div className="statsCardContainer">
 							<StatsCard
 								goal={{
 									...selectedGoal,

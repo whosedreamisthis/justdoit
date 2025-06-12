@@ -196,3 +196,6 @@ body,
 /* Keep your existing global styles below this */
 
 /* other styles... */
+.statsCardContainer {
+	width: 90%;
+}

@@ -14,7 +14,7 @@ import Header from '@/components/header';
 import { saveQuery, loadQueriesByEmail } from '@/actions/ai';
 import { useUser } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
-import { sortGoals, preSetGoals, archiveGoal } from '@/app/page-helper';
+import { archiveGoal } from '@/app/page-helper';
 
 export default function App() {
 	const [activeTab, setActiveTab] = useState('explore');
@@ -175,6 +175,7 @@ export default function App() {
 				prevGoals.map((goal) => ({
 					...goal,
 					progress: 0,
+					isCompleted: false,
 					completedDays: { ...goal.completedDays },
 				}))
 			);
@@ -269,7 +270,37 @@ export default function App() {
 		},
 		[archivedGoals]
 	);
+	const preSetGoals = (update, goals, setGoals) => {
+		console.log('preSetGoals goals', goals);
+		if (!Array.isArray(goals)) {
+			console.error('goals is undefined or not an array:', goals);
+			return;
+		}
 
+		let finalGoalsArray =
+			typeof update === 'function' ? update(goals) : update;
+		console.log('finalGoalsArray', finalGoalsArray);
+		if (!Array.isArray(finalGoalsArray)) {
+			console.error(
+				'finalGoalsArray is undefined or not an array:',
+				finalGoalsArray
+			);
+			return;
+		}
+
+		//const sortedGoals = sortGoals(finalGoalsArray);
+
+		// Always allow empty array update if there are no goals remaining
+		if (sortedGoals.length === 0) {
+			console.warn(
+				'No goals remaining: Allowing state update to empty array.'
+			);
+			setGoals([]);
+			return;
+		}
+
+		setGoals(sortedGoals);
+	};
 	const archiveAndRemoveGoal = useCallback((goalToArchive) => {
 		const completedDaysToArchive = archiveGoal(goalToArchive);
 

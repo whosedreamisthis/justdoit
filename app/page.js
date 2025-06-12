@@ -36,7 +36,6 @@ export default function App() {
 			setUserEmail(email);
 			const fetchData = async () => {
 				setIsLoading(true);
-				console.log('App: Fetching data for email:', email);
 				try {
 					const { ok, queries, error } = await loadQueriesByEmail(
 						email
@@ -47,13 +46,6 @@ export default function App() {
 						setGoals(latestQuery.goals || []);
 						setArchivedGoals(latestQuery.archivedGoals || {});
 						setCustomHabits(latestQuery.customHabits || []);
-						console.log('App: Data loaded successfully.', {
-							goals: latestQuery.goals?.length,
-							archived: Object.keys(
-								latestQuery.archivedGoals || {}
-							).length,
-							customHabits: latestQuery.customHabits?.length,
-						});
 
 						if (latestQuery.lastDailyResetTime) {
 							setLastDailyResetTime(
@@ -138,6 +130,7 @@ export default function App() {
 				console.log(
 					'saveAllUserData: Data saved successfully by debounced effect.'
 				);
+				console.log(goals);
 			}
 		} catch (err) {
 			console.error(
@@ -151,20 +144,10 @@ export default function App() {
 	// Debounced save using useEffect
 	useEffect(() => {
 		if (userEmail && !isLoading) {
-			console.log(
-				'App useEffect: State change detected, scheduling save...'
-			);
 			const timeoutId = setTimeout(() => {
 				saveAllUserData();
 			}, 500);
 			return () => clearTimeout(timeoutId);
-		} else {
-			console.log(
-				'App useEffect: Skipping save. userEmail:',
-				userEmail,
-				'isLoading:',
-				isLoading
-			);
 		}
 	}, [
 		goals,
@@ -212,14 +195,7 @@ export default function App() {
 			goalsTabRef.current &&
 			typeof goalsTabRef.current.snapshotPositions === 'function'
 		) {
-			console.log(
-				'App: Calling snapshotPositions on GoalsTabRef before setGoals.'
-			);
 			goalsTabRef.current.snapshotPositions();
-		} else {
-			console.warn(
-				'App: goalsTabRef.current or snapshotPositions is not available. Animation may not work.'
-			);
 		}
 
 		setGoals((prevGoals) => {
@@ -282,14 +258,7 @@ export default function App() {
 				goalsTabRef.current &&
 				typeof goalsTabRef.current.snapshotPositions === 'function'
 			) {
-				console.log(
-					'App: Calling snapshotPositions on GoalsTabRef from handleHabitSelect.'
-				);
 				goalsTabRef.current.snapshotPositions();
-			} else {
-				console.warn(
-					'App: goalsTabRef.current or snapshotPositions is not available from handleHabitSelect.'
-				);
 			}
 
 			setGoals((prevGoals) => {
@@ -317,16 +286,8 @@ export default function App() {
 			goalsTabRef.current &&
 			typeof goalsTabRef.current.snapshotPositions === 'function'
 		) {
-			console.log(
-				'App: Calling snapshotPositions on GoalsTabRef from archiveAndRemoveGoal.'
-			);
 			goalsTabRef.current.snapshotPositions();
-		} else {
-			console.warn(
-				'App: goalsTabRef.current or snapshotPositions is not available from archiveAndRemoveGoal.'
-			);
 		}
-
 		setGoals((prevGoals) =>
 			prevGoals.filter((goal) => goal.id !== goalToArchive.id)
 		);
@@ -344,18 +305,11 @@ export default function App() {
 	); // Add handleHabitSelect to the dependency array
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
-		console.log(
-			'handleUpdateCustomHabit: Updating custom habit locally:',
-			updatedHabit
-		);
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.map((habit) =>
 				habit.id === updatedHabit.id ? updatedHabit : habit
 			);
-			console.log(
-				'handleUpdateCustomHabit: New customHabits state after update:',
-				updatedHabits
-			);
+
 			return updatedHabits;
 		});
 	}, []);

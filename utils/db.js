@@ -12,10 +12,7 @@ export default async function db() {
 	const mongoUri = process.env.DATABASE;
 
 	// --- ADD THIS LOG AND CHECK ---
-	console.log(
-		'Attempting to connect to MongoDB. Value of process.env.DATABASE (mongoUri):',
-		mongoUri
-	);
+
 	if (!mongoUri) {
 		console.error(
 			'CRITICAL ERROR: MongoDB URI (process.env.DATABASE) is UNDEFINED at connection attempt!'

@@ -103,7 +103,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 					node.offsetHeight; // Force reflow
 
-					node.style.transition = 'transform 1.0s ease-out';
+					node.style.transition = 'transform 0.5s ease-out';
 					node.style.transform = 'translate(0, 0)';
 
 					const onTransitionEnd = () => {

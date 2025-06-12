@@ -27,7 +27,7 @@ export default function App() {
 	const { user } = useUser();
 	const [userEmail, setUserEmail] = useState(null);
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
-
+	const hasLoadedInitialDataRef = useRef(false);
 	const email = user?.primaryEmailAddress?.emailAddress;
 
 	// Effect to load data from database on mount or when user email becomes available
@@ -61,24 +61,19 @@ export default function App() {
 							'App: No existing data for this user or error during load:',
 							error
 						);
-						setGoals([]);
-						setArchivedGoals({});
-						setCustomHabits([]);
-						const now = new Date();
-						now.setHours(0, 0, 0, 0);
-						setLastDailyResetTime(now);
 					}
 				} catch (err) {
 					console.error('App: Failed to load initial data:', err);
 					toast.error('Failed to load your data.');
-					setGoals([]);
-					setArchivedGoals({});
-					setCustomHabits([]);
-					const now = new Date();
-					now.setHours(0, 0, 0, 0);
-					setLastDailyResetTime(now);
+					// setGoals([]);
+					// setArchivedGoals({});
+					// setCustomHabits([]);
+					// const now = new Date();
+					// now.setHours(0, 0, 0, 0);
+					// setLastDailyResetTime(now);
 				} finally {
 					setIsLoading(false);
+					hasLoadedInitialDataRef.current = true;
 					console.log('App: Finished initial data loading.');
 				}
 			};
@@ -91,6 +86,7 @@ export default function App() {
 			setCustomHabits([]);
 			setLastDailyResetTime(null);
 			setIsLoading(false);
+			hasLoadedInitialDataRef.current = true;
 		}
 		// Do nothing if user is undefined (still loading)
 	}, [email, user]);
@@ -143,7 +139,7 @@ export default function App() {
 
 	// Debounced save using useEffect
 	useEffect(() => {
-		if (userEmail && !isLoading) {
+		if (userEmail && !isLoading && hasLoadedInitialDataRef.current) {
 			const timeoutId = setTimeout(() => {
 				saveAllUserData();
 			}, 500);

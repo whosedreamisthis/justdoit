@@ -12,13 +12,14 @@ export default function Header() {
 	}, []);
 
 	return (
-		// Removed background, border, shadow, and justify-between.
-		// Using flex-row and justify-end to push UserButton to the right.
-		<header className="w-full p-4 flex flex-row justify-end items-center">
-			{/* Removed the <h1> title here */}
+		// Added 'fixed', 'top-0', 'z-50', and 'bg-white' classes
+		// 'fixed' makes it stay in place.
+		// 'top-0' anchors it to the top.
+		// 'z-50' ensures it stays on top of other content.
+		// 'bg-white' gives it a solid background so content doesn't show through.
+		<header className="fixed top-0 w-full p-4 flex flex-row justify-end items-center bg-subtle-background z-50">
 			{isClient && (
 				<SignedIn>
-					{/* UserButton will have default styling unless overridden by Clerk's theming */}
 					<UserButton afterSignOutUrl="/" />
 				</SignedIn>
 			)}

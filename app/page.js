@@ -397,7 +397,7 @@ export default function App() {
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
 			<Header onSignOut={onSignOut} userEmail={userEmail} />
-			<div className="min-h-screen flex flex-col">
+			<div className="min-h-screen flex flex-col pt-16">
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab

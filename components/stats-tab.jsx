@@ -39,6 +39,12 @@ export default function StatsTab({
 	}, {});
 
 	const consolidatedGoals = Object.values(uniqueGoals);
+
+	// ONLY CHANGE: Sort alphabetically by title (case-insensitive)
+	consolidatedGoals.sort((a, b) =>
+		a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
+	);
+
 	if (!isSignedIn) {
 		return (
 			<div className="center-flexbox justify-center p-5 align-middle">

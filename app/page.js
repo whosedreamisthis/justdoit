@@ -106,7 +106,7 @@ export default function App() {
 	// Effect to scroll to top when activeTab changes
 	useEffect(() => {
 		// Scroll to the top of the window
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		window.scrollTo({ top: 0, behavior: 'auto' });
 		// Alternatively, if you have a specific scrollable div:
 		// const mainContentDiv = document.querySelector('.flex-grow.pb-20');
 		// if (mainContentDiv) {

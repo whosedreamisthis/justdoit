@@ -327,7 +327,7 @@ export default function MinimizableGoalCard({
 					<ConfirmationDialog
 						isOpen={showDeleteConfirm}
 						title="Confirm Goal Deletion"
-						message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
+						message={`Are you sure you want to delete "${goal.title}"?`}
 						onConfirm={confirmDelete}
 						onCancel={cancelDelete}
 					/>

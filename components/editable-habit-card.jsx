@@ -242,7 +242,7 @@ export default function EditableHabitCard({
 					<ConfirmationDialog
 						isOpen={showDeleteConfirm}
 						title="Confirm Habit Deletion"
-						message={`Are you sure you want to delete "${habit.title}"? This action cannot be undone.`}
+						message={`Are you sure you want to delete "${habit.title}"?`}
 						onConfirm={confirmDelete}
 						onCancel={cancelDelete}
 					/>

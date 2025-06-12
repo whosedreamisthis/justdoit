@@ -36,7 +36,7 @@ export default function MinimizableCustomCard({
 			id: uniqueId,
 			title: customTitle.trim(),
 			color: customColor,
-			description: customDescription.trim() || 'Your personalized habit.',
+			description: customDescription.trim(),
 		};
 
 		// Check if `onSelect` exists before calling it

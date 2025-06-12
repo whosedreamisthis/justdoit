@@ -138,6 +138,12 @@ export default function EditableHabitCard({
 		>
 			{isEditing ? (
 				<div className="relative z-10">
+					<label
+						htmlFor="custom-title"
+						className="block text-sm font-medium text-gray-700"
+					>
+						Habit Title:
+					</label>
 					<input
 						ref={titleRef}
 						className="w-full p-1 mb-2 rounded bg-gray-100 text-black"
@@ -145,6 +151,12 @@ export default function EditableHabitCard({
 						onChange={(e) => setTitle(e.target.value)}
 						onClick={(e) => e.stopPropagation()}
 					/>
+					<label
+						htmlFor="custom-short-description"
+						className="block text-sm font-medium text-gray-700"
+					>
+						Description (Optional):
+					</label>
 					<textarea
 						className="w-full p-1 mb-2 rounded bg-gray-100 text-black"
 						rows={3}
@@ -152,6 +164,9 @@ export default function EditableHabitCard({
 						onChange={(e) => setDescription(e.target.value)}
 						onClick={(e) => e.stopPropagation()}
 					/>
+					<label className="block text-sm font-medium text-gray-700">
+						Card Color:
+					</label>
 					<ColorSquares selectedColor={color} setColor={setColor} />
 				</div>
 			) : (

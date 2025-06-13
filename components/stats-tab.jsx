@@ -1,11 +1,13 @@
-import '@/app/globals.css'; // Reverted to original path alias
-import StatsCard from './stats-card'; // Reverted to original relative path
-import styles from '@/styles/goals-tab.module.css'; // Reverted to original path alias
+import '@/app/globals.css'; // Original path alias
+import StatsCard from './stats-card'; // Original relative path
+import styles from '@/styles/goals-tab.module.css'; // Original path alias
 import React, { useState, useEffect } from 'react';
 
-// Define a common width class that will apply to both the dropdown's wrapper and the StatsCard.
-// This will set a consistent maximum width and center both.
-const COMMON_CONTENT_WIDTH_CLASSES = 'w-full max-w-lg mx-auto'; // Using max-w-lg (640px) as a consistent width example.
+// Define common classes for the outer container of both the dropdown and the StatsCard.
+// This will now enforce a consistent 90% width relative to the viewport, and center it.
+// We'll apply visual styling here as well.
+const COMMON_OUTER_STYLES =
+	'w-[90%] mx-auto rounded-md shadow-lg border-1 border-gray-500'; // Enforces 90% width and centers.
 
 export default function StatsTab({
 	goals,
@@ -86,39 +88,39 @@ export default function StatsTab({
 			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">
 				Statistics
 			</h2>
-			{/*
-                This outer div will now center its content (the dropdown and calendar card).
-                The centering of the dropdown and calendar is handled by their individual
-                application of COMMON_CONTENT_WIDTH_CLASSES.
-            */}
+			{/* This div itself is now the consistent 90% wide, centered container */}
 			<div className="flex flex-col items-center mt-6">
+				{' '}
+				{/* Parent for consistent spacing, centers its children */}
 				{consolidatedGoals.length > 0 && (
-					<div
-						className={`${styles.customSelectContainer}mb-4 ${COMMON_CONTENT_WIDTH_CLASSES} p-4 rounded-md border-gray-500 flex flex-col`}
-					>
-						<label htmlFor="goal-select" className="sr-only">
-							Select a Goal
-						</label>
-						<select
-							id="goal-select"
-							// className={`${styles.customSelect} block w-full px-4 py-3 text-base text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-							className={`${styles.customSelect} block px-4 py-3 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm shadow-lg`}
-							value={selectedGoalTitle}
-							onChange={handleSelectChange}
-						>
-							{consolidatedGoals.map((goal) => (
-								<option key={goal.id} value={goal.title}>
-									{goal.title}
-								</option>
-							))}
-						</select>
+					<div className={`mb-4 ${COMMON_OUTER_STYLES}`}>
+						{' '}
+						{/* Outer container with shared width, centering, and visual styling */}
+						<div className="p-4 w-full">
+							{' '}
+							{/* Inner div for consistent padding. Make it w-full of its parent */}
+							<label htmlFor="goal-select" className="sr-only">
+								Select a Goal
+							</label>
+							<select
+								id="goal-select"
+								className={`${styles.customSelect} block w-full px-4 py-2 text-base text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+								value={selectedGoalTitle}
+								onChange={handleSelectChange}
+							>
+								{consolidatedGoals.map((goal) => (
+									<option key={goal.id} value={goal.title}>
+										{goal.title}
+									</option>
+								))}
+							</select>
+						</div>
 					</div>
 				)}
-
 				{selectedGoal ? (
-					// statsCardContainer's width is now directly controlled by COMMON_CONTENT_WIDTH_CLASSES
+					// statsCardContainer directly uses COMMON_OUTER_STYLES for consistent width and styling
 					<div
-						className={`statsCardContainer ${COMMON_CONTENT_WIDTH_CLASSES}`}
+						className={`statsCardContainer ${COMMON_OUTER_STYLES}`}
 					>
 						<StatsCard
 							goal={{

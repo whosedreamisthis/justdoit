@@ -12,7 +12,7 @@ import '@/app/globals.css';
 import StatsTab from '@/components/stats-tab';
 import Header from '@/components/header';
 import { saveQuery, loadQueriesByEmail } from '@/actions/ai';
-import { useUser, useAuth } from '@clerk/nextjs'; // Add useAuth here
+import { useUser, useAuth } from '@clerk/nextjs';
 import { v4 as uuidv4 } from 'uuid';
 import { archiveGoal } from '@/app/page-helper';
 
@@ -161,20 +161,11 @@ export default function App() {
 		// This handles both the custom SignOutButton (where isSignOutRef is true)
 		// AND the Clerk UserButton logout (where isSignedIn becomes false)
 		if (!userEmail || !isSignedIn) {
-			// <-- Modified condition
 			console.warn(
 				'saveAllUserData: Aborting save, user not signed in or email not available.'
 			);
 			return;
 		}
-
-		// Removed the isSignOutRef check here, as !isSignedIn handles this case more broadly.
-		// if (isSignOutRef.current) {
-		//     console.warn(
-		//         'saveAllUserData: Aborting save, sign-out in progress.'
-		//     );
-		//     return;
-		// }
 
 		try {
 			const { ok, error } = await saveQuery(
@@ -207,7 +198,7 @@ export default function App() {
 		lastDailyResetTime,
 		customHabits,
 		isSignedIn,
-	]); // Add isSignedIn to dependencies
+	]);
 
 	useEffect(() => {
 		// Also ensure isSignedIn is true here before scheduling a save
@@ -217,7 +208,6 @@ export default function App() {
 			hasLoadedInitialDataRef.current &&
 			isSignedIn
 		) {
-			// <-- Added isSignedIn check
 			const timeoutId = setTimeout(() => {
 				saveAllUserData();
 			}, 500);
@@ -231,7 +221,7 @@ export default function App() {
 		userEmail,
 		isLoading,
 		saveAllUserData,
-		isSignedIn, // Add isSignedIn to dependencies
+		isSignedIn,
 	]);
 
 	const checkAndResetDailyProgress = useCallback(() => {
@@ -527,9 +517,7 @@ export default function App() {
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
 							onArchiveGoal={archiveAndRemoveGoal}
-							isSignedIn={
-								userEmail != undefined && userEmail != null
-							}
+							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 							isLoading={isLoading}
 						/>
 					)}
@@ -549,9 +537,7 @@ export default function App() {
 						<StatsTab
 							goals={goals}
 							onUpdateGoal={handleUpdateGoal}
-							isSignedIn={
-								userEmail != undefined && userEmail != null
-							}
+							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 							archivedGoals={archivedGoals}
 							selectedGoalTitle={selectedStatsGoalTitle}
 							setSelectedGoalTitle={setSelectedStatsGoalTitle}
@@ -561,9 +547,7 @@ export default function App() {
 						<ProfileTab
 							user={user}
 							onSignOut={onSignOut}
-							isSignedIn={
-								userEmail != undefined && userEmail != null
-							}
+							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 						/>
 					)}
 				</div>

@@ -18,10 +18,10 @@
 .customSelect {
 	/* Override or add styles */
 	background-color: #f0f0f0; /* Example: a lighter background */
-	border-color: #9caf88; /* Example: primary border color */
+	/* border-color: #9caf88; */
 	color: #725c3e; /* Example: deep umber text */
 	font-size: 1rem; /* Example: custom font size */
-
+	margin-bottom: 10px;
 	/* You might need !important if Tailwind's utility classes are winning */
 	/* For instance, to override text-gray-900: */
 	/* color: #725c3e !important; */
@@ -29,4 +29,8 @@
 
 .customSelect:hover {
 	box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.5); /* Example: custom hover effect */
+}
+
+.customSelectContainer {
+	width: 90%;
 }

@@ -94,7 +94,7 @@ export default function StatsTab({
 			<div className="flex flex-col items-center mt-6">
 				{consolidatedGoals.length > 0 && (
 					<div
-						className={`mb-4 ${COMMON_CONTENT_WIDTH_CLASSES} p-4 rounded-md shadow-lg border-1 border-gray-500`}
+						className={`${styles.customSelectContainer}mb-4 ${COMMON_CONTENT_WIDTH_CLASSES} p-4 rounded-md border-gray-500 flex flex-col`}
 					>
 						<label htmlFor="goal-select" className="sr-only">
 							Select a Goal
@@ -102,7 +102,7 @@ export default function StatsTab({
 						<select
 							id="goal-select"
 							// className={`${styles.customSelect} block w-full px-4 py-3 text-base text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-							className={`${styles.customSelect} block w-full px-4 py-3 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+							className={`${styles.customSelect} block px-4 py-3 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm shadow-lg`}
 							value={selectedGoalTitle}
 							onChange={handleSelectChange}
 						>

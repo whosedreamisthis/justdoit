@@ -16,16 +16,23 @@
 }
 
 .customSelect {
-	caret-color: transparent;
-	/* Override or add styles */
-	background-color: #f0f0f0; /* Example: a lighter background */
-	/* border-color: #9caf88; */
-	color: #725c3e; /* Example: deep umber text */
-	font-size: 1rem; /* Example: custom font size */
-	margin-bottom: 10px;
-	/* You might need !important if Tailwind's utility classes are winning */
-	/* For instance, to override text-gray-900: */
-	/* color: #725c3e !important; */
+	/* ... other styles you have ... */
+
+	/* THESE ARE CRUCIAL FOR OVERRIDING DEFAULT BROWSER STYLES */
+	-webkit-appearance: none; /* For Safari/iOS */
+	-moz-appearance: none; /* For Firefox */
+	appearance: none; /* Standard property */
+
+	/* If you are using a custom arrow with background-image: */
+	background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" fill-rule="evenodd"></path></svg>');
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1.5em 1.5em;
+	padding-right: 2.5rem; /* Ensure space for the custom arrow */
+
+	/* You might also want to ensure your font sizes are clearly defined */
+	font-size: 1rem; /* Adjust as needed */
+	line-height: 1.5; /* Adjust as needed */
 }
 
 .customSelect:hover {

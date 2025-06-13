@@ -117,28 +117,28 @@ export default function StatsTab({
 
 	return (
 		<div className={`${styles.statsContainer}`}>
-			<div className="flex flex-col items-center mt-6 w-full max-w-sm mx-auto">
-				{consolidatedGoals.length > 0 && (
-					<div className="w-full mb-3">
-						<label htmlFor="goal-select" className="sr-only">
-							Select a Goal
-						</label>
-						<select
-							id="goal-select"
-							className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
-							value={selectedGoalTitle}
-							onChange={handleSelectChange}
-						>
-							{consolidatedGoals.map((goal) => (
-								<option key={goal.id} value={goal.title}>
-									{goal.title}
-								</option>
-							))}
-						</select>
-					</div>
-				)}
-				{selectedGoal ? (
-					<div className="w-full">
+			<div className="flex flex-col items-center mt-6">
+				<div className="w-[90%] max-w-sm">
+					{consolidatedGoals.length > 0 && (
+						<div className="mb-3">
+							<label htmlFor="goal-select" className="sr-only">
+								Select a Goal
+							</label>
+							<select
+								id="goal-select"
+								className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+								value={selectedGoalTitle}
+								onChange={handleSelectChange}
+							>
+								{consolidatedGoals.map((goal) => (
+									<option key={goal.id} value={goal.title}>
+										{goal.title}
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+					{selectedGoal ? (
 						<StatsCard
 							goal={{
 								...selectedGoal,
@@ -151,10 +151,10 @@ export default function StatsTab({
 							}}
 							onUpdateGoal={onUpdateGoal}
 						/>
-					</div>
-				) : (
-					<p className="text-gray-600">No goals to display.</p>
-				)}
+					) : (
+						<p className="text-gray-600">No goals to display.</p>
+					)}
+				</div>
 			</div>
 		</div>
 	);

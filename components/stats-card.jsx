@@ -9,14 +9,13 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 	const currentYear = currentDate.getFullYear();
 
 	const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-	const daysArray = Array(daysInMonth).fill(false); // Optional, currently unused
+	const daysArray = Array(daysInMonth).fill(false); // currently unused
 
 	return (
 		<div
-			className={`p-7 rounded-md shadow-lg border-gray-500 max-w-sm mx-auto`}
+			className="p-7 rounded-md shadow-lg border-gray-500"
 			style={{ backgroundColor: goal.color }}
 		>
-			{/* You could re-enable this heading if desired */}
 			{/* <h2 className={`${styles.tabTitle} text-md font-bold text-gray-800 mb-4`}>
 				{goal.title}
 			</h2> */}

@@ -15,7 +15,8 @@ export default function StatsTab({
 	isSignedIn,
 	isLoading,
 }) {
-	const uniqueGoals = goals.reduce((acc, goal) => {
+	// Step 1: Collect all completedDays objects for each unique goal title
+	const uniqueGoalsAggregated = goals.reduce((acc, goal) => {
 		const safeGoalCompletedDays =
 			goal.completedDays && typeof goal.completedDays === 'object'
 				? goal.completedDays
@@ -24,26 +25,82 @@ export default function StatsTab({
 		if (!acc[goal.title]) {
 			acc[goal.title] = {
 				...goal,
-				completedDays: { ...safeGoalCompletedDays },
+				// Store all completedDays objects for this title for later aggregation
+				_allCompletedDaysInstances: [safeGoalCompletedDays],
 			};
 		} else {
-			if (
-				!acc[goal.title].completedDays ||
-				typeof acc[goal.title].completedDays !== 'object'
-			) {
-				acc[goal.title].completedDays = {};
-			}
-
-			Object.keys(safeGoalCompletedDays).forEach((day) => {
-				acc[goal.title].completedDays[day] =
-					acc[goal.title].completedDays[day] ||
-					safeGoalCompletedDays[day];
-			});
+			acc[goal.title]._allCompletedDaysInstances.push(
+				safeGoalCompletedDays
+			);
 		}
 		return acc;
 	}, {});
 
-	const consolidatedGoals = Object.values(uniqueGoals);
+	// Step 2: Process uniqueGoalsAggregated to create consolidatedGoals with actual completedDays
+	const consolidatedGoals = Object.values(uniqueGoalsAggregated).map(
+		(goal) => {
+			const finalCompletedDays = {};
+
+			// Iterate through each instance's completedDays for this consolidated goal
+			goal._allCompletedDaysInstances.forEach((instanceCompletedDays) => {
+				if (instanceCompletedDays) {
+					// Ensure it's not null/undefined
+					Object.keys(instanceCompletedDays).forEach((year) => {
+						if (instanceCompletedDays[year]) {
+							Object.keys(instanceCompletedDays[year]).forEach(
+								(month) => {
+									if (instanceCompletedDays[year][month]) {
+										Object.keys(
+											instanceCompletedDays[year][month]
+										).forEach((day) => {
+											// If this instance has the day completed (true),
+											// then the finalCompletedDays should also mark it true.
+											// This implements the "at least one instance completed" logic.
+											if (
+												instanceCompletedDays[year][
+													month
+												][day]
+											) {
+												if (!finalCompletedDays[year])
+													finalCompletedDays[year] =
+														{};
+												if (
+													!finalCompletedDays[year][
+														month
+													]
+												)
+													finalCompletedDays[year][
+														month
+													] = {};
+												finalCompletedDays[year][month][
+													day
+												] = true;
+											}
+											// If it's false or undefined, we don't do anything for this day
+											// at this stage, as it will remain false/undefined in finalCompletedDays
+											// UNLESS another instance marks it true.
+										});
+									}
+								}
+							);
+						}
+					});
+				}
+			});
+
+			// After iterating through all instances for this goal,
+			// finalCompletedDays now contains days that were marked true by at least one instance.
+			// Days that were never marked true by any instance will simply be absent,
+			// which implies they are incomplete/false, correctly addressing the bug.
+
+			// Clean up the temporary _allCompletedDaysInstances property
+			const { _allCompletedDaysInstances, ...rest } = goal;
+			return {
+				...rest,
+				completedDays: finalCompletedDays,
+			};
+		}
+	);
 
 	consolidatedGoals.sort((a, b) =>
 		a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })

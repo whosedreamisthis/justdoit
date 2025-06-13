@@ -1,13 +1,16 @@
+// components/stats-tab.js
 import '@/app/globals.css';
 import StatsCard from './stats-card';
 import styles from '@/styles/goals-tab.module.css';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 export default function StatsTab({
 	goals,
 	onUpdateGoal,
 	isSignedIn,
 	isLoading,
+	selectedGoalTitle, // Now received as a prop
+	setSelectedGoalTitle, // Now received as a prop
 }) {
 	const uniqueGoalsAggregated = goals.reduce((acc, goal) => {
 		const safeGoalCompletedDays =
@@ -77,26 +80,18 @@ export default function StatsTab({
 		}
 	);
 
+	// Ensure sorting logic in StatsTab matches the order you expect for "first goal"
 	consolidatedGoals.sort((a, b) =>
 		a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })
 	);
-
-	const [selectedGoalTitle, setSelectedGoalTitle] = useState('');
-
-	useEffect(() => {
-		if (consolidatedGoals.length > 0 && !selectedGoalTitle) {
-			setSelectedGoalTitle(consolidatedGoals[0].title);
-		}
-	}, [consolidatedGoals, selectedGoalTitle]);
 
 	const handleSelectChange = (event) => {
 		setSelectedGoalTitle(event.target.value);
 	};
 
-	const selectedGoal = consolidatedGoals.find(
-		(goal) => goal.title === selectedGoalTitle
-	);
+	const selectedGoal = consolidatedGoals[0].title;
 
+	// setSelectedGoalTitle(selectedGoal);
 	if (!isSignedIn) {
 		return (
 			<div className="center-flexbox justify-center p-5 align-middle">

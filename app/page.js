@@ -30,6 +30,9 @@ export default function App() {
 	const hasLoadedInitialDataRef = useRef(false);
 	const email = user?.primaryEmailAddress?.emailAddress;
 
+	// Initialize selectedStatsGoalTitle to null to ensure it's set after data loads
+	const [selectedStatsGoalTitle, setSelectedStatsGoalTitle] = useState(null);
+
 	// Effect to load data from database on mount or when user email becomes available
 	useEffect(() => {
 		if (email) {
@@ -43,7 +46,10 @@ export default function App() {
 
 					if (ok && queries && queries.length > 0) {
 						const latestQuery = queries[0];
-						setGoals(latestQuery.goals || []);
+						const loadedGoals = latestQuery.goals || [];
+
+						// Set the main goals state with the order received from the DB
+						setGoals(loadedGoals);
 						setArchivedGoals(latestQuery.archivedGoals || {});
 						setCustomHabits(latestQuery.customHabits || []);
 
@@ -56,21 +62,43 @@ export default function App() {
 							now.setHours(0, 0, 0, 0);
 							setLastDailyResetTime(now);
 						}
+
+						// NEW LOGIC: Create a temporary sorted copy ONLY for selectedStatsGoalTitle
+						const tempSortedGoals = [...loadedGoals].sort((a, b) =>
+							a.title.localeCompare(b.title, undefined, {
+								sensitivity: 'base',
+							})
+						);
+
+						// *** NEW CRUCIAL DEBUG LOG HERE ***
+						// **********************************
+
+						if (tempSortedGoals.length > 0) {
+							setSelectedStatsGoalTitle(tempSortedGoals[0].title);
+						} else {
+							setSelectedStatsGoalTitle('');
+						}
 					} else {
+						setGoals([]);
+						setArchivedGoals({});
+						setCustomHabits([]);
+						setLastDailyResetTime(null);
+						setSelectedStatsGoalTitle('');
 						console.log(
-							'App: No existing data for this user or error during load:',
-							error
+							'App: Data load failed or empty, selectedStatsGoalTitle reset.'
 						);
 					}
 				} catch (err) {
 					console.error('App: Failed to load initial data:', err);
 					toast.error('Failed to load your data.');
-					// setGoals([]);
-					// setArchivedGoals({});
-					// setCustomHabits([]);
-					// const now = new Date();
-					// now.setHours(0, 0, 0, 0);
-					// setLastDailyResetTime(now);
+					setGoals([]);
+					setArchivedGoals({});
+					setCustomHabits([]);
+					setLastDailyResetTime(null);
+					setSelectedStatsGoalTitle('');
+					console.log(
+						'App: Data load error, selectedStatsGoalTitle reset.'
+					);
 				} finally {
 					setIsLoading(false);
 					hasLoadedInitialDataRef.current = true;
@@ -79,7 +107,6 @@ export default function App() {
 			};
 			fetchData();
 		} else if (user === null) {
-			// Only clear state if user is truly signed out
 			console.log('App: No user email available. Clearing states.');
 			setGoals([]);
 			setArchivedGoals({});
@@ -87,22 +114,18 @@ export default function App() {
 			setLastDailyResetTime(null);
 			setIsLoading(false);
 			hasLoadedInitialDataRef.current = true;
+			setSelectedStatsGoalTitle('');
+			console.log(
+				'App: User signed out or no email, selectedStatsGoalTitle reset.'
+			);
 		}
-		// Do nothing if user is undefined (still loading)
 	}, [email, user]);
 
-	// Effect to scroll to top when activeTab changes
+	// --- Other functions (unchanged from last turn) ---
 	useEffect(() => {
-		// Scroll to the top of the window
 		window.scrollTo({ top: 0, behavior: 'auto' });
-		// Alternatively, if you have a specific scrollable div:
-		// const mainContentDiv = document.querySelector('.flex-grow.pb-20');
-		// if (mainContentDiv) {
-		//     mainContentDiv.scrollTo({ top: 0, behavior: 'smooth' });
-		// }
 	}, [activeTab]);
 
-	// Unified function to save all user data to the database (called by debounced useEffect)
 	const saveAllUserData = useCallback(async () => {
 		if (!userEmail) {
 			console.warn(
@@ -122,11 +145,6 @@ export default function App() {
 			if (!ok) {
 				console.error('saveAllUserData: Failed to save data:', error);
 				toast.error(`Failed to save changes automatically: ${error}`);
-			} else {
-				console.log(
-					'saveAllUserData: Data saved successfully by debounced effect.'
-				);
-				console.log(goals);
 			}
 		} catch (err) {
 			console.error(
@@ -137,7 +155,6 @@ export default function App() {
 		}
 	}, [userEmail, goals, archivedGoals, lastDailyResetTime, customHabits]);
 
-	// Debounced save using useEffect
 	useEffect(() => {
 		if (userEmail && !isLoading && hasLoadedInitialDataRef.current) {
 			const timeoutId = setTimeout(() => {
@@ -155,7 +172,6 @@ export default function App() {
 		saveAllUserData,
 	]);
 
-	// Daily reset logic
 	const checkAndResetDailyProgress = useCallback(() => {
 		if (!lastDailyResetTime) return;
 
@@ -185,9 +201,7 @@ export default function App() {
 		}
 	}, [lastDailyResetTime, checkAndResetDailyProgress]);
 
-	// Update goal progress or completion
 	const handleUpdateGoal = useCallback((updatedGoal) => {
-		// CRUCIAL: Snapshot positions *before* updating state if resorting is expected
 		if (
 			goalsTabRef.current &&
 			typeof goalsTabRef.current.snapshotPositions === 'function'
@@ -207,24 +221,23 @@ export default function App() {
 			}
 			return prevGoals;
 		});
-	}, []); // goalsTabRef is a ref, so it's stable and typically doesn't need to be in deps.
+		console.log('App: Goal updated:', updatedGoal.title);
+	}, []);
 
 	const handleHabitSelect = useCallback(
 		(habit) => {
 			const restoredCompletedDays = archivedGoals[habit.title] || {};
 			const now = new Date();
 			const currentYear = now.getFullYear();
-			const currentMonth = now.getMonth() + 1; // Month is 0-indexed in JS, 1-indexed in completedDays
+			const currentMonth = now.getMonth() + 1;
 			const currentDay = now.getDate();
 
-			// Create a new object for completedDays, excluding the current day's entry
 			const newCompletedDays = {};
 			for (const year in restoredCompletedDays) {
 				newCompletedDays[year] = {};
 				for (const month in restoredCompletedDays[year]) {
 					newCompletedDays[year][month] = {};
 					for (const day in restoredCompletedDays[year][month]) {
-						// Only copy if it's not the current day
 						if (
 							!(
 								parseInt(year) === currentYear &&
@@ -246,11 +259,10 @@ export default function App() {
 				color: habit.color || '#FFFFFF',
 				progress: 0,
 				isCompleted: false,
-				completedDays: newCompletedDays, // Use the filtered completedDays
+				completedDays: newCompletedDays,
 				createdAt: new Date().toISOString(),
 			};
 
-			// CRUCIAL: Snapshot positions *before* updating state if resorting is expected
 			if (
 				goalsTabRef.current &&
 				typeof goalsTabRef.current.snapshotPositions === 'function'
@@ -263,62 +275,95 @@ export default function App() {
 				return updatedGoals;
 			});
 			toast.success(`${habit.title} added as a goal!`);
+			console.log('App: Habit selected and added as goal:', habit.title);
 		},
 		[archivedGoals]
 	);
 	const preSetGoals = (update, goals, setGoals) => {
-		console.log('preSetGoals goals', goals);
+		console.log('App: preSetGoals goals before update:', goals);
 		if (!Array.isArray(goals)) {
-			console.error('goals is undefined or not an array:', goals);
+			console.error(
+				'App: preSetGoals: goals is undefined or not an array:',
+				goals
+			);
 			return;
 		}
 
 		let finalGoalsArray =
 			typeof update === 'function' ? update(goals) : update;
-		console.log('finalGoalsArray', finalGoalsArray);
+		console.log('App: preSetGoals finalGoalsArray:', finalGoalsArray);
 		if (!Array.isArray(finalGoalsArray)) {
 			console.error(
-				'finalGoalsArray is undefined or not an array:',
+				'App: preSetGoals: finalGoalsArray is undefined or not an array:',
 				finalGoalsArray
 			);
 			return;
 		}
 
-		//const sortedGoals = sortGoals(finalGoalsArray);
+		const unsortedFinalGoals = finalGoalsArray;
 
-		// Always allow empty array update if there are no goals remaining
-		if (sortedGoals.length === 0) {
-			console.warn(
-				'No goals remaining: Allowing state update to empty array.'
-			);
+		if (unsortedFinalGoals.length === 0) {
 			setGoals([]);
 			return;
 		}
 
-		setGoals(sortedGoals);
+		setGoals(unsortedFinalGoals);
 	};
-	const archiveAndRemoveGoal = useCallback((goalToArchive) => {
-		const completedDaysToArchive = archiveGoal(goalToArchive);
+	const archiveAndRemoveGoal = useCallback(
+		(goalToArchive) => {
+			const completedDaysToArchive = archiveGoal(goalToArchive);
 
-		setArchivedGoals((prevArchived) => {
-			const newArchived = { ...prevArchived };
-			if (completedDaysToArchive) {
-				newArchived[goalToArchive.title] = completedDaysToArchive;
+			setArchivedGoals((prevArchived) => {
+				const newArchived = { ...prevArchived };
+				if (completedDaysToArchive) {
+					newArchived[goalToArchive.title] = completedDaysToArchive;
+				}
+				return newArchived;
+			});
+
+			if (
+				goalsTabRef.current &&
+				typeof goalsTabRef.current.snapshotPositions === 'function'
+			) {
+				goalsTabRef.current.snapshotPositions();
 			}
-			return newArchived;
-		});
+			setGoals((prevGoals) => {
+				const filteredGoals = prevGoals.filter(
+					(goal) => goal.id !== goalToArchive.id
+				);
+				return filteredGoals;
+			});
 
-		// CRUCIAL: Snapshot positions *before* updating state if resorting is expected
-		if (
-			goalsTabRef.current &&
-			typeof goalsTabRef.current.snapshotPositions === 'function'
-		) {
-			goalsTabRef.current.snapshotPositions();
-		}
-		setGoals((prevGoals) =>
-			prevGoals.filter((goal) => goal.id !== goalToArchive.id)
-		);
-	}, []);
+			if (selectedStatsGoalTitle === goalToArchive.title) {
+				setGoals((currentGoals) => {
+					const tempSortedCurrentGoals = [...currentGoals].sort(
+						(a, b) =>
+							a.title.localeCompare(b.title, undefined, {
+								sensitivity: 'base',
+							})
+					);
+
+					if (tempSortedCurrentGoals.length > 0) {
+						console.log(
+							'App: Archived selected goal, setting new selectedStatsGoalTitle to (from sorted copy):',
+							tempSortedCurrentGoals[0].title
+						);
+						setSelectedStatsGoalTitle(
+							tempSortedCurrentGoals[0].title
+						);
+					} else {
+						console.log(
+							'App: Archived last goal, setting selectedStatsGoalTitle to empty.'
+						);
+						setSelectedStatsGoalTitle('');
+					}
+					return currentGoals;
+				});
+			}
+			console.log('App: Goal archived and removed:', goalToArchive.title);
+		},
+		[selectedStatsGoalTitle]
+	);
 
 	const handleAddCustomHabit = useCallback(
 		(newHabit) => {
@@ -326,10 +371,11 @@ export default function App() {
 				const updatedHabits = [...prevHabits, newHabit];
 				return updatedHabits;
 			});
-			handleHabitSelect(newHabit); // Add the custom habit as a goal
+			handleHabitSelect(newHabit);
+			console.log('App: Custom habit added:', newHabit.title);
 		},
 		[handleHabitSelect]
-	); // Add handleHabitSelect to the dependency array
+	);
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
 		setCustomHabits((prevHabits) => {
@@ -339,6 +385,7 @@ export default function App() {
 
 			return updatedHabits;
 		});
+		console.log('App: Custom habit updated:', updatedHabit.title);
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
@@ -349,6 +396,7 @@ export default function App() {
 
 			return updatedHabits;
 		});
+		console.log('App: Custom habit deleted:', habitId);
 	}, []);
 
 	const onSignOut = () => {
@@ -357,7 +405,10 @@ export default function App() {
 		setLastDailyResetTime(null);
 		setCustomHabits([]);
 		setUserEmail(null);
-		console.log('App: User signed out. States cleared.');
+		setSelectedStatsGoalTitle('');
+		console.log(
+			'App: User signed out. All states cleared, including selectedStatsGoalTitle.'
+		);
 	};
 
 	const allHabits = {
@@ -389,7 +440,7 @@ export default function App() {
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
 						<GoalsTab
-							ref={goalsTabRef} // Attach ref here
+							ref={goalsTabRef}
 							goals={goals}
 							onReSort={() => {}}
 							onUpdateGoal={handleUpdateGoal}
@@ -417,11 +468,13 @@ export default function App() {
 					{activeTab === 'stats' && (
 						<StatsTab
 							goals={goals}
-							onUpdateGoal={handleUpdateGoal} // Pass onUpdateGoal here
+							onUpdateGoal={handleUpdateGoal}
 							isSignedIn={
 								userEmail != undefined && userEmail != null
 							}
 							archivedGoals={archivedGoals}
+							selectedGoalTitle={selectedStatsGoalTitle}
+							setSelectedGoalTitle={setSelectedStatsGoalTitle}
 						/>
 					)}
 					{activeTab === 'profile' && (

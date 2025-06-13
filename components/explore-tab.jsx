@@ -78,7 +78,7 @@ export default function ExploreTab({
 						<div
 							key={category}
 							ref={(el) => (categoryRefs.current[category] = el)} // Attach ref to category div
-							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer} border-1`}
+							className={`p-3 rounded-lg bg-warm-sand ${styles.categoryContainer} border-1 scroll-mt-24`}
 						>
 							<div
 								role="button"

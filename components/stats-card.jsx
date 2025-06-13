@@ -11,14 +11,14 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 	const daysArray = Array(daysInMonth).fill(false);
 	return (
 		<div
-			className={`p-4 rounded-md shadow-lg  border-gray-500`}
+			className={`p-7 rounded-md shadow-lg  border-gray-500 max-w-sm mx-auto`}
 			style={{ backgroundColor: goal.color }}
 		>
-			<h2
+			{/* <h2
 				className={`${styles.tabTitle} text-md font-bold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis mb-4`}
 			>
 				{goal.title}
-			</h2>
+			</h2> */}
 			<MyCalendar
 				goalId={goal.id}
 				completedDays={goal.completedDays}

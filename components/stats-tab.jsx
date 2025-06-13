@@ -6,8 +6,7 @@ import React, { useState, useEffect } from 'react';
 // Define common classes for the outer container of both the dropdown and the StatsCard.
 // This will now enforce a consistent 90% width relative to the viewport, and center it.
 // We'll apply visual styling here as well.
-const COMMON_OUTER_STYLES =
-	'w-[90%] mx-auto rounded-md shadow-lg border-1 border-gray-500'; // Enforces 90% width and centers.
+const COMMON_OUTER_STYLES = 'rounded-md '; // Enforces 90% width and centers.
 
 export default function StatsTab({
 	goals,
@@ -146,7 +145,7 @@ export default function StatsTab({
 			<div className="flex flex-col items-center mt-6">
 				{/* Parent for consistent spacing, centers its children */}
 				{consolidatedGoals.length > 0 && (
-					<div className={`mb-8 ${COMMON_OUTER_STYLES} pt-2 pb-0`}>
+					<div className={`mb-1  pt-2 pb-0`}>
 						{/* Outer container with shared width, centering, and visual styling */}
 						<div className="p-4 w-full">
 							{/* Inner div for consistent padding. Make it w-full of its parent */}

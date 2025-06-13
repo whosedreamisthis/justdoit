@@ -30,11 +30,19 @@ export default function App() {
 	const hasLoadedInitialDataRef = useRef(false);
 	const email = user?.primaryEmailAddress?.emailAddress;
 
+	// NEW: Ref to track if sign-out is in progress
+	const isSignOutRef = useRef(false);
+
 	// Initialize selectedStatsGoalTitle to null to ensure it's set after data loads
 	const [selectedStatsGoalTitle, setSelectedStatsGoalTitle] = useState(null);
+	console.log(
+		'App: selectedStatsGoalTitle initialized as:',
+		selectedStatsGoalTitle
+	);
 
 	// Effect to load data from database on mount or when user email becomes available
 	useEffect(() => {
+		console.log('App: Data loading useEffect triggered.');
 		if (email) {
 			setUserEmail(email);
 			const fetchData = async () => {
@@ -52,6 +60,11 @@ export default function App() {
 						setGoals(loadedGoals);
 						setArchivedGoals(latestQuery.archivedGoals || {});
 						setCustomHabits(latestQuery.customHabits || []);
+
+						console.log(
+							'App: Goals loaded from DB (unsorted, main state):',
+							loadedGoals.map((g) => g.title)
+						);
 
 						if (latestQuery.lastDailyResetTime) {
 							setLastDailyResetTime(
@@ -71,14 +84,29 @@ export default function App() {
 						);
 
 						// *** NEW CRUCIAL DEBUG LOG HERE ***
+						console.log(
+							'App: tempSortedGoals before setting selectedStatsGoalTitle (full list):',
+							tempSortedGoals.map((g) => g.title)
+						);
 						// **********************************
 
 						if (tempSortedGoals.length > 0) {
+							console.log(
+								'App: Setting selectedStatsGoalTitle to first goal from TEMPORARY sorted list:',
+								tempSortedGoals[0].title
+							);
 							setSelectedStatsGoalTitle(tempSortedGoals[0].title);
 						} else {
+							console.log(
+								'App: No loaded goals, setting selectedStatsGoalTitle to empty.'
+							);
 							setSelectedStatsGoalTitle('');
 						}
 					} else {
+						console.log(
+							'App: No existing data for this user or error during load:',
+							error
+						);
 						setGoals([]);
 						setArchivedGoals({});
 						setCustomHabits([]);
@@ -124,12 +152,20 @@ export default function App() {
 	// --- Other functions (unchanged from last turn) ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'auto' });
+		console.log('App: Active tab changed to:', activeTab);
 	}, [activeTab]);
 
 	const saveAllUserData = useCallback(async () => {
 		if (!userEmail) {
 			console.warn(
 				'saveAllUserData: Attempted to save data without user email.'
+			);
+			return;
+		}
+		// NEW: Abort save if sign-out is in progress
+		if (isSignOutRef.current) {
+			console.warn(
+				'saveAllUserData: Aborting save, sign-out in progress.'
 			);
 			return;
 		}
@@ -145,6 +181,11 @@ export default function App() {
 			if (!ok) {
 				console.error('saveAllUserData: Failed to save data:', error);
 				toast.error(`Failed to save changes automatically: ${error}`);
+			} else {
+				console.log(
+					'saveAllUserData: Data saved successfully by debounced effect.'
+				);
+				console.log(goals);
 			}
 		} catch (err) {
 			console.error(
@@ -303,11 +344,18 @@ export default function App() {
 		const unsortedFinalGoals = finalGoalsArray;
 
 		if (unsortedFinalGoals.length === 0) {
+			console.warn(
+				'App: No goals remaining in preSetGoals: Allowing state update to empty array.'
+			);
 			setGoals([]);
 			return;
 		}
 
 		setGoals(unsortedFinalGoals);
+		console.log(
+			'App: preSetGoals: Goals set after preSetGoals (unsorted).',
+			unsortedFinalGoals
+		);
 	};
 	const archiveAndRemoveGoal = useCallback(
 		(goalToArchive) => {
@@ -400,6 +448,7 @@ export default function App() {
 	}, []);
 
 	const onSignOut = () => {
+		isSignOutRef.current = true; // Set the flag indicating sign-out is in progress
 		setGoals([]);
 		setArchivedGoals({});
 		setLastDailyResetTime(null);
@@ -409,6 +458,7 @@ export default function App() {
 		console.log(
 			'App: User signed out. All states cleared, including selectedStatsGoalTitle.'
 		);
+		// isSignOutRef will naturally reset to false on the next full component mount/unmount or sign-in process.
 	};
 
 	const allHabits = {
@@ -427,6 +477,15 @@ export default function App() {
 	function capitalize(word) {
 		return word.charAt(0).toUpperCase() + word.slice(1);
 	}
+
+	console.log(
+		'App: Rendering App component. Current goals state (main):',
+		goals.map((g) => g.title)
+	);
+	console.log(
+		'App: Rendering App component. selectedStatsGoalTitle:',
+		selectedStatsGoalTitle
+	);
 
 	return (
 		<>

@@ -190,6 +190,18 @@ const GoalsTab = forwardRef(function GoalsTab(
 		);
 	}
 
+	if (isSignedIn && goals.length === 0) {
+		return (
+			<div className="center-flexbox justify-center p-5 align-middle">
+				{' '}
+				{/* Added centering classes here */}
+				<p className="text-gray-600">
+					No goals to display. Add new goals using the 'Explore' tab.
+				</p>
+			</div>
+		);
+	}
+
 	return (
 		<div className="p-3 bg-subtle-background">
 			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">

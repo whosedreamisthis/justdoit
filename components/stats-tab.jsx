@@ -142,19 +142,13 @@ export default function StatsTab({
 
 	return (
 		<div className={`${styles.statsContainer}`}>
-			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">
-				Statistics
-			</h2>
 			{/* This div itself is now the consistent 90% wide, centered container */}
 			<div className="flex flex-col items-center mt-6">
-				{' '}
 				{/* Parent for consistent spacing, centers its children */}
 				{consolidatedGoals.length > 0 && (
 					<div className={`mb-8 ${COMMON_OUTER_STYLES} pt-2 pb-0`}>
-						{' '}
 						{/* Outer container with shared width, centering, and visual styling */}
 						<div className="p-4 w-full">
-							{' '}
 							{/* Inner div for consistent padding. Make it w-full of its parent */}
 							<label htmlFor="goal-select" className="sr-only">
 								Select a Goal

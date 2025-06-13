@@ -373,11 +373,18 @@ export default function App() {
 			</div>
 		);
 	}
+	function capitalize(word) {
+		return word.charAt(0).toUpperCase() + word.slice(1);
+	}
 
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
-			<Header onSignOut={onSignOut} userEmail={userEmail} />
+			<Header
+				onSignOut={onSignOut}
+				userEmail={userEmail}
+				title={capitalize(activeTab)}
+			/>
 			<div className="min-h-screen flex flex-col pt-16">
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (

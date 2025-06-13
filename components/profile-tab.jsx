@@ -18,10 +18,6 @@ export default function ProfileTab({ onSignOut }) {
 		<div
 			className={`${styles.profileTab} p-6 bg-subtle-background min-h-screen flex flex-col items-center`} // Re-added flex flex-col items-center, ensuring no justify-center
 		>
-			<h2 className="text-3xl font-bold m-4 text-primary flex flex-col items-center justify-center">
-				Profile & Account
-			</h2>
-
 			<SignedIn>
 				{/* This inner div already correctly centers its specific content */}
 				<div className="flex flex-col items-center justify-center">

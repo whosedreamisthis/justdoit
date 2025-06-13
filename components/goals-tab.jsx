@@ -192,9 +192,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 
 	return (
 		<div className="p-3 bg-subtle-background">
-			<h2 className="text-3xl font-bold mb-4 text-primary flex flex-col items-center justify-center">
-				Goals
-			</h2>
 			<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
 				{sortedGoals.map((goal) => (
 					<div

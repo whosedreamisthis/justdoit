@@ -54,9 +54,6 @@ export default function ExploreTab({
 
 	return (
 		<div className={`${styles.exploreContainer} p-3 bg-subtle-background`}>
-			<h2 className="text-3xl font-bold mb-4 text-primary text-center">
-				Explore Habits
-			</h2>
 			<div className="space-y-4">
 				{/* "Add Custom Habit" card remains */}
 				<div

@@ -479,7 +479,7 @@ export default function App() {
 
 	if (isLoading || user === undefined) {
 		return (
-			<div className="min-h-screen flex flex-col items-center justify-center text-gray-700 gap-4">
+			<div className="min-h-screen flex flex-col items-center pt-32 text-gray-700 gap-4">
 				<div className="loader"></div>
 				<div>Loading your data...</div>
 			</div>

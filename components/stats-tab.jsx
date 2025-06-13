@@ -93,7 +93,7 @@ export default function StatsTab({
 				{' '}
 				{/* Parent for consistent spacing, centers its children */}
 				{consolidatedGoals.length > 0 && (
-					<div className={`mb-4 ${COMMON_OUTER_STYLES}`}>
+					<div className={`mb-8 ${COMMON_OUTER_STYLES} pt-2 pb-0`}>
 						{' '}
 						{/* Outer container with shared width, centering, and visual styling */}
 						<div className="p-4 w-full">

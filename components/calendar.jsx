@@ -52,8 +52,8 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 					}
 					return null;
 				}}
-				onChange={handleDateChange} // This line is now correctly uncommented without the invalid comment inside it.
-				value={date}
+				// onChange={handleDateChange} // This line is now correctly uncommented without the invalid comment inside it.
+				// value={date}
 			/>
 		</div>
 	);

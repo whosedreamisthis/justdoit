@@ -156,6 +156,11 @@ body,
 .react-calendar__month-view__days__day--weekend {
 	color: black !important; /* Change text color */
 }
+.react-calendar__tile--active,
+.react-calendar__tile--hasActive {
+	background: none !important;
+	color: inherit !important;
+}
 
 .addButton {
 	color: white;

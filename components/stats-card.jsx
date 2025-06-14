@@ -13,7 +13,7 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 
 	return (
 		<div
-			className="p-7 rounded-md shadow-lg border-gray-500"
+			className="p-7 rounded-md shadow-lg border border-gray-800" // Added border and border-gray-400 classes
 			style={{ backgroundColor: goal.color }}
 		>
 			{/* <h2 className={`${styles.tabTitle} text-md font-bold text-gray-800 mb-4`}>

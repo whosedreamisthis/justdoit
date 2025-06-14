@@ -162,7 +162,7 @@ export default function StatsTab({
 				<div className="w-[90%] max-w-sm">
 					{consolidatedGoals.length > 0 ? (
 						<>
-							<div className="mb-3">
+							<div className="mb-3 border border-gray-800 rounded-md">
 								<label
 									htmlFor="goal-select"
 									className="sr-only"

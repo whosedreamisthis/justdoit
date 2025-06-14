@@ -33,6 +33,8 @@ export default function App() {
 
 	// NEW: Ref to track if sign-out is in progress
 	const isSignOutRef = useRef(false);
+	// NEW: Ref to prevent initial empty save if no data was found on load
+	const canSaveDataRef = useRef(false); // Default to false
 
 	// Initialize selectedStatsGoalTitle to null to ensure it's set after data loads
 	const [selectedStatsGoalTitle, setSelectedStatsGoalTitle] = useState(null);
@@ -103,11 +105,15 @@ export default function App() {
 							);
 							setSelectedStatsGoalTitle('');
 						}
+						// Mark that valid data was loaded or initialized.
+						// We can allow saving now.
+						canSaveDataRef.current = true;
 					} else {
 						console.log(
 							'App: No existing data for this user or error during load:',
 							error
 						);
+						// Initialize states to empty but DO NOT mark for immediate saving.
 						setGoals([]);
 						setArchivedGoals({});
 						setCustomHabits([]);
@@ -116,10 +122,13 @@ export default function App() {
 						console.log(
 							'App: Data load failed or empty, selectedStatsGoalTitle reset.'
 						);
+						// If no data was loaded, we don't allow saving until user creates something.
+						canSaveDataRef.current = false; // Important: prevent saving empty initial state
 					}
 				} catch (err) {
 					console.error('App: Failed to load initial data:', err);
 					toast.error('Failed to load your data.');
+					// Initialize states to empty but DO NOT mark for immediate saving.
 					setGoals([]);
 					setArchivedGoals({});
 					setCustomHabits([]);
@@ -128,9 +137,10 @@ export default function App() {
 					console.log(
 						'App: Data load error, selectedStatsGoalTitle reset.'
 					);
+					canSaveDataRef.current = false; // Important: prevent saving empty initial state
 				} finally {
 					setIsLoading(false);
-					hasLoadedInitialDataRef.current = true;
+					hasLoadedInitialDataRef.current = true; // Initial load process finished
 					console.log('App: Finished initial data loading.');
 				}
 			};
@@ -147,6 +157,7 @@ export default function App() {
 			console.log(
 				'App: User signed out or no email, selectedStatsGoalTitle reset.'
 			);
+			canSaveDataRef.current = false; // Prevent saving on sign out state
 		}
 	}, [email, user]);
 
@@ -157,12 +168,10 @@ export default function App() {
 	}, [activeTab]);
 
 	const saveAllUserData = useCallback(async () => {
-		// Crucial: Check if the user is signed in before attempting to save
-		// This handles both the custom SignOutButton (where isSignOutRef is true)
-		// AND the Clerk UserButton logout (where isSignedIn becomes false)
-		if (!userEmail || !isSignedIn) {
+		// Crucial: Check if the user is signed in and if saving is allowed
+		if (!userEmail || !isSignedIn || !canSaveDataRef.current) {
 			console.warn(
-				'saveAllUserData: Aborting save, user not signed in or email not available.'
+				'saveAllUserData: Aborting save, user not signed in, email not available, or not ready to save.'
 			);
 			return;
 		}
@@ -202,11 +211,13 @@ export default function App() {
 
 	useEffect(() => {
 		// Also ensure isSignedIn is true here before scheduling a save
+		// Add canSaveDataRef.current to the conditions
 		if (
 			userEmail &&
 			!isLoading &&
 			hasLoadedInitialDataRef.current &&
-			isSignedIn
+			isSignedIn &&
+			canSaveDataRef.current // Only save if marked as ready to save
 		) {
 			const timeoutId = setTimeout(() => {
 				saveAllUserData();
@@ -254,6 +265,9 @@ export default function App() {
 	}, [lastDailyResetTime, checkAndResetDailyProgress]);
 
 	const handleUpdateGoal = useCallback((updatedGoal) => {
+		// Ensure we can save after a goal is updated
+		canSaveDataRef.current = true; // A goal was updated, so it's safe to save now
+
 		if (
 			goalsTabRef.current &&
 			typeof goalsTabRef.current.snapshotPositions === 'function'
@@ -278,6 +292,9 @@ export default function App() {
 
 	const handleHabitSelect = useCallback(
 		(habit) => {
+			// A new habit is selected, so it's safe to save now
+			canSaveDataRef.current = true;
+
 			const restoredCompletedDays = archivedGoals[habit.title] || {};
 			const now = new Date();
 			const currentYear = now.getFullYear();
@@ -370,6 +387,9 @@ export default function App() {
 	};
 	const archiveAndRemoveGoal = useCallback(
 		(goalToArchive) => {
+			// A goal is archived, so it's safe to save now
+			canSaveDataRef.current = true;
+
 			const completedDaysToArchive = archiveGoal(goalToArchive);
 
 			setArchivedGoals((prevArchived) => {
@@ -426,6 +446,9 @@ export default function App() {
 
 	const handleAddCustomHabit = useCallback(
 		(newHabit) => {
+			// A new custom habit is added, so it's safe to save now
+			canSaveDataRef.current = true;
+
 			setCustomHabits((prevHabits) => {
 				const updatedHabits = [...prevHabits, newHabit];
 				return updatedHabits;
@@ -437,6 +460,9 @@ export default function App() {
 	);
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
+		// A custom habit is updated, so it's safe to save now
+		canSaveDataRef.current = true;
+
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.map((habit) =>
 				habit.id === updatedHabit.id ? updatedHabit : habit
@@ -448,6 +474,9 @@ export default function App() {
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
+		// A custom habit is deleted, so it's safe to save now
+		canSaveDataRef.current = true;
+
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.filter(
 				(habit) => habit.id !== habitId
@@ -466,6 +495,7 @@ export default function App() {
 		setCustomHabits([]);
 		setUserEmail(null);
 		setSelectedStatsGoalTitle('');
+		canSaveDataRef.current = false; // Important: DO NOT save after sign out clears data
 		console.log(
 			'App: User signed out. All states cleared, including selectedStatsGoalTitle.'
 		);

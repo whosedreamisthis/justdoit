@@ -22,7 +22,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setGoals,
 		preSetGoals,
 		onUpdateGoal,
-		isSignedIn,
 		isLoading,
 		onArchiveGoal,
 	},
@@ -176,12 +175,6 @@ const GoalsTab = forwardRef(function GoalsTab(
 		setExpandedGoal(expandedGoal === goalId ? null : goalId);
 	};
 
-	if (!isSignedIn) {
-		return (
-			<h2 className={`${styles.signInMessage}`}>Sign in to add goals.</h2>
-		);
-	}
-
 	if (isLoading && goals.length === 0) {
 		return (
 			<div className="flex justify-center items-center h-full min-h-[200px]">
@@ -190,7 +183,7 @@ const GoalsTab = forwardRef(function GoalsTab(
 		);
 	}
 
-	if (isSignedIn && goals.length === 0) {
+	if (goals.length === 0) {
 		return (
 			<div className="center-flexbox justify-center p-5 align-middle">
 				{' '}

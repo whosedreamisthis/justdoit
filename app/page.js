@@ -22,218 +22,84 @@ export default function App() {
 	const [archivedGoals, setArchivedGoals] = useState({});
 	const [lastDailyResetTime, setLastDailyResetTime] = useState(null);
 	const [customHabits, setCustomHabits] = useState([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const goalsTabRef = useRef(null); // Ref to access methods on GoalsTab component
-	const { user } = useUser();
-	const { isSignedIn } = useAuth(); // Get isSignedIn status from useAuth
-	const [userEmail, setUserEmail] = useState(null);
 	const [expandedCategory, setExpandedCategory] = useState(new Set());
 	const hasLoadedInitialDataRef = useRef(false);
-	const email = user?.primaryEmailAddress?.emailAddress;
-
-	// NEW: Ref to track if sign-out is in progress
-	const isSignOutRef = useRef(false);
-	// NEW: Ref to prevent initial empty save if no data was found on load
-	const canSaveDataRef = useRef(false); // Default to false
 
 	// Initialize selectedStatsGoalTitle to null to ensure it's set after data loads
 	const [selectedStatsGoalTitle, setSelectedStatsGoalTitle] = useState(null);
-	console.log(
-		'App: selectedStatsGoalTitle initialized as:',
-		selectedStatsGoalTitle
-	);
+
+	const saveAllToLocalStorage = (
+		currentGoals,
+		currentArchivedGoals,
+		currentLastDailyResetTime,
+		currentCustomHabits
+	) => {
+		const dataToSave = {
+			goals: currentGoals,
+			archivedGoals: currentArchivedGoals,
+			lastDailyResetTime:
+				currentLastDailyResetTime instanceof Date
+					? currentLastDailyResetTime.toISOString()
+					: null,
+			customHabits: currentCustomHabits,
+		};
+		localStorage.setItem('userData', JSON.stringify(dataToSave));
+	};
+
+	const loadFromLocalStorage = () => {
+		const storedData = localStorage.getItem('userData');
+		if (storedData) {
+			const parsedData = JSON.parse(storedData);
+
+			setGoals(parsedData.goals || []);
+			setArchivedGoals(parsedData.archivedGoals || {});
+			setCustomHabits(parsedData.customHabits || []);
+			setLastDailyResetTime(
+				parsedData.lastDailyResetTime
+					? new Date(parsedData.lastDailyResetTime)
+					: null
+			);
+
+			if (parsedData.goals && parsedData.goals.length > 0) {
+				const tempSortedGoals = [...parsedData.goals].sort((a, b) =>
+					a.title.localeCompare(b.title, undefined, {
+						sensitivity: 'base',
+					})
+				);
+				setSelectedStatsGoalTitle(tempSortedGoals[0].title);
+			} else {
+				setSelectedStatsGoalTitle('');
+			}
+		}
+	};
 
 	// Effect to load data from database on mount or when user email becomes available
+
 	useEffect(() => {
-		console.log('App: Data loading useEffect triggered.');
-		if (email) {
-			setUserEmail(email);
-			const fetchData = async () => {
-				setIsLoading(true);
-				try {
-					const { ok, queries, error } = await loadQueriesByEmail(
-						email
-					);
-
-					if (ok && queries && queries.length > 0) {
-						const latestQuery = queries[0];
-						const loadedGoals = latestQuery.goals || [];
-
-						// Set the main goals state with the order received from the DB
-						setGoals(loadedGoals);
-						setArchivedGoals(latestQuery.archivedGoals || {});
-						setCustomHabits(latestQuery.customHabits || []);
-
-						console.log(
-							'App: Goals loaded from DB (unsorted, main state):',
-							loadedGoals.map((g) => g.title)
-						);
-
-						if (latestQuery.lastDailyResetTime) {
-							setLastDailyResetTime(
-								new Date(latestQuery.lastDailyResetTime)
-							);
-						} else {
-							const now = new Date();
-							now.setHours(0, 0, 0, 0);
-							setLastDailyResetTime(now);
-						}
-
-						// NEW LOGIC: Create a temporary sorted copy ONLY for selectedStatsGoalTitle
-						const tempSortedGoals = [...loadedGoals].sort((a, b) =>
-							a.title.localeCompare(b.title, undefined, {
-								sensitivity: 'base',
-							})
-						);
-
-						// *** NEW CRUCIAL DEBUG LOG HERE ***
-						console.log(
-							'App: tempSortedGoals before setting selectedStatsGoalTitle (full list):',
-							tempSortedGoals.map((g) => g.title)
-						);
-						// **********************************
-
-						if (tempSortedGoals.length > 0) {
-							console.log(
-								'App: Setting selectedStatsGoalTitle to first goal from TEMPORARY sorted list:',
-								tempSortedGoals[0].title
-							);
-							setSelectedStatsGoalTitle(tempSortedGoals[0].title);
-						} else {
-							console.log(
-								'App: No loaded goals, setting selectedStatsGoalTitle to empty.'
-							);
-							setSelectedStatsGoalTitle('');
-						}
-						// Mark that valid data was loaded or initialized.
-						// We can allow saving now.
-						canSaveDataRef.current = true;
-					} else {
-						console.log(
-							'App: No existing data for this user or error during load:',
-							error
-						);
-						// Initialize states to empty but DO NOT mark for immediate saving.
-						setGoals([]);
-						setArchivedGoals({});
-						setCustomHabits([]);
-						setLastDailyResetTime(null);
-						setSelectedStatsGoalTitle('');
-						console.log(
-							'App: Data load failed or empty, selectedStatsGoalTitle reset.'
-						);
-						// If no data was loaded, we don't allow saving until user creates something.
-						canSaveDataRef.current = false; // Important: prevent saving empty initial state
-					}
-				} catch (err) {
-					console.error('App: Failed to load initial data:', err);
-					toast.error('Failed to load your data.');
-					// Initialize states to empty but DO NOT mark for immediate saving.
-					setGoals([]);
-					setArchivedGoals({});
-					setCustomHabits([]);
-					setLastDailyResetTime(null);
-					setSelectedStatsGoalTitle('');
-					console.log(
-						'App: Data load error, selectedStatsGoalTitle reset.'
-					);
-					canSaveDataRef.current = false; // Important: prevent saving empty initial state
-				} finally {
-					setIsLoading(false);
-					hasLoadedInitialDataRef.current = true; // Initial load process finished
-					console.log('App: Finished initial data loading.');
-				}
-			};
-			fetchData();
-		} else if (user === null) {
-			console.log('App: No user email available. Clearing states.');
-			setGoals([]);
-			setArchivedGoals({});
-			setCustomHabits([]);
-			setLastDailyResetTime(null);
-			setIsLoading(false);
-			hasLoadedInitialDataRef.current = true;
-			setSelectedStatsGoalTitle('');
-			console.log(
-				'App: User signed out or no email, selectedStatsGoalTitle reset.'
-			);
-			canSaveDataRef.current = false; // Prevent saving on sign out state
-		}
-	}, [email, user]);
-
-	// --- Other functions (unchanged from last turn) ---
+		loadFromLocalStorage();
+	}, []);
+	// --- Other functions (unc
+	// hanged from last turn) ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'auto' });
 		console.log('App: Active tab changed to:', activeTab);
 	}, [activeTab]);
 
-	const saveAllUserData = useCallback(async () => {
-		// Crucial: Check if the user is signed in and if saving is allowed
-		if (!userEmail || !isSignedIn || !canSaveDataRef.current) {
-			console.warn(
-				'saveAllUserData: Aborting save, user not signed in, email not available, or not ready to save.'
-			);
-			return;
-		}
-
-		try {
-			const { ok, error } = await saveQuery(
-				userEmail,
-				goals,
-				archivedGoals,
-				lastDailyResetTime,
-				customHabits
-			);
-			if (!ok) {
-				console.error('saveAllUserData: Failed to save data:', error);
-				toast.error(`Failed to save changes automatically: ${error}`);
-			} else {
-				console.log(
-					'saveAllUserData: Data saved successfully by debounced effect.'
-				);
-				console.log(goals);
-			}
-		} catch (err) {
-			console.error(
-				'saveAllUserData: Error during data save (debounced call):',
-				err
-			);
-			toast.error('An unexpected error occurred while saving.');
-		}
-	}, [
-		userEmail,
-		goals,
-		archivedGoals,
-		lastDailyResetTime,
-		customHabits,
-		isSignedIn,
-	]);
-
 	useEffect(() => {
-		// Also ensure isSignedIn is true here before scheduling a save
-		// Add canSaveDataRef.current to the conditions
-		if (
-			userEmail &&
-			!isLoading &&
-			hasLoadedInitialDataRef.current &&
-			isSignedIn &&
-			canSaveDataRef.current // Only save if marked as ready to save
-		) {
+		if (!isLoading) {
 			const timeoutId = setTimeout(() => {
-				saveAllUserData();
+				saveAllToLocalStorage(
+					goals,
+					archivedGoals,
+					lastDailyResetTime,
+					customHabits
+				);
 			}, 500);
 			return () => clearTimeout(timeoutId);
 		}
-	}, [
-		goals,
-		archivedGoals,
-		lastDailyResetTime,
-		customHabits,
-		userEmail,
-		isLoading,
-		saveAllUserData,
-		isSignedIn,
-	]);
+	}, [goals, archivedGoals, lastDailyResetTime, customHabits]);
 
 	const checkAndResetDailyProgress = useCallback(() => {
 		if (!lastDailyResetTime) return;
@@ -265,9 +131,6 @@ export default function App() {
 	}, [lastDailyResetTime, checkAndResetDailyProgress]);
 
 	const handleUpdateGoal = useCallback((updatedGoal) => {
-		// Ensure we can save after a goal is updated
-		canSaveDataRef.current = true; // A goal was updated, so it's safe to save now
-
 		if (
 			goalsTabRef.current &&
 			typeof goalsTabRef.current.snapshotPositions === 'function'
@@ -293,7 +156,6 @@ export default function App() {
 	const handleHabitSelect = useCallback(
 		(habit) => {
 			// A new habit is selected, so it's safe to save now
-			canSaveDataRef.current = true;
 
 			const restoredCompletedDays = archivedGoals[habit.title] || {};
 			const now = new Date();
@@ -388,7 +250,6 @@ export default function App() {
 	const archiveAndRemoveGoal = useCallback(
 		(goalToArchive) => {
 			// A goal is archived, so it's safe to save now
-			canSaveDataRef.current = true;
 
 			const completedDaysToArchive = archiveGoal(goalToArchive);
 
@@ -447,7 +308,6 @@ export default function App() {
 	const handleAddCustomHabit = useCallback(
 		(newHabit) => {
 			// A new custom habit is added, so it's safe to save now
-			canSaveDataRef.current = true;
 
 			setCustomHabits((prevHabits) => {
 				const updatedHabits = [...prevHabits, newHabit];
@@ -461,7 +321,6 @@ export default function App() {
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
 		// A custom habit is updated, so it's safe to save now
-		canSaveDataRef.current = true;
 
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.map((habit) =>
@@ -475,7 +334,6 @@ export default function App() {
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
 		// A custom habit is deleted, so it's safe to save now
-		canSaveDataRef.current = true;
 
 		setCustomHabits((prevHabits) => {
 			const updatedHabits = prevHabits.filter(
@@ -495,7 +353,6 @@ export default function App() {
 		setCustomHabits([]);
 		setUserEmail(null);
 		setSelectedStatsGoalTitle('');
-		canSaveDataRef.current = false; // Important: DO NOT save after sign out clears data
 		console.log(
 			'App: User signed out. All states cleared, including selectedStatsGoalTitle.'
 		);
@@ -507,7 +364,7 @@ export default function App() {
 		'Your Custom Habits': customHabits,
 	};
 
-	if (isLoading || user === undefined) {
+	if (isLoading) {
 		return (
 			<div className="min-h-screen flex flex-col items-center pt-32 text-gray-700 gap-4">
 				<div className="loader"></div>
@@ -531,11 +388,7 @@ export default function App() {
 	return (
 		<>
 			<Toaster position="top-right" reverseOrder={false} />
-			<Header
-				onSignOut={onSignOut}
-				userEmail={userEmail}
-				title={capitalize(activeTab)}
-			/>
+			<Header title={capitalize(activeTab)} />
 			<div className="min-h-screen flex flex-col pt-16">
 				<div className="flex-grow pb-20">
 					{activeTab === 'goals' && (
@@ -547,7 +400,6 @@ export default function App() {
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
 							onArchiveGoal={archiveAndRemoveGoal}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 							isLoading={isLoading}
 						/>
 					)}
@@ -567,19 +419,11 @@ export default function App() {
 						<StatsTab
 							goals={goals}
 							onUpdateGoal={handleUpdateGoal}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 							archivedGoals={archivedGoals}
 							selectedGoalTitle={selectedStatsGoalTitle}
 							setSelectedGoalTitle={setSelectedStatsGoalTitle}
 						/>
 					)}
-					{/* {activeTab === 'profile' && (
-						<ProfileTab
-							user={user}
-							onSignOut={onSignOut}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
-						/>
-					)} */}
 				</div>
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 			</div>

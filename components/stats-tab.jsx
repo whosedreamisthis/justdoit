@@ -7,7 +7,6 @@ import React, { useEffect } from 'react';
 export default function StatsTab({
 	goals,
 	onUpdateGoal,
-	isSignedIn,
 	isLoading,
 	selectedGoalTitle, // Now received as a prop
 	setSelectedGoalTitle, // Now received as a prop
@@ -137,16 +136,6 @@ export default function StatsTab({
 		'StatsTab: Resolved selectedGoalObject:',
 		selectedGoalObject ? selectedGoalObject.title : 'None'
 	);
-
-	if (!isSignedIn) {
-		return (
-			<div className="center-flexbox justify-center p-5 align-middle">
-				<h2 className={`${styles.signInMessage}`}>
-					Sign in to add goals and see their statistics here.
-				</h2>
-			</div>
-		);
-	}
 
 	if (isLoading && goals.length === 0) {
 		return (

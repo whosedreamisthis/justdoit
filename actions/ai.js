@@ -14,6 +14,7 @@ import Query from '@/models/query';
  * @returns {Promise<{ ok: boolean, result?: Object, error?: any }>} An object indicating success or failure,
  * and either the updated/created query document or an error object.
  */
+
 export async function saveQuery(
 	email,
 	goals,

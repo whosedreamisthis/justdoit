@@ -18,8 +18,6 @@ export default function MinimizableCard({
 	const cardRef = ScrollOnExpand(isExpanded, false);
 	// --- END IMPORTANT CHANGE ---
 
-	const { isSignedIn } = useUser();
-
 	return (
 		<div
 			ref={cardRef} // Attach the ref to the main card div
@@ -46,12 +44,7 @@ export default function MinimizableCard({
 							className={`addButton`}
 							onClick={(e) => {
 								e.stopPropagation();
-								if (!isSignedIn) {
-									toast.error(
-										'You need to sign in before adding goals.'
-									);
-									return;
-								}
+
 								onSelect(habit);
 							}}
 						>

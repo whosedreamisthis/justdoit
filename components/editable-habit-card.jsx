@@ -43,7 +43,6 @@ export default function EditableHabitCard({
 	const cardRef = ScrollOnExpand(isExpanded || isEditing, isEditing);
 
 	const titleRef = useRef(null);
-	const { isSignedIn } = useUser();
 
 	// Reset state when habit or expanded changes
 	useEffect(() => {
@@ -103,10 +102,7 @@ export default function EditableHabitCard({
 		}
 
 		e.stopPropagation();
-		if (!isSignedIn) {
-			toast.error('You need to sign in before adding goals.');
-			return;
-		}
+
 		onSelect?.(habitData);
 		return habitData;
 	};

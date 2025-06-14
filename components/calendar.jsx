@@ -35,7 +35,7 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 	};
 
 	return (
-		<div className="flex justify-center">
+		<div className={`flex justify-center`}>
 			<Calendar
 				// Use tileClassName to highlight based on completedDays
 				tileClassName={({ date: tileDate, view }) => {

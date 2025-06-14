@@ -13,7 +13,7 @@ export default function StatsCard({ goal, onUpdateGoal }) {
 
 	return (
 		<div
-			className="p-7 rounded-md shadow-lg"
+			className={`p-7 rounded-md ${styles.calendarContainer}`}
 			style={{ backgroundColor: goal.color }}
 		>
 			{/* <h2 className={`${styles.tabTitle} text-md font-bold text-gray-800 mb-4`}>

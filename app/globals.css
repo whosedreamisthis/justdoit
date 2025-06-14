@@ -42,8 +42,15 @@ body::-webkit-scrollbar {
 	color: #c49c92; /* Dusty Rose */
 }
 
+.bg-brown {
+	background-color: #705741; /* ✅ Warm Brown */
+}
+.text-brown {
+	color: #705741; /* ✅ Warm Brown */
+}
 .bg-subtle-background {
-	background-color: #f3dac4; /* ✅ Warm Beige */
+	/* background-color: #f3dac4;  */
+	background-color: #f3dac4;
 }
 .text-subtle {
 	color: #f3dac4; /* ✅ Warm Beige */

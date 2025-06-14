@@ -1,5 +1,5 @@
 // calendar.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Import useEffect
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '@/app/globals.css';
@@ -8,6 +8,11 @@ import styles from '@/styles/calendar.module.css';
 // Accept completedDays, goalId, and onUpdateGoal as props
 function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 	const [date, setDate] = useState(new Date());
+
+	// Use useEffect to reset the calendar date to today's date when goalId changes.
+	useEffect(() => {
+		setDate(new Date()); // Reset to today's date
+	}, [goalId]); // Re-run this effect whenever goalId changes
 
 	// Function to check if a specific date is marked as completed
 	const isDayCompleted = (year, month, day) => {
@@ -42,12 +47,12 @@ function MyCalendar({ completedDays = {}, goalId, onUpdateGoal }) {
 
 						if (isDayCompleted(year, month, day)) {
 							// This will now correctly check completedDays[year][month + 1][day]
-							return `${styles.completedDay}`; //'completed-day';
+							return `${styles.completedDay}`;
 						}
 					}
 					return null;
 				}}
-				// onChange={handleDateChange} // Directly pass the handler function
+				onChange={handleDateChange} // This line is now correctly uncommented without the invalid comment inside it.
 				value={date}
 			/>
 		</div>

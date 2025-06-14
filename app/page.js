@@ -31,12 +31,9 @@ export default function App() {
 	const hasLoadedInitialDataRef = useRef(false);
 	const email = user?.primaryEmailAddress?.emailAddress;
 
-	// NEW: Ref to track if sign-out is in progress
 	const isSignOutRef = useRef(false);
-	// NEW: Ref to prevent initial empty save if no data was found on load
-	const canSaveDataRef = useRef(false); // Default to false
+	const canSaveDataRef = useRef(false);
 
-	// Initialize selectedStatsGoalTitle to null to ensure it's set after data loads
 	const [selectedStatsGoalTitle, setSelectedStatsGoalTitle] = useState(null);
 	console.log(
 		'App: selectedStatsGoalTitle initialized as:',
@@ -59,7 +56,6 @@ export default function App() {
 						const latestQuery = queries[0];
 						const loadedGoals = latestQuery.goals || [];
 
-						// Set the main goals state with the order received from the DB
 						setGoals(loadedGoals);
 						setArchivedGoals(latestQuery.archivedGoals || {});
 						setCustomHabits(latestQuery.customHabits || []);
@@ -74,24 +70,29 @@ export default function App() {
 								new Date(latestQuery.lastDailyResetTime)
 							);
 						} else {
+							// FIX: If no lastDailyResetTime in DB, set it to yesterday's midnight
+							// This ensures the first check will trigger a reset if needed.
 							const now = new Date();
-							now.setHours(0, 0, 0, 0);
-							setLastDailyResetTime(now);
+							const yesterdayMidnight = new Date(now);
+							yesterdayMidnight.setDate(now.getDate() - 1); // Go back one day
+							yesterdayMidnight.setHours(0, 0, 0, 0);
+							setLastDailyResetTime(yesterdayMidnight);
+							console.log(
+								"App: Initializing lastDailyResetTime to yesterday's midnight:",
+								yesterdayMidnight.toISOString()
+							);
 						}
 
-						// NEW LOGIC: Create a temporary sorted copy ONLY for selectedStatsGoalTitle
 						const tempSortedGoals = [...loadedGoals].sort((a, b) =>
 							a.title.localeCompare(b.title, undefined, {
 								sensitivity: 'base',
 							})
 						);
 
-						// *** NEW CRUCIAL DEBUG LOG HERE ***
 						console.log(
 							'App: tempSortedGoals before setting selectedStatsGoalTitle (full list):',
 							tempSortedGoals.map((g) => g.title)
 						);
-						// **********************************
 
 						if (tempSortedGoals.length > 0) {
 							console.log(
@@ -105,42 +106,57 @@ export default function App() {
 							);
 							setSelectedStatsGoalTitle('');
 						}
-						// Mark that valid data was loaded or initialized.
-						// We can allow saving now.
 						canSaveDataRef.current = true;
 					} else {
 						console.log(
 							'App: No existing data for this user or error during load:',
 							error
 						);
-						// Initialize states to empty but DO NOT mark for immediate saving.
 						setGoals([]);
 						setArchivedGoals({});
 						setCustomHabits([]);
-						setLastDailyResetTime(null);
+						// If no data, set lastDailyResetTime to a value that will trigger a reset
+						const now = new Date();
+						const yesterdayMidnight = new Date(now);
+						yesterdayMidnight.setDate(now.getDate() - 1);
+						yesterdayMidnight.setHours(0, 0, 0, 0);
+						setLastDailyResetTime(yesterdayMidnight);
+						console.log(
+							"App: No existing data, initializing lastDailyResetTime to yesterday's midnight:",
+							yesterdayMidnight.toISOString()
+						);
+
 						setSelectedStatsGoalTitle('');
 						console.log(
 							'App: Data load failed or empty, selectedStatsGoalTitle reset.'
 						);
-						// If no data was loaded, we don't allow saving until user creates something.
-						canSaveDataRef.current = false; // Important: prevent saving empty initial state
+						canSaveDataRef.current = false;
 					}
 				} catch (err) {
 					console.error('App: Failed to load initial data:', err);
 					toast.error('Failed to load your data.');
-					// Initialize states to empty but DO NOT mark for immediate saving.
 					setGoals([]);
 					setArchivedGoals({});
 					setCustomHabits([]);
-					setLastDailyResetTime(null);
+					// On error, also ensure lastDailyResetTime is set to trigger a reset
+					const now = new Date();
+					const yesterdayMidnight = new Date(now);
+					yesterdayMidnight.setDate(now.getDate() - 1);
+					yesterdayMidnight.setHours(0, 0, 0, 0);
+					setLastDailyResetTime(yesterdayMidnight);
+					console.log(
+						"App: Data load error, initializing lastDailyResetTime to yesterday's midnight:",
+						yesterdayMidnight.toISOString()
+					);
+
 					setSelectedStatsGoalTitle('');
 					console.log(
 						'App: Data load error, selectedStatsGoalTitle reset.'
 					);
-					canSaveDataRef.current = false; // Important: prevent saving empty initial state
+					canSaveDataRef.current = false;
 				} finally {
 					setIsLoading(false);
-					hasLoadedInitialDataRef.current = true; // Initial load process finished
+					hasLoadedInitialDataRef.current = true;
 					console.log('App: Finished initial data loading.');
 				}
 			};
@@ -150,25 +166,25 @@ export default function App() {
 			setGoals([]);
 			setArchivedGoals({});
 			setCustomHabits([]);
-			setLastDailyResetTime(null);
+			setLastDailyResetTime(null); // Keep this null on sign out, as it signifies no user data.
 			setIsLoading(false);
 			hasLoadedInitialDataRef.current = true;
 			setSelectedStatsGoalTitle('');
 			console.log(
 				'App: User signed out or no email, selectedStatsGoalTitle reset.'
 			);
-			canSaveDataRef.current = false; // Prevent saving on sign out state
+			canSaveDataRef.current = false;
 		}
 	}, [email, user]);
 
-	// --- Other functions (unchanged from last turn) ---
+	// This useEffect remains for general active tab logging and scrolling.
+	// The daily reset logic for tab switching is removed.
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'auto' });
 		console.log('App: Active tab changed to:', activeTab);
 	}, [activeTab]);
 
 	const saveAllUserData = useCallback(async () => {
-		// Crucial: Check if the user is signed in and if saving is allowed
 		if (!userEmail || !isSignedIn || !canSaveDataRef.current) {
 			console.warn(
 				'saveAllUserData: Aborting save, user not signed in, email not available, or not ready to save.'
@@ -210,14 +226,12 @@ export default function App() {
 	]);
 
 	useEffect(() => {
-		// Also ensure isSignedIn is true here before scheduling a save
-		// Add canSaveDataRef.current to the conditions
 		if (
 			userEmail &&
 			!isLoading &&
 			hasLoadedInitialDataRef.current &&
 			isSignedIn &&
-			canSaveDataRef.current // Only save if marked as ready to save
+			canSaveDataRef.current
 		) {
 			const timeoutId = setTimeout(() => {
 				saveAllUserData();
@@ -236,13 +250,22 @@ export default function App() {
 	]);
 
 	const checkAndResetDailyProgress = useCallback(() => {
-		if (!lastDailyResetTime) return;
+		if (!lastDailyResetTime) {
+			console.log(
+				'App: checkAndResetDailyProgress: lastDailyResetTime is not set. Skipping reset.'
+			);
+			return;
+		}
 
 		const now = new Date();
 		const resetTime = new Date(lastDailyResetTime);
 
 		const todayMidnight = new Date(now);
 		todayMidnight.setHours(0, 0, 0, 0);
+
+		console.log(
+			`App: checkAndResetDailyProgress: now=${now.toISOString()}, resetTime=${resetTime.toISOString()}, todayMidnight=${todayMidnight.toISOString()}`
+		);
 
 		if (resetTime.getTime() < todayMidnight.getTime()) {
 			console.log('App: Performing daily reset...');
@@ -251,22 +274,84 @@ export default function App() {
 					...goal,
 					progress: 0,
 					isCompleted: false,
-					completedDays: { ...goal.completedDays },
+					// We need to decide if completedDays should also be reset or retained.
+					// For a daily habit, typically only the current day's completion is reset.
+					// Historical completedDays usually remain.
+					// If you want to clear specific days, you'd need more complex logic here.
+					completedDays: { ...goal.completedDays }, // Retains historical data
 				}))
 			);
 			setLastDailyResetTime(todayMidnight);
+			console.log(
+				'App: Daily reset completed and lastDailyResetTime updated.'
+			);
+		} else {
+			console.log(
+				'App: No daily reset needed. Current day already processed or time has not passed midnight.'
+			);
 		}
 	}, [lastDailyResetTime]);
 
+	// This useEffect will run when lastDailyResetTime changes (e.g., on initial load or after a reset)
+	// and calls checkAndResetDailyProgress. This is important for handling resets right after data load.
 	useEffect(() => {
-		if (lastDailyResetTime) {
+		console.log(
+			'App: lastDailyResetTime effect triggered. lastDailyResetTime:',
+			lastDailyResetTime
+		);
+		if (lastDailyResetTime && !isLoading) {
+			// Ensure isLoading is false before attempting to reset based on loaded data
 			checkAndResetDailyProgress();
 		}
-	}, [lastDailyResetTime, checkAndResetDailyProgress]);
+	}, [lastDailyResetTime, checkAndResetDailyProgress, isLoading]); // Added isLoading to dependency array
+
+	// NEW: Effect to check for daily reset when the tab becomes visible
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			// Simplify conditions: only perform the check if the document is visible
+			// and user is signed in. checkAndResetDailyProgress itself handles if lastDailyResetTime is ready.
+			if (
+				document.visibilityState === 'visible' &&
+				userEmail &&
+				isSignedIn
+			) {
+				console.log(
+					'App: Tab became visible. Triggering daily reset check.'
+				);
+				checkAndResetDailyProgress();
+			} else {
+				console.log(
+					`App: Tab visibility check skipped. State: visible=${
+						document.visibilityState === 'visible'
+					}, userEmail=${!!userEmail}, isSignedIn=${isSignedIn}`
+				);
+			}
+		};
+
+		// Add the event listener when the component mounts
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		// Also run the check immediately when the component mounts and is visible
+		// This handles cases where the user directly opens the tab and it's already visible.
+		// It's crucial for the initial check.
+		if (document.visibilityState === 'visible' && userEmail && isSignedIn) {
+			console.log(
+				'App: Component mounted and is visible. Initial check for daily reset from visibility effect.'
+			);
+			checkAndResetDailyProgress();
+		}
+
+		// Clean up the event listener when the component unmounts
+		return () => {
+			document.removeEventListener(
+				'visibilitychange',
+				handleVisibilityChange
+			);
+		};
+	}, [checkAndResetDailyProgress, userEmail, isSignedIn]); // Removed isLoading and hasLoadedInitialDataRef.current from dependencies
 
 	const handleUpdateGoal = useCallback((updatedGoal) => {
-		// Ensure we can save after a goal is updated
-		canSaveDataRef.current = true; // A goal was updated, so it's safe to save now
+		canSaveDataRef.current = true;
 
 		if (
 			goalsTabRef.current &&
@@ -292,7 +377,6 @@ export default function App() {
 
 	const handleHabitSelect = useCallback(
 		(habit) => {
-			// A new habit is selected, so it's safe to save now
 			canSaveDataRef.current = true;
 
 			const restoredCompletedDays = archivedGoals[habit.title] || {};
@@ -387,7 +471,6 @@ export default function App() {
 	};
 	const archiveAndRemoveGoal = useCallback(
 		(goalToArchive) => {
-			// A goal is archived, so it's safe to save now
 			canSaveDataRef.current = true;
 
 			const completedDaysToArchive = archiveGoal(goalToArchive);
@@ -446,7 +529,6 @@ export default function App() {
 
 	const handleAddCustomHabit = useCallback(
 		(newHabit) => {
-			// A new custom habit is added, so it's safe to save now
 			canSaveDataRef.current = true;
 
 			setCustomHabits((prevHabits) => {
@@ -460,7 +542,6 @@ export default function App() {
 	);
 
 	const handleUpdateCustomHabit = useCallback((updatedHabit) => {
-		// A custom habit is updated, so it's safe to save now
 		canSaveDataRef.current = true;
 
 		setCustomHabits((prevHabits) => {
@@ -474,7 +555,6 @@ export default function App() {
 	}, []);
 
 	const handleDeleteCustomHabit = useCallback((habitId) => {
-		// A custom habit is deleted, so it's safe to save now
 		canSaveDataRef.current = true;
 
 		setCustomHabits((prevHabits) => {
@@ -488,18 +568,17 @@ export default function App() {
 	}, []);
 
 	const onSignOut = () => {
-		isSignOutRef.current = true; // Set the flag indicating sign-out is in progress
+		isSignOutRef.current = true;
 		setGoals([]);
 		setArchivedGoals({});
 		setLastDailyResetTime(null);
 		setCustomHabits([]);
 		setUserEmail(null);
 		setSelectedStatsGoalTitle('');
-		canSaveDataRef.current = false; // Important: DO NOT save after sign out clears data
+		canSaveDataRef.current = false;
 		console.log(
 			'App: User signed out. All states cleared, including selectedStatsGoalTitle.'
 		);
-		// isSignOutRef will naturally reset to false on the next full component mount/unmount or sign-in process.
 	};
 
 	const allHabits = {
@@ -547,7 +626,7 @@ export default function App() {
 							setGoals={setGoals}
 							preSetGoals={preSetGoals}
 							onArchiveGoal={archiveAndRemoveGoal}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
+							isSignedIn={isSignedIn}
 							isLoading={isLoading}
 						/>
 					)}
@@ -567,7 +646,7 @@ export default function App() {
 						<StatsTab
 							goals={goals}
 							onUpdateGoal={handleUpdateGoal}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
+							isSignedIn={isSignedIn}
 							archivedGoals={archivedGoals}
 							selectedGoalTitle={selectedStatsGoalTitle}
 							setSelectedGoalTitle={setSelectedStatsGoalTitle}
@@ -577,7 +656,7 @@ export default function App() {
 						<ProfileTab
 							user={user}
 							onSignOut={onSignOut}
-							isSignedIn={isSignedIn} // <-- MODIFIED HERE
+							isSignedIn={isSignedIn}
 						/>
 					)}
 				</div>

@@ -33,7 +33,7 @@
 	/* You might also want to ensure your font sizes are clearly defined */
 	font-size: 1rem; /* Adjust as needed */
 	line-height: 1.5; /* Adjust as needed */
-
+	margin-bottom: 1.5rem;
 	color: #3b3b3b;
 }
 

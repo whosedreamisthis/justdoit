@@ -573,13 +573,13 @@ export default function App() {
 							setSelectedGoalTitle={setSelectedStatsGoalTitle}
 						/>
 					)}
-					{activeTab === 'profile' && (
+					{/* {activeTab === 'profile' && (
 						<ProfileTab
 							user={user}
 							onSignOut={onSignOut}
 							isSignedIn={isSignedIn} // <-- MODIFIED HERE
 						/>
-					)}
+					)} */}
 				</div>
 				<BottomTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 			</div>

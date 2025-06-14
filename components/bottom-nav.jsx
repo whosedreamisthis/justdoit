@@ -15,7 +15,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 		{ id: 'goals', label: 'Goals', icon: faHome },
 		{ id: 'explore', label: 'Explore', icon: faMagnifyingGlass },
 		{ id: 'stats', label: 'Stats', icon: faChartSimple },
-		{ id: 'profile', label: 'Profile', icon: faUser },
+		// { id: 'profile', label: 'Profile', icon: faUser },
 	];
 
 	return (

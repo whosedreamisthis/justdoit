@@ -29,7 +29,7 @@
 	background-position: right 0.75rem center;
 	background-size: 1.5em 1.5em;
 	padding-right: 2.5rem; /* Ensure space for the custom arrow */
-
+	background-color: #efefef;
 	/* You might also want to ensure your font sizes are clearly defined */
 	font-size: 1rem; /* Adjust as needed */
 	line-height: 1.5; /* Adjust as needed */

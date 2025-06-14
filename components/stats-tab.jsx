@@ -171,7 +171,7 @@ export default function StatsTab({
 								</label>
 								<select
 									id="goal-select"
-									className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none sm:text-sm`}
+									className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 border border-gray-300 rounded-md focus:outline-none sm:text-sm`}
 									value={selectedGoalTitleToDisplay}
 									onChange={handleSelectChange}
 								>

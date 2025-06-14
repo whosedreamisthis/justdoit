@@ -20,7 +20,7 @@
 }
 
 body {
-	background: #f3dac4;
+	background: #f7f3eb;
 	color: var(--foreground);
 	font-family: Arial, Helvetica, sans-serif;
 	overflow-y: auto; /* Allows scrolling */
@@ -49,11 +49,10 @@ body::-webkit-scrollbar {
 	color: #705741; /* ✅ Warm Brown */
 }
 .bg-subtle-background {
-	/* background-color: #f3dac4;  */
-	background-color: #f3dac4;
+	background-color: #f7f3eb;
 }
 .text-subtle {
-	color: #f3dac4; /* ✅ Warm Beige */
+	color: #f7f3eb; /* ✅ Warm Beige */
 }
 
 .bg-card-0 {
@@ -105,7 +104,7 @@ body::-webkit-scrollbar {
 	color: #4f4a41;
 } /* ✅ Deep Olive */
 .text-subtle {
-	color: #f3dac4;
+	color: #f7f3eb;
 }
 
 html,
@@ -159,8 +158,6 @@ body,
 }
 
 .addButton {
-	/* color: #3b3b3b;
-	background-color: #f3dac4; */
 	color: white;
 	background-color: #707070;
 	border: none;

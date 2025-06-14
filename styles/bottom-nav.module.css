@@ -13,10 +13,10 @@
 	/* padding: 10px 0; */
 	z-index: 1000; /* ✅ Ensures tab buttons stay on top */
 	pointer-events: auto; /* ✅ Prevents other elements from blocking clicks */
-	background-color: #f3dac4;
+	background-color: #f7f3eb;
 }
 
 .activeTab {
 	background-color: #3b3b3b; /* Sandstone */
-	color: #f3dac4; /* Text stays readable */
+	color: #f7f3eb; /* Text stays readable */
 }

@@ -41,7 +41,7 @@ export default function BottomTabs({ activeTab, setActiveTab }) {
 					<div className="flex flex-col items-center">
 						<FontAwesomeIcon
 							icon={tab.icon}
-							color={activeTab === tab.id ? '#f3dac4' : '#3b3b3b'}
+							color={activeTab === tab.id ? '#F7F3EB' : '#3b3b3b'}
 							size="lg"
 							className="mb-1"
 						/>

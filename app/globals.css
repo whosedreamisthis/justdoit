@@ -20,7 +20,7 @@
 }
 
 body {
-	background: #f7f3eb;
+	background: #e6d9d0;
 	color: var(--foreground);
 	font-family: Arial, Helvetica, sans-serif;
 	overflow-y: auto; /* Allows scrolling */
@@ -49,10 +49,10 @@ body::-webkit-scrollbar {
 	color: #705741; /* ✅ Warm Brown */
 }
 .bg-subtle-background {
-	background-color: #f7f3eb;
+	background-color: #e6d9d0;
 }
 .text-subtle {
-	color: #f7f3eb; /* ✅ Warm Beige */
+	color: #e6d9d0; /* ✅ Warm Beige */
 }
 
 .bg-card-0 {
@@ -104,7 +104,7 @@ body::-webkit-scrollbar {
 	color: #4f4a41;
 } /* ✅ Deep Olive */
 .text-subtle {
-	color: #f7f3eb;
+	color: #e6d9d0;
 }
 
 html,

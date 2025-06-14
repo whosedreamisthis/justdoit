@@ -162,7 +162,7 @@ export default function StatsTab({
 				<div className="w-[90%] max-w-sm">
 					{consolidatedGoals.length > 0 ? (
 						<>
-							<div className="mb-3 border border-gray-800 rounded-md">
+							<div className="mb-3 rounded-md">
 								<label
 									htmlFor="goal-select"
 									className="sr-only"
@@ -171,7 +171,7 @@ export default function StatsTab({
 								</label>
 								<select
 									id="goal-select"
-									className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm`}
+									className={`${styles.customSelect} block w-full px-6 py-4 text-base text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none sm:text-sm`}
 									value={selectedGoalTitleToDisplay}
 									onChange={handleSelectChange}
 								>

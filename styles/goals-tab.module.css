@@ -38,7 +38,7 @@
 }
 
 .customSelect:hover {
-	box-shadow: 0 0 0 1px #3b3b3b; /* Example: custom hover effect */
+	/* box-shadow: 0 0 0 1px #3b3b3b; */
 }
 
 .customSelectContainer {

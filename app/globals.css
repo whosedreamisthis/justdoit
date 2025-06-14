@@ -144,7 +144,7 @@ body,
 }
 
 .react-calendar .react-calendar__tile--now {
-	border: 1px solid black !important; /* Set border width & color in one property */
+	border: 1px solid black !important;
 }
 
 .react-calendar__month-view__days__day--weekend {

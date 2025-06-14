@@ -105,10 +105,16 @@
 			"description": "Prepare for restful sleep. Establish a consistent bedtime routine, avoid screens before bed, and ensure a dark, cool room."
 		},
 		{
-			"id": "light_exercise",
-			"title": "Light Exercise",
-			"color": "#E7C6B8",
-			"description": "Engage in gentle physical activity. Perform 15-20 minutes of light exercise like yoga, tai chi, or bodyweight movements."
+			"id": "yoga_practice",
+			"title": "Yoga Practice",
+			"color": "#CBB6EA",
+			"description": "Perform a yoga session. Dedicate time to a yoga practice, focusing on breath, flexibility, and strength."
+		},
+		{
+			"id": "daily_exercise",
+			"title": "Daily Exercise",
+			"color": "#8DD9CC",
+			"description": "Engage in physical activity, ranging from gentle movements like tai chi or bodyweight exercises to more vigorous activities such as cardio, strength training, or recreational sports."
 		},
 		{
 			"id": "healthy_snack",

@@ -56,11 +56,22 @@ export default function App() {
 			setGoals(parsedData.goals || []);
 			setArchivedGoals(parsedData.archivedGoals || {});
 			setCustomHabits(parsedData.customHabits || []);
-			setLastDailyResetTime(
-				parsedData.lastDailyResetTime
-					? new Date(parsedData.lastDailyResetTime)
-					: null
-			);
+
+			// Modified: If lastDailyResetTime is null or undefined, set it to the current day's midnight
+			if (parsedData.lastDailyResetTime) {
+				setLastDailyResetTime(new Date(parsedData.lastDailyResetTime));
+			} else {
+				const now = new Date();
+				const todayMidnight = new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate(),
+					0,
+					0,
+					0
+				);
+				setLastDailyResetTime(todayMidnight);
+			}
 
 			if (parsedData.goals && parsedData.goals.length > 0) {
 				const tempSortedGoals = [...parsedData.goals].sort((a, b) =>
@@ -72,6 +83,18 @@ export default function App() {
 			} else {
 				setSelectedStatsGoalTitle('');
 			}
+		} else {
+			// Also initialize if no stored data at all
+			const now = new Date();
+			const todayMidnight = new Date(
+				now.getFullYear(),
+				now.getMonth(),
+				now.getDate(),
+				0,
+				0,
+				0
+			);
+			setLastDailyResetTime(todayMidnight);
 		}
 	};
 
@@ -113,12 +136,47 @@ export default function App() {
 		if (resetTime.getTime() < todayMidnight.getTime()) {
 			console.log('App: Performing daily reset...');
 			setGoals((prevGoals) =>
-				prevGoals.map((goal) => ({
-					...goal,
-					progress: 0,
-					isCompleted: false,
-					completedDays: { ...goal.completedDays },
-				}))
+				prevGoals.map((goal) => {
+					const newCompletedDays = JSON.parse(
+						JSON.stringify(goal.completedDays)
+					); // Deep copy
+
+					const currentYear = todayMidnight.getFullYear().toString();
+					const currentMonth = (
+						todayMidnight.getMonth() + 1
+					).toString();
+					const currentDay = todayMidnight.getDate().toString();
+
+					if (
+						newCompletedDays[currentYear] &&
+						newCompletedDays[currentYear][currentMonth]
+					) {
+						delete newCompletedDays[currentYear][currentMonth][
+							currentDay
+						];
+						// Optionally, clean up empty month/year objects
+						if (
+							Object.keys(
+								newCompletedDays[currentYear][currentMonth]
+							).length === 0
+						) {
+							delete newCompletedDays[currentYear][currentMonth];
+						}
+						if (
+							Object.keys(newCompletedDays[currentYear])
+								.length === 0
+						) {
+							delete newCompletedDays[currentYear];
+						}
+					}
+
+					return {
+						...goal,
+						progress: 0,
+						isCompleted: false,
+						completedDays: newCompletedDays,
+					};
+				})
 			);
 			setLastDailyResetTime(todayMidnight);
 		}

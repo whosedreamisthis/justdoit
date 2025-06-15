@@ -46,6 +46,12 @@ export default function App() {
 			customHabits: currentCustomHabits,
 		};
 		localStorage.setItem('userData', JSON.stringify(dataToSave));
+		console.log(
+			'App: Saved to localStorage. lastDailyResetTime:',
+			currentLastDailyResetTime
+				? currentLastDailyResetTime.toISOString()
+				: 'null'
+		);
 	};
 
 	const loadFromLocalStorage = () => {
@@ -57,20 +63,29 @@ export default function App() {
 			setArchivedGoals(parsedData.archivedGoals || {});
 			setCustomHabits(parsedData.customHabits || []);
 
-			// Modified: If lastDailyResetTime is null or undefined, set it to the current day's midnight
+			// IMPORTANT: Initialize lastDailyResetTime to YESTERDAY'S midnight if it's null or undefined
 			if (parsedData.lastDailyResetTime) {
-				setLastDailyResetTime(new Date(parsedData.lastDailyResetTime));
+				const loadedTime = new Date(parsedData.lastDailyResetTime);
+				setLastDailyResetTime(loadedTime);
+				console.log(
+					'App: Loaded lastDailyResetTime from localStorage:',
+					loadedTime.toISOString()
+				);
 			} else {
 				const now = new Date();
-				const todayMidnight = new Date(
+				const yesterdayMidnight = new Date(
 					now.getFullYear(),
 					now.getMonth(),
-					now.getDate(),
+					now.getDate() - 1, // Subtract 1 day to get yesterday's date
 					0,
 					0,
 					0
 				);
-				setLastDailyResetTime(todayMidnight);
+				setLastDailyResetTime(yesterdayMidnight);
+				console.log(
+					'App: lastDailyResetTime not found in localStorage, initialized to yesterdayMidnight to force reset:',
+					yesterdayMidnight.toISOString()
+				);
 			}
 
 			if (parsedData.goals && parsedData.goals.length > 0) {
@@ -84,17 +99,21 @@ export default function App() {
 				setSelectedStatsGoalTitle('');
 			}
 		} else {
-			// Also initialize if no stored data at all
+			// If no stored data at all, also initialize lastDailyResetTime to YESTERDAY'S midnight
 			const now = new Date();
-			const todayMidnight = new Date(
+			const yesterdayMidnight = new Date(
 				now.getFullYear(),
 				now.getMonth(),
-				now.getDate(),
+				now.getDate() - 1, // Subtract 1 day to get yesterday's date
 				0,
 				0,
 				0
 			);
-			setLastDailyResetTime(todayMidnight);
+			setLastDailyResetTime(yesterdayMidnight);
+			console.log(
+				'App: No user data in localStorage, initialized lastDailyResetTime to yesterdayMidnight to force reset:',
+				yesterdayMidnight.toISOString()
+			);
 		}
 	};
 
@@ -104,7 +123,7 @@ export default function App() {
 		loadFromLocalStorage();
 	}, []);
 	// --- Other functions (unc
-	// hanged from last turn) ---
+	// changed from last turn) ---
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'auto' });
 		console.log('App: Active tab changed to:', activeTab);
@@ -125,13 +144,25 @@ export default function App() {
 	}, [goals, archivedGoals, lastDailyResetTime, customHabits]);
 
 	const checkAndResetDailyProgress = useCallback(() => {
-		if (!lastDailyResetTime) return;
+		console.log(
+			'App: checkAndResetDailyProgress called. Current lastDailyResetTime:',
+			lastDailyResetTime ? lastDailyResetTime.toISOString() : 'null'
+		);
+		if (!lastDailyResetTime) {
+			console.log(
+				'App: checkAndResetDailyProgress: lastDailyResetTime is null, returning.'
+			);
+			return;
+		}
 
 		const now = new Date();
 		const resetTime = new Date(lastDailyResetTime);
 
 		const todayMidnight = new Date(now);
 		todayMidnight.setHours(0, 0, 0, 0);
+
+		console.log('App: resetTime:', resetTime.toISOString());
+		console.log('App: todayMidnight:', todayMidnight.toISOString());
 
 		if (resetTime.getTime() < todayMidnight.getTime()) {
 			console.log('App: Performing daily reset...');
@@ -179,12 +210,25 @@ export default function App() {
 				})
 			);
 			setLastDailyResetTime(todayMidnight);
+			console.log(
+				'App: Daily reset performed. lastDailyResetTime set to:',
+				todayMidnight.toISOString()
+			);
+		} else {
+			console.log('App: No daily reset needed.');
 		}
 	}, [lastDailyResetTime]);
 
 	useEffect(() => {
 		if (lastDailyResetTime) {
+			console.log(
+				'App: useEffect triggered by lastDailyResetTime, calling checkAndResetDailyProgress.'
+			);
 			checkAndResetDailyProgress();
+		} else {
+			console.log(
+				'App: useEffect triggered by lastDailyResetTime, but lastDailyResetTime is null. Not calling checkAndResetDailyProgress yet.'
+			);
 		}
 	}, [lastDailyResetTime, checkAndResetDailyProgress]);
 

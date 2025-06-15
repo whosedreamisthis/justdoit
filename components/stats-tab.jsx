@@ -194,7 +194,7 @@ export default function StatsTab({
 							)}
 						</>
 					) : (
-						<p className="text-gray-600">
+						<p className="text-gray-600 text-center text-2xl">
 							No goals to display. Add new goals using the
 							'Explore' tab.
 						</p>
